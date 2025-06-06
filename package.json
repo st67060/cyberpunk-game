@@ -1,0 +1,20 @@
+{
+  "name": "pixi-rpg-game",
+  "version": "1.0.0",
+  "description": "Pixi.js RPG game restructured for Vite",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "pixi.js": "^8.0.0",
+    "@pixi/filter-glow": "^7.2.0",
+    "@pixi/filter-bloom": "^7.2.0",
+    "@pixi/filter-drop-shadow": "^7.2.0",
+    "@pixi/filter-crt": "^7.2.0"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0"
+  }
+}

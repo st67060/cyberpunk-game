@@ -1,0 +1,702 @@
+import * as PIXI from 'pixi.js';
+import { GlowFilter } from '@pixi/filter-glow';
+import { BloomFilter } from '@pixi/filter-bloom';
+import { DropShadowFilter } from '@pixi/filter-drop-shadow';
+import { CRTFilter } from '@pixi/filter-crt';
+import { BlurFilter } from 'pixi.js';
+
+import { Button } from './Button.js';
+import { StatBar } from './StatBar.js';
+import { Character } from './Character.js';
+import { Enemy } from './Enemy.js';
+import { BattleSystem } from './BattleSystem.js';
+
+import { CLASSES } from '../data/classes.js';
+import { DUNGEON_ENEMIES } from '../data/dungeonEnemies.js';
+import { WEAPON_ITEMS } from '../data/weaponItems.js';
+import { ARMOR_ITEMS } from '../data/armorItems.js';
+import { ITEM_ASSETS } from '../data/itemAssets.js';
+import { ENEMY_ASSETS } from '../data/enemyAssets.js';
+import { BOSS_ENEMIES } from '../data/bossEnemies.js';
+
+export class Game {
+  constructor(app) {
+    // Uložení reference na PIXI.Application
+    this.app = app;
+    // Vytvoření hlavního kontejneru hry a přidání do scény aplikace
+    this.stage = new PIXI.Container();
+    this.app.stage.addChild(this.stage);
+    // Výchozí stav hry a základní proměnné
+    this.state = 'loading';
+    this.classIdx = 0;
+    this.selectedClass = CLASSES[this.classIdx];
+    this.character = null;
+    this.enemy = null;
+    this.dungeonLevel = 1;
+    this.message = '';
+    this.battleTurn = 'player';
+    this.battleAnim = 0;
+    this.playerAttacking = false;
+    this.enemyAttacking = false;
+    this.attackAnimProgress = 0;
+    this.floatingTexts = [];
+    this.shopIdx = 0;
+    this.autoBattleTimer = 0;
+    this.autoBattleDelay = 0.01;
+    this.playerWeaponSprite = null;
+    this.attackEffect = null;
+    this.attackEffectAnimProgress = 0;
+    this.shopType = 'weapon';
+    // Cache nabídek obchodu (předměty k prodeji podle typu)
+    this.shopItemsCache = {
+      weapon: WEAPON_ITEMS,
+      armor: ARMOR_ITEMS
+    };
+    this.bossesDefeated = 0;
+    this.currentBossIndex = 0;
+    this.bgDistortFilter = null;
+    this.comboCount = 0;
+    this.comboTimer = 0;
+    this.comboTimerMax = 2.0;
+    this.lastAttackWasCombo = false;
+    this.shopItemsContainer = null;
+    this.shopScrollMask = null;
+    this.shopScrollStartY = 0;
+    this.shopScrollStartMouseY = 0;
+    this.isScrollingShop = false;
+    this.playerAttacksWithoutDamage = 0;
+    this.scrapEffects = [];
+    this.bloodEffects = [];
+    this.screenShakeDuration = 0;
+    this.screenShakeIntensity = 0;
+    this.playerFlashTimer = 0;
+    this.enemyFlashTimer = 0;
+    // Načtení všech assetů (obrázků) a po dokončení přechod na obrazovku výběru postavy
+    this.loadAssets().then(() => {
+      this.state = 'charcreate';
+      this.initUI();
+    });
+  }
+
+  async loadAssets() {
+    // Sestavení pole URL všech obrázků, které je třeba načíst
+    const assets = CLASSES.map(c => c.texture);
+    // Přidání pozadí dungeonu a všech item/enemy assetů
+    assets.push('https://storage.googleapis.com/scraper_ludo/user_images_prod/37c9695ee42dcb3d558f79f400b1fcfa.jpg');
+    Object.values(ITEM_ASSETS).forEach(url => assets.push(url));
+    Object.values(ENEMY_ASSETS).forEach(url => assets.push(url));
+    BOSS_ENEMIES.forEach(boss => { if (boss.texture) assets.push(boss.texture); });
+    // Přidání obrázků rámečků pro postavy v souboji
+    assets.push('https://storage.googleapis.com/scraper_ludo/user_images_prod/ddcde0bd87955f2fa6dec62690a1a3db.jpg');
+    assets.push('https://storage.googleapis.com/scraper_ludo/user_images_prod/c1ad8ee0637a016be31cda359ef98d8f.jpg');
+    // Načtení všech assetů pomocí Pixi Assets API
+    await PIXI.Assets.load(assets);
+    // Vytvoření sprite pro pozadí hry a aplikace CRT filtru (zkreslení obrazu)
+    this.backgroundSprite = PIXI.Sprite.from('https://storage.googleapis.com/scraper_ludo/user_images_prod/37c9695ee42dcb3d558f79f400b1fcfa.jpg');
+    this.backgroundSprite.width = this.app.screen.width;
+    this.backgroundSprite.height = this.app.screen.height;
+    this.bgDistortFilter = new CRTFilter({
+      curvature: 2, lineWidth: 0, lineContrast: 0,
+      noise: 0.08, noiseSize: 2,
+      vignetting: 0.18, vignettingAlpha: 0.38, vignettingBlur: 0.3,
+      seed: Math.random()
+    });
+    this.bgDistortFilter.time = 0;
+    this.backgroundSprite.filters = [this.bgDistortFilter];
+  }
+
+  spawnFloatingText(text, x, y, color = 0xffffff, fontSize = 24, offsetY = 0) {
+    // Vytvoření poletujícího textu (např. poškození nebo zprávy) na scéně
+    const floatingText = new PIXI.Text(text, {
+      fontFamily: 'monospace', fontSize: fontSize, fill: color,
+      fontWeight: 'bold', stroke: 0x000000, strokeThickness: 4
+    });
+    floatingText.anchor.set(0.5);
+    floatingText.x = x;
+    floatingText.y = y + offsetY;
+    floatingText.initialY = y + offsetY;
+    floatingText.alpha = 1;
+    floatingText.life = 0;
+    floatingText.scale.set(1);
+    this.floatingTexts.push(floatingText);
+    this.stage.addChild(floatingText);
+  }
+
+  // ... (další metody Game: initUI(), createBattleUI(), createShopUI(), aj., viz níže) ...
+
+  initUI() {
+    // Inicializace nebo obnova uživatelského rozhraní podle aktuálního stavu hry
+    this.ui = {};
+    this.stage.removeChildren();
+    this.resetBattleState();
+    // Přidání pozadí
+    this.stage.addChild(this.backgroundSprite);
+    if (this.state === 'charcreate') {
+      // Obrazovka výběru postavy
+      // Zobrazení avataru aktuálně vybrané třídy
+      const classAvatar = PIXI.Sprite.from(this.selectedClass.texture);
+      classAvatar.anchor.set(0.5);
+      classAvatar.x = this.app.screen.width / 2;
+      classAvatar.y = 280;
+      // Filtry pro avatar postavy (záře + bloom)
+      const glowFilter = new GlowFilter({ distance: 15, outerStrength: 2.5, innerStrength: 0, color: this.selectedClass.color });
+      const bloomFilter = new BloomFilter({ threshold: 0.2, bloomScale: 1.5, blur: 10, quality: 5 });
+      classAvatar.filters = [glowFilter, bloomFilter];
+      this.stage.addChild(classAvatar);
+      // Název třídy pod avatarem
+      const classNameText = new PIXI.Text(this.selectedClass.name, { fontFamily: 'monospace', fontSize: 32, fill: this.selectedClass.color });
+      classNameText.anchor.set(0.5);
+      classNameText.x = this.app.screen.width / 2;
+      classNameText.y = classAvatar.y + 180;
+      this.stage.addChild(classNameText);
+      // Tlačítka pro výběr předchozí/následující třídy
+      const prevClassBtn = new Button('<', classAvatar.x - classAvatar.width / 2 - 60, classAvatar.y - 20, 40, 40, 0x222c33);
+      const nextClassBtn = new Button('>', classAvatar.x + classAvatar.width / 2 + 20, classAvatar.y - 20, 40, 40, 0x222c33);
+      prevClassBtn.on('pointerdown', () => {
+        this.classIdx = (this.classIdx + CLASSES.length - 1) % CLASSES.length;
+        this.selectedClass = CLASSES[this.classIdx];
+        this.initUI();
+      });
+      nextClassBtn.on('pointerdown', () => {
+        this.classIdx = (this.classIdx + 1) % CLASSES.length;
+        this.selectedClass = CLASSES[this.classIdx];
+        this.initUI();
+      });
+      this.stage.addChild(prevClassBtn, nextClassBtn);
+      // Tlačítko potvrzení výběru postavy ("Start Game")
+      const startBtn = new Button('Start Game', this.app.screen.width / 2 - 85, classNameText.y + 60, 170, 50, 0x00e0ff);
+      startBtn.on('pointerdown', () => {
+        // Vytvoření hráčovy postavy a přechod do hlavního menu hry
+        this.character = new Character(this.selectedClass);
+        this.state = 'mainmenu';
+        this.initUI();
+      });
+      this.stage.addChild(startBtn);
+    } else if (this.state === 'mainmenu') {
+      // Hlavní menu (např. tlačítko pro vstup do dungeonu)
+      const enterDungeonBtn = new Button('Enter Dungeon', this.app.screen.width / 2 - 105, 250, 210, 60, 0xff2e2e);
+      enterDungeonBtn.on('pointerdown', () => {
+        this.state = 'dungeon';
+        this.message = '';
+        this.initUI();
+      });
+      this.stage.addChild(enterDungeonBtn);
+      // (Případně další prvky hlavního menu by byly zde)
+    } else if (this.state === 'dungeon') {
+      // Herní obrazovka dungeonu – zobrazení nepřítele nebo výzvy k souboji
+      const dungeonText = new PIXI.Text(`Dungeon Level ${this.dungeonLevel}`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffffff });
+      dungeonText.anchor.set(0.5);
+      dungeonText.x = this.app.screen.width / 2;
+      dungeonText.y = 80;
+      this.stage.addChild(dungeonText);
+      if (this.message) {
+        // Zobrazení případné zprávy (např. po poražení bosse)
+        const messageText = new PIXI.Text(this.message, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
+        messageText.anchor.set(0.5);
+        messageText.x = this.app.screen.width / 2;
+        messageText.y = 120;
+        this.stage.addChild(messageText);
+        this.message = ''; // zprávu zobrazíme jen jednou
+      }
+      // Tlačítko "Battle Enemy" pro zahájení souboje s náhodným nepřítelem
+      const battleBtn = new Button('Battle Enemy', this.app.screen.width / 2 - 105, 300, 210, 60, 0xff2e2e);
+      battleBtn.on('pointerdown', () => {
+        // Vybrání náhodného nepřítele ze seznamu pro daný dungeon level
+        const randomEnemyTemplate = DUNGEON_ENEMIES[Math.floor(Math.random() * DUNGEON_ENEMIES.length)];
+        this.enemy = new Enemy(randomEnemyTemplate, this.character.level, false, this.character);
+        // Přechod do stavu boje
+        this.state = 'battle';
+        this.initUI();
+      });
+      this.stage.addChild(battleBtn);
+      // Tlačítko "Shop" pro otevření obchodu
+      const shopBtn = new Button('Shop', this.app.screen.width / 2 - 55, 380, 110, 50, 0x00e0ff);
+      shopBtn.on('pointerdown', () => {
+        this.state = 'shop';
+        this.initUI();
+      });
+      this.stage.addChild(shopBtn);
+    } else if (this.state === 'battle') {
+      // Stav boje – inicializace bojového UI
+      this.createBattleUI();
+      // Pokud je na tahu hráč a nikdo zrovna neútočí, spustí se odpočet pro automatický útok (auto-battle)
+      if (this.battleTurn === 'player' && !this.playerAttacking && !this.enemyAttacking && this.character.hp > 0 && this.enemy.hp > 0) {
+        this.autoBattleTimer = this.autoBattleDelay;
+      }
+    } else if (this.state === 'shop') {
+      // Zobrazení nabídky obchodu (zbraně/zbroje)
+      this.createShopUI();
+    }
+  }
+
+  createBattleUI() {
+    const enemy = this.enemy;
+    const char = this.character;
+    // Kontejner pro prvky boje
+    this.battleContainer = new PIXI.Container();
+    this.stage.addChild(this.battleContainer);
+    // Pozice avatarů hráče a nepřítele
+    const AVATAR_SIZE = 280;
+    const AVATAR_BG_SIZE = AVATAR_SIZE + 20;
+    this.playerAvatarX = this.app.screen.width / 4;
+    this.playerAvatarY = this.app.screen.height / 2 - 50;
+    this.enemyAvatarX = this.app.screen.width * 3 / 4;
+    this.enemyAvatarY = this.app.screen.height / 2 - 50;
+    // Rámečky pod avátory (s efekty)
+    const playerBgSprite = PIXI.Sprite.from('https://storage.googleapis.com/scraper_ludo/user_images_prod/ddcde0bd87955f2fa6dec62690a1a3db.jpg');
+    playerBgSprite.width = AVATAR_BG_SIZE;
+    playerBgSprite.height = AVATAR_BG_SIZE;
+    playerBgSprite.anchor.set(0.5);
+    playerBgSprite.x = this.playerAvatarX;
+    playerBgSprite.y = this.playerAvatarY;
+    playerBgSprite.filters = [
+      new GlowFilter({ distance: 15, outerStrength: 1, innerStrength: 0, color: 0xffa500, quality: 0.5 }),
+      new DropShadowFilter({ distance: 0, blur: 8, color: 0x000000, alpha: 0.5 })
+    ];
+    this.battleContainer.addChild(playerBgSprite);
+    const charAvatar = PIXI.Sprite.from(char.cls.texture);
+    charAvatar.width = AVATAR_SIZE;
+    charAvatar.height = AVATAR_SIZE;
+    charAvatar.anchor.set(0.5);
+    this.charShape = charAvatar;
+    charAvatar.x = this.playerAvatarX;
+    charAvatar.y = this.playerAvatarY;
+    // Filtry pro hráčův avatar (záře, bloom, stín)
+    charAvatar.filters = [
+      new GlowFilter({ distance: 22, outerStrength: 3, innerStrength: 0, color: char.cls.color, quality: 0.5 }),
+      new BloomFilter({ threshold: 0.18, bloomScale: 2.2, blur: 13, quality: 0.5 }),
+      new DropShadowFilter({ distance: 0, blur: 12, color: 0x000000, alpha: 0.7 })
+    ];
+    this.battleContainer.addChild(charAvatar);
+    // Popisek a úroveň hráče
+    const charNameText = new PIXI.Text('ME', { fontFamily: 'monospace', fontSize: 32, fill: 0xffa500, fontWeight: 'bold' });
+    charNameText.anchor.set(0.5);
+    charNameText.x = this.playerAvatarX - 30;
+    charNameText.y = this.playerAvatarY - AVATAR_SIZE / 2 - 30;
+    this.battleContainer.addChild(charNameText);
+    const playerLevelText = new PIXI.Text(`Lv. ${char.level}`, { fontFamily: 'monospace', fontSize: 24, fill: 0xffffff });
+    playerLevelText.anchor.set(0.5);
+    playerLevelText.x = charNameText.x + charNameText.width / 2 + 30;
+    playerLevelText.y = charNameText.y;
+    this.battleContainer.addChild(playerLevelText);
+    // HP bar hráče
+    this.charHpBar = new StatBar('HP', char.hp, char.maxHp, this.playerAvatarX - 100, this.playerAvatarY + AVATAR_SIZE / 2 + 20, 200, 24, 0xffa500);
+    this.battleContainer.addChild(this.charHpBar);
+    // Text s hráčovými staty (ATK, DEF, SPD)
+    const playerStatsText = new PIXI.Text(`ATK: ${char.stats.atk} | DEF: ${char.stats.def} | SPD: ${char.stats.spd}`,
+      { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
+    playerStatsText.anchor.set(0.5);
+    playerStatsText.x = this.playerAvatarX;
+    playerStatsText.y = this.playerAvatarY + AVATAR_SIZE / 2 + 60;
+    this.battleContainer.addChild(playerStatsText);
+    // Rámeček pro nepřítele
+    const enemyBgSprite = PIXI.Sprite.from('https://storage.googleapis.com/scraper_ludo/user_images_prod/c1ad8ee0637a016be31cda359ef98d8f.jpg');
+    enemyBgSprite.width = AVATAR_BG_SIZE;
+    enemyBgSprite.height = AVATAR_BG_SIZE;
+    enemyBgSprite.anchor.set(0.5);
+    enemyBgSprite.x = this.enemyAvatarX;
+    enemyBgSprite.y = this.enemyAvatarY;
+    enemyBgSprite.filters = [
+      new GlowFilter({ distance: 15, outerStrength: 1, innerStrength: 0, color: 0xff2e2e, quality: 0.5 }),
+      new DropShadowFilter({ distance: 0, blur: 8, color: 0x000000, alpha: 0.5 })
+    ];
+    this.battleContainer.addChild(enemyBgSprite);
+    // Sprite nepřítele (obrázek buď specifický pro bosse, nebo obecný z ENEMY_ASSETS)
+    const enemyTexture = (enemy.isBoss && enemy.texture) ? enemy.texture : (ENEMY_ASSETS[enemy.name] || ENEMY_ASSETS['Gang Thug']);
+    const enemySprite = PIXI.Sprite.from(enemyTexture);
+    enemySprite.width = AVATAR_SIZE;
+    enemySprite.height = AVATAR_SIZE;
+    enemySprite.anchor.set(0.5);
+    this.enemyShape = enemySprite;
+    enemySprite.x = this.enemyAvatarX;
+    enemySprite.y = this.enemyAvatarY;
+    // Filtry pro nepřátelský avatar (záře, bloom, stín)
+    enemySprite.filters = [
+      new GlowFilter({ distance: 25, outerStrength: 4, innerStrength: 0, color: enemy.color, quality: 0.5 }),
+      new BloomFilter({ threshold: 0.2, bloomScale: 2.5, blur: 18, quality: 0.5 }),
+      new DropShadowFilter({ distance: 0, blur: 16, color: 0x000000, alpha: 0.7 })
+    ];
+    this.battleContainer.addChild(enemySprite);
+    // Popisek nepřítele (jméno a úroveň)
+    const enemyNameText = new PIXI.Text(`${enemy.name} (Lv. ${enemy.level})`, { fontFamily: 'monospace', fontSize: 32, fill: enemy.color, fontWeight: 'bold' });
+    enemyNameText.anchor.set(0.5);
+    enemyNameText.x = this.enemyAvatarX;
+    enemyNameText.y = this.enemyAvatarY - AVATAR_SIZE / 2 - 30;
+    this.battleContainer.addChild(enemyNameText);
+    // HP bar nepřítele
+    this.enemyHpBar = new StatBar('HP', enemy.hp, enemy.maxHp, this.enemyAvatarX - 100, this.enemyAvatarY + AVATAR_SIZE / 2 + 20, 200, 24, 0xff2e2e);
+    this.battleContainer.addChild(this.enemyHpBar);
+    // Text se staty nepřítele
+    const enemyStatsText = new PIXI.Text(`ATK: ${enemy.atk} | DEF: ${enemy.def} | SPD: ${enemy.spd}`,
+      { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
+    enemyStatsText.anchor.set(0.5);
+    enemyStatsText.x = this.enemyAvatarX;
+    enemyStatsText.y = this.enemyAvatarY + AVATAR_SIZE / 2 + 60;
+    this.battleContainer.addChild(enemyStatsText);
+    // Přidání již vytvořených floatingTexts (např. při opakovaném vykreslení)
+    this.floatingTexts.forEach(text => this.battleContainer.addChild(text));
+    // Kontejner pro tlačítka ve spodní části (Continue, apod.)
+    const buttonContainer = new PIXI.Container();
+    buttonContainer.x = this.app.screen.width / 2;
+    buttonContainer.y = this.app.screen.height - 80;
+    this.battleContainer.addChild(buttonContainer);
+    // Kontrola, zda je boj již rozhodnut (enemy.hp <= 0 nebo char.hp <= 0)
+    if (enemy.hp <= 0) {
+      // Vítězství
+      const winMsg = new PIXI.Text('VICTORY!', { fontFamily: 'monospace', fontSize: 48, fill: 0x00e0ff, fontWeight: 'bold', stroke: 0x000000, strokeThickness: 6 });
+      winMsg.anchor.set(0.5);
+      winMsg.x = this.app.screen.width / 2;
+      winMsg.y = this.app.screen.height / 2 - 50;
+      winMsg.filters = [
+        new GlowFilter({ distance: 15, outerStrength: 2.5, innerStrength: 0, color: 0x00e0ff, quality: 0.5 }),
+        new BloomFilter({ threshold: 0.1, bloomScale: 1.8, blur: 10, quality: 0.5 }),
+        new DropShadowFilter({ distance: 6, color: 0x000000, alpha: 0.7, blur: 4 })
+      ];
+      this.battleContainer.addChild(winMsg);
+      const lootText = new PIXI.Text(`+${enemy.gold} Gold   +${enemy.exp} EXP`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffe000 });
+      lootText.anchor.set(0.5);
+      lootText.x = this.app.screen.width / 2;
+      lootText.y = this.app.screen.height / 2 + 20;
+      this.battleContainer.addChild(lootText);
+      const contBtn = new Button('Continue', 0, 0, 180, 52, 0x222c33);
+      contBtn.on('pointerdown', () => {
+        // Odměna za vítězství
+        char.gold += enemy.gold;
+        char.gainExp(enemy.exp);
+        char.hp = char.maxHp;
+        if (enemy.isBoss) {
+          this.bossesDefeated++;
+          this.message = `You defeated ${enemy.name}!`;
+        }
+        this.dungeonLevel++;
+        this.state = 'dungeon';
+        this.initUI();
+      });
+      buttonContainer.addChild(contBtn);
+      // Vycentrování tlačítka
+      buttonContainer.x = this.app.screen.width / 2 - contBtn.w / 2;
+      buttonContainer.y = this.app.screen.height - 80;
+    } else if (char.hp <= 0) {
+      // Porážka hráče
+      let goldLost = 0;
+      let defeatMsg = '';
+      if (enemy.isBoss) {
+        goldLost = Math.floor(char.gold * 0.2);
+        char.gold = Math.max(0, char.gold - goldLost);
+        defeatMsg = `Lost ${goldLost} Gold!`;
+      } else {
+        defeatMsg = `You were defeated!`;
+      }
+      const loseMsg = new PIXI.Text('DEFEAT!', { fontFamily: 'monospace', fontSize: 48, fill: 0xff2e2e, fontWeight: 'bold', stroke: 0x000000, strokeThickness: 6 });
+      loseMsg.anchor.set(0.5);
+      loseMsg.x = this.app.screen.width / 2;
+      loseMsg.y = this.app.screen.height / 2 - 50;
+      loseMsg.filters = [
+        new GlowFilter({ distance: 15, outerStrength: 2.5, innerStrength: 0, color: 0xff2e2e, quality: 0.5 }),
+        new BloomFilter({ threshold: 0.1, bloomScale: 1.8, blur: 10, quality: 0.5 }),
+        new DropShadowFilter({ distance: 6, color: 0x000000, alpha: 0.7, blur: 4 })
+      ];
+      this.battleContainer.addChild(loseMsg);
+      const goldLossText = new PIXI.Text(defeatMsg, { fontFamily: 'monospace', fontSize: 28, fill: 0xffe000 });
+      goldLossText.anchor.set(0.5);
+      goldLossText.x = this.app.screen.width / 2;
+      goldLossText.y = this.app.screen.height / 2 + 20;
+      this.battleContainer.addChild(goldLossText);
+      const continueBtn = new Button('Continue', 0, 0, 180, 52, 0x222c33);
+      continueBtn.on('pointerdown', () => {
+        // Návrat do dungeonu (hráč při porážce nezískává nic, jen se vynuluje HP)
+        char.hp = char.maxHp;
+        this.state = 'dungeon';
+        this.message = '';
+        this.initUI();
+      });
+      buttonContainer.addChild(continueBtn);
+      // Vycentrování tlačítka
+      buttonContainer.x = this.app.screen.width / 2 - continueBtn.w / 2;
+      buttonContainer.y = this.app.screen.height - 80;
+    }
+  }
+
+  createShopUI() {
+    // (Základní implementace UI obchodu – zobrazení seznamu zbraní či zbrojí k prodeji)
+    const shopTitle = new PIXI.Text('Shop', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+    shopTitle.x = 20;
+    shopTitle.y = 20;
+    this.stage.addChild(shopTitle);
+    // Tlačítka pro přepínání mezi zbraněmi a zbrojemi
+    const weaponsTab = new Button('Weapons', 20, 60, 120, 40, 0x00e0ff);
+    const armorsTab = new Button('Armors', 150, 60, 120, 40, 0x00e0ff);
+    weaponsTab.on('pointerdown', () => { this.shopType = 'weapon'; this.initUI(); });
+    armorsTab.on('pointerdown', () => { this.shopType = 'armor'; this.initUI(); });
+    this.stage.addChild(weaponsTab, armorsTab);
+    // Vykreslení seznamu položek obchodu
+    this.shopItemsContainer = new PIXI.Container();
+    const shopMaskY = 120;
+    const shopMaskH = 400;
+    // Maska pro posuvnou oblast položek (aby seznam nepřetékal)
+    this.shopScrollMask = new PIXI.Graphics();
+    this.shopScrollMask.beginFill(0xff0000);
+    this.shopScrollMask.drawRect(60, shopMaskY, 780, shopMaskH);
+    this.shopScrollMask.endFill();
+    this.shopItemsContainer.mask = this.shopScrollMask;
+    this.stage.addChild(this.shopScrollMask, this.shopItemsContainer);
+    // Seznam položek k zobrazení (podle zvolené záložky)
+    const itemsToShow = this.shopItemsCache[this.shopType];
+    let y = 0;
+    for (const itemTemplate of itemsToShow) {
+      // Podklad pro jednu položku
+      const itemBox = new PIXI.Graphics();
+      itemBox.beginFill(0x2e3c43);
+      itemBox.drawRoundedRect(60, y + shopMaskY, 780, 60, 14);
+      itemBox.endFill();
+      this.shopItemsContainer.addChild(itemBox);
+      // Obrázek položky (pokud existuje v ITEM_ASSETS)
+      if (ITEM_ASSETS[itemTemplate.name]) {
+        const itemSprite = PIXI.Sprite.from(ITEM_ASSETS[itemTemplate.name]);
+        itemSprite.width = 54;
+        itemSprite.height = 54;
+        itemSprite.x = 72;
+        itemSprite.y = y + shopMaskY + 3;
+        // Efekt zvýraznění okraje položky
+        itemSprite.filters = [new GlowFilter({ distance: 8, outerStrength: 1.5, innerStrength: 0, color: 0xffa500 })];
+        this.shopItemsContainer.addChild(itemSprite);
+      }
+      // Název předmětu
+      const itemNameText = new PIXI.Text(itemTemplate.name, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+      itemNameText.x = 140;
+      itemNameText.y = y + shopMaskY + 10;
+      this.shopItemsContainer.addChild(itemNameText);
+      // Cena a požadovaný level
+      const priceText = new PIXI.Text(`${itemTemplate.baseCost} G`, { fontFamily: 'monospace', fontSize: 18, fill: 0xffe000 });
+      priceText.x = 700;
+      priceText.y = y + shopMaskY + 15;
+      this.shopItemsContainer.addChild(priceText);
+      const levelReqText = new PIXI.Text(`Req Lv: ${itemTemplate.requiredPlayerLevel}`, { fontFamily: 'monospace', fontSize: 14, fill: 0xcccccc });
+      levelReqText.x = 700;
+      levelReqText.y = y + shopMaskY + 32;
+      this.shopItemsContainer.addChild(levelReqText);
+      // Tlačítko "Buy"
+      const buyBtn = new Button('Buy', 800, y + shopMaskY + 10, 60, 36, 0x00ff8a);
+      buyBtn.on('pointerdown', () => {
+        // Pokus o koupi předmětu
+        const success = this.character.buyItem(itemTemplate, this.shopType === 'weapon' ? 'weapon' : 'armor');
+        if (success) {
+          this.initUI(); // obnovit UI (aktualizuje inventář hráče a zlato)
+        }
+      });
+      this.shopItemsContainer.addChild(buyBtn);
+      y += 80; // posun pro další položku
+    }
+    // Posuv myšovým kolečkem v obchodě
+    this.app.view.onwheel = (event) => {
+      const scrollAmount = event.deltaY * 0.5;
+      let newY = this.shopItemsContainer.y - scrollAmount;
+      const totalItemsHeight = itemsToShow.length * 80;
+      const maxScrollY = shopMaskH - totalItemsHeight;
+      newY = Math.min(0, newY);
+      newY = Math.max(maxScrollY, newY);
+      this.shopItemsContainer.y = newY;
+      event.preventDefault();
+    };
+    // Tlačítko zpět do dungeonu
+    const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
+    backBtn.on('pointerdown', () => {
+      this.state = 'dungeon';
+      this.initUI();
+    });
+    this.stage.addChild(backBtn);
+  }
+
+  resetBattleState() {
+    // Reset stavu boje (např. při opuštění obrazovky boje)
+    this.playerAttacking = false;
+    this.enemyAttacking = false;
+    this.attackAnimProgress = 0;
+    this.playerWeaponSprite = null;
+    if (this.attackEffect) {
+      this.stage.removeChild(this.attackEffect);
+      this.attackEffect.destroy();
+      this.attackEffect = null;
+    }
+    this.attackEffectAnimProgress = 0;
+    this.floatingTexts = [];
+    if (this.bloodEffects) {
+      this.bloodEffects.forEach(effect => this.stage.removeChild(effect));
+      this.bloodEffects = [];
+    }
+    if (this.scrapEffects) {
+      this.scrapEffects.forEach(effect => this.stage.removeChild(effect));
+      this.scrapEffects = [];
+    }
+    this.screenShakeDuration = 0;
+    this.screenShakeIntensity = 0;
+    this.app.stage.x = 0;
+    this.app.stage.y = 0;
+    this.playerFlashTimer = 0;
+    this.enemyFlashTimer = 0;
+    this.playerAttacksWithoutDamage = 0;
+  }
+
+  update(delta) {
+    // Tato funkce je volána každým snímkem (frame) – herní smyčka
+    // Animace zkreslení pozadí (CRT efekt)
+    if (this.bgDistortFilter) {
+      this.bgDistortFilter.time += 0.03 * delta;
+    }
+    // Aktualizace animace všech tlačítek (Button.updateAnimation)
+    this.stage.children.forEach(child => {
+      if (child instanceof Button) {
+        child.updateAnimation(delta);
+      }
+    });
+    // Efekt otřesu kamery (screen shake) pokud nastaven
+    if (this.screenShakeDuration > 0) {
+      this.app.stage.x = Math.random() * this.screenShakeIntensity * 2 - this.screenShakeIntensity;
+      this.app.stage.y = Math.random() * this.screenShakeIntensity * 2 - this.screenShakeIntensity;
+      this.screenShakeDuration -= delta / 60;
+      if (this.screenShakeDuration <= 0) {
+        this.app.stage.x = 0;
+        this.app.stage.y = 0;
+        this.screenShakeIntensity = 0;
+      }
+    }
+    // Pokud probíhá boj, aktualizace logiky boje
+    if (this.state === 'battle') {
+      this.battleAnim += 0.08 * delta;
+      // Aktualizace HP barů hráče a nepřítele
+      if (this.charHpBar) this.charHpBar.updateBar(this.character.hp, this.character.maxHp);
+      if (this.enemyHpBar) this.enemyHpBar.updateBar(this.enemy.hp, this.enemy.maxHp);
+      // Flash efekt hráče při zásahu (blikne červeně krátce)
+      if (this.playerFlashTimer > 0) {
+        this.playerFlashTimer -= delta / 60;
+        this.charShape.tint = 0xff0000;
+        if (this.playerFlashTimer <= 0) {
+          this.charShape.tint = 0xffffff;
+        }
+      }
+      // Flash efekt nepřítele při zásahu
+      if (this.enemyFlashTimer > 0) {
+        this.enemyFlashTimer -= delta / 60;
+        this.enemyShape.tint = 0xff0000;
+        if (this.enemyFlashTimer <= 0) {
+          this.enemyShape.tint = 0xffffff;
+        }
+      }
+      // Animace částic krve (pokud existují)
+      if (this.bloodEffects) {
+        for (let i = this.bloodEffects.length - 1; i >= 0; i--) {
+          const blood = this.bloodEffects[i];
+          blood.x += blood.vx * delta;
+          blood.y += blood.vy * delta;
+          blood.vy += 0.3 * delta;
+          blood.life += 0.03 * delta;
+          blood.alpha = Math.max(0, 1 - blood.life * 1.2);
+          blood.scale.set(1 + blood.life * 0.6);
+          if (blood.alpha <= 0.01 || blood.life > 1.2) {
+            this.stage.removeChild(blood);
+            this.bloodEffects.splice(i, 1);
+          }
+        }
+      }
+      // Animace částic šrotu (např. efekty zbroje, podobné krvi)
+      if (this.scrapEffects) {
+        for (let i = this.scrapEffects.length - 1; i >= 0; i--) {
+          const scrap = this.scrapEffects[i];
+          scrap.x += scrap.vx * delta;
+          scrap.y += scrap.vy * delta;
+          scrap.vy += 0.3 * delta;
+          scrap.rotation += 0.05 * delta;
+          scrap.life += 0.03 * delta;
+          scrap.alpha = Math.max(0, 1 - scrap.life * 1.2);
+          scrap.scale.set(1 + scrap.life * 0.6);
+          if (scrap.alpha <= 0.01 || scrap.life > 1.2) {
+            this.stage.removeChild(scrap);
+            this.scrapEffects.splice(i, 1);
+          }
+        }
+      }
+      // Animace útoku hráče (posun směrem k nepříteli a zpět během útoku)
+      if (this.playerAttacking && this.charShape) {
+        this.attackAnimProgress += 0.05 * delta;
+        const progress = Math.sin(this.attackAnimProgress * Math.PI);
+        this.charShape.x = this.playerAvatarX + progress * (this.enemyAvatarX - this.playerAvatarX) * 0.5;
+        this.charShape.y = this.playerAvatarY + Math.abs(Math.cos(this.battleAnim + 1)) * 10;
+        if (this.attackAnimProgress >= 1) {
+          this.playerAttacking = false;
+          this.attackAnimProgress = 0;
+        }
+      } else if (this.charShape) {
+        // Klidová "dýchající" animace avataru hráče
+        this.charShape.x = this.playerAvatarX + Math.sin(this.battleAnim + 1) * 12;
+        this.charShape.y = this.playerAvatarY + Math.abs(Math.cos(this.battleAnim + 1)) * 10;
+      }
+      // Odstranění sprite zbraně z předchozího kola (aby se překreslil při dalším útoku)
+      if (this.playerWeaponSprite) {
+        this.battleContainer.removeChild(this.playerWeaponSprite);
+        this.playerWeaponSprite.destroy();
+        this.playerWeaponSprite = null;
+      }
+      // Aktualizace efektu útoku hráče (např. letící střela nebo seknutí)
+      if (this.attackEffect) {
+        this.attackEffectAnimProgress += 0.05 * delta;
+        const char = this.character;
+        const enemy = this.enemy;
+        if (char.cls.name === 'Street Samurai') {
+          const progress = this.attackEffectAnimProgress;
+          game.attackEffect.x = this.charShape.x + 30 + progress * 80;
+          game.attackEffect.y = this.charShape.y - 10 - progress * 20;
+          game.attackEffect.alpha = 1 - progress;
+          game.attackEffect.rotation = -Math.PI / 4 + progress * Math.PI / 2;
+        } else if (char.cls.name === 'Netrunner' || char.cls.name === 'Techie') {
+          const progress = this.attackEffectAnimProgress;
+          game.attackEffect.x = this.charShape.x + 30 + (this.enemyShape.x - this.charShape.x - 30) * progress;
+          game.attackEffect.y = this.charShape.y + (this.enemyShape.y - this.charShape.y) * progress;
+        }
+        if (this.attackEffectAnimProgress >= 1) {
+          this.battleContainer.removeChild(game.attackEffect);
+          game.attackEffect.destroy();
+          game.attackEffect = null;
+          game.attackEffectAnimProgress = 0;
+        }
+      }
+      // Animace útoku nepřítele (posun avataru nepřítele při útoku)
+      if (this.enemyAttacking && this.enemyShape) {
+        this.attackAnimProgress += 0.05 * delta;
+        const progress = Math.sin(this.attackAnimProgress * Math.PI);
+        this.enemyShape.x = this.enemyAvatarX - progress * (this.enemyAvatarX - this.playerAvatarX) * 0.5;
+        this.enemyShape.y = this.enemyAvatarY + Math.abs(Math.cos(this.battleAnim)) * 10;
+        if (this.attackAnimProgress >= 1) {
+          this.enemyAttacking = false;
+          this.attackAnimProgress = 0;
+        }
+      } else if (this.enemyShape) {
+        // Klidová animace nepřítele
+        this.enemyShape.x = this.enemyAvatarX + Math.sin(this.battleAnim) * 12;
+        this.enemyShape.y = this.enemyAvatarY + Math.abs(Math.cos(this.battleAnim)) * 10;
+      }
+      // Animace všech poletujících textů (postupné stoupání a mizení)
+      for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+        const text = this.floatingTexts[i];
+        text.life += 0.03 * delta;
+        text.y = text.initialY - (text.life * 30);
+        text.alpha = 1 - text.life;
+        text.scale.set(1 + text.life * 0.5);
+        if (text.alpha <= 0) {
+          this.battleContainer.removeChild(text);
+          this.floatingTexts.splice(i, 1);
+        }
+      }
+      // Auto-battle logika: pokud nikdo zrovna neútočí, odpočítá čas a spustí další útok
+      if (!this.playerAttacking && !this.enemyAttacking && char.hp > 0 && enemy.hp > 0) {
+        this.autoBattleTimer -= delta / 60;
+        if (this.autoBattleTimer <= 0) {
+          if (this.battleTurn === 'player') {
+            BattleSystem.doPlayerAttack(this);
+          } else if (this.battleTurn === 'enemy') {
+            BattleSystem.doEnemyAttack(this);
+          }
+        }
+      }
+    }
+  }
+}

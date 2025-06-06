@@ -1,0 +1,22 @@
+export const BOSS_ENEMIES = [
+  { name: 'Boss 01', color: 0xff0000, hp: 400, atk: 35, def: 25, spd: 22, gold: 150, exp: 100, requiredPlayerLevel: 8, isBoss: true, texture: 'https://storage.googleapis.com/scraper_ludo/user_images_prod/99b69c8da15d0a4e97d34aad9bcf2297.webp' },
+  { name: 'Boss 02', color: 0x00ff00, hp: 500, atk: 40, def: 30, spd: 25, gold: 180, exp: 120, requiredPlayerLevel: 15, isBoss: true, texture: 'https://storage.googleapis.com/scraper_ludo/user_images_prod/37acdc32e11239776cb2de2c3561080e.webp' },
+  { name: 'Boss 03', color: 0x0000ff, hp: 600, atk: 45, def: 35, spd: 28, gold: 220, exp: 150, requiredPlayerLevel: 25, isBoss: true, texture: 'https://storage.googleapis.com/scraper_ludo/user_images_prod/84f147105d0bdf9834a581b007bce723.webp' },
+  { name: 'Boss 04', color: 0xffff00, hp: 700, atk: 50, def: 40, spd: 31, gold: 260, exp: 180, requiredPlayerLevel: 35, isBoss: true, texture: 'https://storage.googleapis.com/scraper_ludo/user_images_prod/edfbf693a2b108b2d1d381d08dc53a64.webp' },
+  { name: 'Boss 05', color: 0xff00ff, hp: 800, atk: 55, def: 45, spd: 34, gold: 300, exp: 210, requiredPlayerLevel: 45, isBoss: true, texture: 'https://storage.googleapis.com/scraper_ludo/user_images_prod/4af0c2c8744868ada3c63b87c3c2476c.webp' },
+  { name: 'Boss 06', color: 0x00ffff, hp: 900, atk: 60, def: 50, spd: 37, gold: 340, exp: 240, requiredPlayerLevel: 55, isBoss: true, texture: 'https://storage.googleapis.com/scraper_ludo/user_images_prod/fb9ad5a238e7c2152f457c6677678eb4.webp' },
+  { name: 'Boss 07', color: 0xffa500, hp: 1000, atk: 65, def: 55, spd: 40, gold: 380, exp: 270, requiredPlayerLevel: 65, isBoss: true, texture: 'https://storage.googleapis.com/scraper_ludo/user_images_prod/5afaa1e8987398dc20cff4e3d2051c7f.webp' },
+  { name: 'Boss 08', color: 0x800080, hp: 1100, atk: 70, def: 60, spd: 43, gold: 420, exp: 300, requiredPlayerLevel: 75, isBoss: true, texture: 'https://storage.googleapis.com/scraper_ludo/user_images_prod/4bd693259c5bdcaa85be1c6b5bd3182c.webp' },
+  { name: 'Boss 09', color: 0x808000, hp: 1200, atk: 75, def: 65, spd: 46, gold: 460, exp: 330, requiredPlayerLevel: 85, isBoss: true, texture: 'https://storage.googleapis.com/scraper_ludo/user_images_prod/7d980e8b6584b00862926142500aa294.webp' },
+  { name: 'Boss 10', color: 0x008080, hp: 1300, atk: 80, def: 70, spd: 49, gold: 500, exp: 360, requiredPlayerLevel: 95, isBoss: true, texture: 'https://storage.googleapis.com/scraper_ludo/user_images_prod/6be854b196f7ae4cb913a97e23d821e9.webp' },
+  { name: 'Vortex Sentinel', color: 0xc0c0c0, hp: 1400, atk: 85, def: 75, spd: 52, gold: 540, exp: 390, requiredPlayerLevel: 105, isBoss: true },
+  { name: 'Chrono-Assassin', color: 0x800000, hp: 1500, atk: 90, def: 80, spd: 55, gold: 580, exp: 420, requiredPlayerLevel: 115, isBoss: true },
+  { name: 'Quantum Disruptor', color: 0x008000, hp: 1600, atk: 95, def: 85, spd: 58, gold: 620, exp: 450, requiredPlayerLevel: 125, isBoss: true },
+  { name: 'Gravity Manipulator', color: 0x000080, hp: 1700, atk: 100, def: 90, spd: 61, gold: 660, exp: 480, requiredPlayerLevel: 135, isBoss: true },
+  { name: 'Singularity Engine', color: 0x808000, hp: 1800, atk: 105, def: 95, spd: 64, gold: 700, exp: 510, requiredPlayerLevel: 145, isBoss: true },
+  { name: 'Cosmic Horror', color: 0x800080, hp: 1900, atk: 110, def: 100, spd: 67, gold: 740, exp: 540, requiredPlayerLevel: 155, isBoss: true },
+  { name: 'Dimension Shifter', color: 0x008080, hp: 2000, atk: 115, def: 105, spd: 70, gold: 780, exp: 570, requiredPlayerLevel: 165, isBoss: true },
+  { name: 'Reality Bender', color: 0xc0c0c0, hp: 2100, atk: 120, def: 110, spd: 73, gold: 820, exp: 600, requiredPlayerLevel: 175, isBoss: true },
+  { name: 'Void Weaver', color: 0x800000, hp: 2200, atk: 125, def: 115, spd: 76, gold: 860, exp: 630, requiredPlayerLevel: 185, isBoss: true },
+  { name: 'Omni-King', color: 0x000000, hp: 2300, atk: 130, def: 120, spd: 79, gold: 900, exp: 660, requiredPlayerLevel: 195, isBoss: true }
+];
