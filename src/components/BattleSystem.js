@@ -75,6 +75,10 @@ export class BattleSystem {
       game.attackEffect = bullet;
       game.stage.addChild(game.attackEffect);
     }
+    // Pokud nepřítel stále žije, přepnout tah na nepřítele
+    if (enemy.hp > 0) {
+      game.battleTurn = 'enemy';
+    }
     // (Pozn.: Další efekty pro jiné třídy by mohly být doplněny obdobně)
   }
 

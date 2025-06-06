@@ -294,11 +294,32 @@ export class Game {
         this.enemy = new Enemy(randomEnemyTemplate, this.character.level, false, this.character);
         // Přechod do stavu boje
         this.state = 'battle';
+        this.battleTurn = 'player';
         this.initUI();
       });
       this.stage.addChild(battleBtn);
+      // Tlačítko "Battle Boss" pro souboj s aktuálním bossem
+      const bossBtn = new Button('Battle Boss', this.app.screen.width / 2 - 105, 380, 210, 60, 0xffe000);
+      bossBtn.on('pointerdown', () => {
+        if (this.currentBossIndex >= BOSS_ENEMIES.length) {
+          this.message = 'All bosses defeated!';
+          this.initUI();
+          return;
+        }
+        const bossTemplate = BOSS_ENEMIES[this.currentBossIndex];
+        if (this.character.level < bossTemplate.requiredPlayerLevel) {
+          this.message = `Boss requires level ${bossTemplate.requiredPlayerLevel}`;
+          this.initUI();
+          return;
+        }
+        this.enemy = new Enemy(bossTemplate, this.character.level, true, this.character);
+        this.state = 'battle';
+        this.battleTurn = 'player';
+        this.initUI();
+      });
+      this.stage.addChild(bossBtn);
       // Tlačítko "Shop" pro otevření obchodu
-      const shopBtn = new Button('Shop', this.app.screen.width / 2 - 55, 380, 110, 50, 0x00e0ff);
+      const shopBtn = new Button('Shop', this.app.screen.width / 2 - 55, 460, 110, 50, 0x00e0ff);
       shopBtn.on('pointerdown', () => {
         this.state = 'shop';
         this.initUI();
@@ -454,6 +475,7 @@ export class Game {
         char.hp = char.maxHp;
         if (enemy.isBoss) {
           this.bossesDefeated++;
+          this.currentBossIndex++;
           this.message = `You defeated ${enemy.name}!`;
         }
         this.dungeonLevel++;
