@@ -181,7 +181,46 @@ export class Game {
         this.initUI();
       });
       this.stage.addChild(enterDungeonBtn);
+      // Tlačítko pro zobrazení profilu postavy
+      const profileBtn = new Button('Profile', this.app.screen.width / 2 - 85, 330, 170, 50, 0x00e0ff);
+      profileBtn.on('pointerdown', () => {
+        this.state = 'profile';
+        this.initUI();
+      });
+      this.stage.addChild(profileBtn);
       // (Případně další prvky hlavního menu by byly zde)
+    } else if (this.state === 'profile') {
+      // Obrazovka s informacemi o postavě
+      const char = this.character;
+      const title = new PIXI.Text('Player Profile', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+      title.anchor.set(0.5);
+      title.x = this.app.screen.width / 2;
+      title.y = 80;
+      this.stage.addChild(title);
+
+      const infoLines = [
+        `Class: ${char.cls.name}`,
+        `Level: ${char.level}`,
+        `HP: ${char.hp}/${char.maxHp}`,
+        `ATK: ${char.stats.atk}`,
+        `DEF: ${char.stats.def}`,
+        `SPD: ${char.stats.spd}`,
+        `Gold: ${char.gold}`,
+        `Weapon: ${char.weapon.name}`,
+        `Armor: ${char.armor.name}`
+      ];
+      const infoText = new PIXI.Text(infoLines.join('\n'), { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff, align: 'center' });
+      infoText.anchor.set(0.5, 0);
+      infoText.x = this.app.screen.width / 2;
+      infoText.y = 140;
+      this.stage.addChild(infoText);
+
+      const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
+      backBtn.on('pointerdown', () => {
+        this.state = 'mainmenu';
+        this.initUI();
+      });
+      this.stage.addChild(backBtn);
     } else if (this.state === 'dungeon') {
       // Herní obrazovka dungeonu – zobrazení nepřítele nebo výzvy k souboji
       const dungeonText = new PIXI.Text(`Dungeon Level ${this.dungeonLevel}`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffffff });
