@@ -9,12 +9,12 @@
   },
   "dependencies": {
     "pixi.js": "^8.0.0",
-    "@pixi/filter-glow": "^7.2.0",
-    "@pixi/filter-bloom": "^7.2.0",
-    "@pixi/filter-drop-shadow": "^7.2.0",
-    "@pixi/filter-crt": "^7.2.0"
+    "@pixi/filter-glow": "^5.2.1",
+    "@pixi/filter-bloom": "^5.1.1",
+    "@pixi/filter-drop-shadow": "^5.2.0",
+    "@pixi/filter-crt": "^5.1.1"
   },
   "devDependencies": {
-    "vite": "^4.0.0"
+    "vite": "^6.3.5"
   }
 }
