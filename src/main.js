@@ -3,7 +3,8 @@ import { Game } from './components/Game.js';
 
 (async () => {
   // Inicializace Pixi aplikace (Pixi v8 styl)
-  const app = await PIXI.Application.init({
+  const app = new PIXI.Application();
+  await app.init({
     width: 900,
     height: 600,
     background: '#181e24', // v8 používá string, ne hex
