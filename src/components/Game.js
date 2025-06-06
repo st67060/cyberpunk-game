@@ -82,17 +82,17 @@ export class Game {
     // Sestavení pole URL všech obrázků, které je třeba načíst
     const assets = CLASSES.map(c => c.texture);
     // Přidání pozadí dungeonu a všech item/enemy assetů
-    assets.push('https://storage.googleapis.com/scraper_ludo/user_images_prod/37c9695ee42dcb3d558f79f400b1fcfa.jpg');
+    assets.push('/assets/background.jpg');
     Object.values(ITEM_ASSETS).forEach(url => assets.push(url));
     Object.values(ENEMY_ASSETS).forEach(url => assets.push(url));
     BOSS_ENEMIES.forEach(boss => { if (boss.texture) assets.push(boss.texture); });
     // Přidání obrázků rámečků pro postavy v souboji
-    assets.push('https://storage.googleapis.com/scraper_ludo/user_images_prod/ddcde0bd87955f2fa6dec62690a1a3db.jpg');
-    assets.push('https://storage.googleapis.com/scraper_ludo/user_images_prod/c1ad8ee0637a016be31cda359ef98d8f.jpg');
+    assets.push('/assets/avatar background.jpg');
+    assets.push('/assets/avatar background.jpg');
     // Načtení všech assetů pomocí Pixi Assets API
     await PIXI.Assets.load(assets);
     // Vytvoření sprite pro pozadí hry a aplikace CRT filtru (zkreslení obrazu)
-    this.backgroundSprite = PIXI.Sprite.from('https://storage.googleapis.com/scraper_ludo/user_images_prod/37c9695ee42dcb3d558f79f400b1fcfa.jpg');
+    this.backgroundSprite = PIXI.Sprite.from('/assets/background.jpg');
     this.backgroundSprite.width = this.app.screen.width;
     this.backgroundSprite.height = this.app.screen.height;
     this.bgDistortFilter = new CRTFilter({
@@ -243,7 +243,7 @@ export class Game {
     this.enemyAvatarX = this.app.screen.width * 3 / 4;
     this.enemyAvatarY = this.app.screen.height / 2 - 50;
     // Rámečky pod avátory (s efekty)
-    const playerBgSprite = PIXI.Sprite.from('https://storage.googleapis.com/scraper_ludo/user_images_prod/ddcde0bd87955f2fa6dec62690a1a3db.jpg');
+    const playerBgSprite = PIXI.Sprite.from('/assets/avatar background.jpg');
     playerBgSprite.width = AVATAR_BG_SIZE;
     playerBgSprite.height = AVATAR_BG_SIZE;
     playerBgSprite.anchor.set(0.5);
@@ -290,7 +290,7 @@ export class Game {
     playerStatsText.y = this.playerAvatarY + AVATAR_SIZE / 2 + 60;
     this.battleContainer.addChild(playerStatsText);
     // Rámeček pro nepřítele
-    const enemyBgSprite = PIXI.Sprite.from('https://storage.googleapis.com/scraper_ludo/user_images_prod/c1ad8ee0637a016be31cda359ef98d8f.jpg');
+    const enemyBgSprite = PIXI.Sprite.from('/assets/avatar background.jpg');
     enemyBgSprite.width = AVATAR_BG_SIZE;
     enemyBgSprite.height = AVATAR_BG_SIZE;
     enemyBgSprite.anchor.set(0.5);
