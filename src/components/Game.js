@@ -181,7 +181,95 @@ export class Game {
         this.initUI();
       });
       this.stage.addChild(enterDungeonBtn);
+      // Tlačítko pro zobrazení profilu postavy
+      const profileBtn = new Button('Profile', this.app.screen.width / 2 - 85, 330, 170, 50, 0x00e0ff);
+      profileBtn.on('pointerdown', () => {
+        this.state = 'profile';
+        this.initUI();
+      });
+      this.stage.addChild(profileBtn);
       // (Případně další prvky hlavního menu by byly zde)
+    } else if (this.state === 'profile') {
+      // Screen with detailed player information and stat upgrades
+      const char = this.character;
+      const title = new PIXI.Text('Player Profile', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+      title.anchor.set(0.5);
+      title.x = this.app.screen.width / 2;
+      title.y = 60;
+      this.stage.addChild(title);
+
+      const classText = new PIXI.Text(`Class: ${char.cls.name}`, { fontFamily: 'monospace', fontSize: 22, fill: 0xffffff });
+      classText.anchor.set(0.5);
+      classText.x = this.app.screen.width / 2;
+      classText.y = 110;
+      this.stage.addChild(classText);
+
+      const levelText = new PIXI.Text(`Level: ${char.level}`, { fontFamily: 'monospace', fontSize: 22, fill: 0xffffff });
+      levelText.anchor.set(0.5);
+      levelText.x = this.app.screen.width / 2;
+      levelText.y = 140;
+      this.stage.addChild(levelText);
+
+      const statHeader = new PIXI.Text(`Stat Points: ${char.statPoints}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
+      statHeader.anchor.set(0.5);
+      statHeader.x = this.app.screen.width / 2;
+      statHeader.y = 175;
+      this.stage.addChild(statHeader);
+
+      const statInfo = [
+        { key: 'hp', label: `HP: ${char.hp}/${char.maxHp}` },
+        { key: 'atk', label: `ATK: ${char.stats.atk}` },
+        { key: 'def', label: `DEF: ${char.stats.def}` },
+        { key: 'spd', label: `SPD: ${char.stats.spd}` }
+      ];
+      let y = 210;
+      for (const s of statInfo) {
+        const statLabel = new PIXI.Text(s.label, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+        statLabel.anchor.set(0, 0.5);
+        statLabel.x = this.app.screen.width / 2 - 90;
+        statLabel.y = y + 20;
+        this.stage.addChild(statLabel);
+
+        const cost = char.statPoints > 0 ? '1 SP' : `${char.statCosts[s.key]}G`;
+        const costText = new PIXI.Text(cost, { fontFamily: 'monospace', fontSize: 14, fill: 0xcccccc });
+        costText.anchor.set(1, 0.5);
+        costText.x = this.app.screen.width / 2 + 130;
+        costText.y = y + 20;
+        this.stage.addChild(costText);
+
+        const upBtn = new Button('+', this.app.screen.width / 2 + 140, y, 40, 40, 0x00ff8a);
+        upBtn.on('pointerdown', () => {
+          char.spendStat(s.key);
+          this.initUI();
+        });
+        this.stage.addChild(upBtn);
+        y += 50;
+      }
+
+      const goldText = new PIXI.Text(`Gold: ${char.gold}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
+      goldText.anchor.set(0.5);
+      goldText.x = this.app.screen.width / 2;
+      goldText.y = y + 10;
+      this.stage.addChild(goldText);
+
+      const weaponText = new PIXI.Text(`Weapon: ${char.weapon.name}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+      weaponText.anchor.set(0.5);
+      weaponText.x = this.app.screen.width / 2;
+      weaponText.y = y + 40;
+      this.stage.addChild(weaponText);
+
+      const armorText = new PIXI.Text(`Armor: ${char.armor.name}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+      armorText.anchor.set(0.5);
+      armorText.x = this.app.screen.width / 2;
+      armorText.y = y + 70;
+      this.stage.addChild(armorText);
+
+      const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
+      backBtn.on('pointerdown', () => {
+        this.state = 'mainmenu';
+        this.initUI();
+      });
+      this.stage.addChild(backBtn);
     } else if (this.state === 'dungeon') {
       // Herní obrazovka dungeonu – zobrazení nepřítele nebo výzvy k souboji
       const dungeonText = new PIXI.Text(`Dungeon Level ${this.dungeonLevel}`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffffff });
