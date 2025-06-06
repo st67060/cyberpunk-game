@@ -294,6 +294,7 @@ export class Game {
         this.enemy = new Enemy(randomEnemyTemplate, this.character.level, false, this.character);
         // Přechod do stavu boje
         this.state = 'battle';
+        this.battleTurn = 'player';
         this.initUI();
       });
       this.stage.addChild(battleBtn);
@@ -313,6 +314,7 @@ export class Game {
         }
         this.enemy = new Enemy(bossTemplate, this.character.level, true, this.character);
         this.state = 'battle';
+        this.battleTurn = 'player';
         this.initUI();
       });
       this.stage.addChild(bossBtn);
