@@ -13,8 +13,16 @@ export class StrategicBattleSystem {
     const char = game.character;
     const enemy = game.enemy;
 
-    game.playerEnergy = Math.min(game.energyMax, game.playerEnergy + char.stats.spd * delta);
-    game.enemyEnergy = Math.min(game.energyMax, game.enemyEnergy + enemy.spd * delta);
+    const ENERGY_GAIN_RATE = 0.05; // Slower battle pacing
+
+    game.playerEnergy = Math.min(
+      game.energyMax,
+      game.playerEnergy + char.stats.spd * delta * ENERGY_GAIN_RATE
+    );
+    game.enemyEnergy = Math.min(
+      game.energyMax,
+      game.enemyEnergy + enemy.spd * delta * ENERGY_GAIN_RATE
+    );
 
     if (!game.playerAttacking && !game.enemyAttacking && char.hp > 0 && enemy.hp > 0) {
       const pEn = game.playerEnergy;
