@@ -35,12 +35,12 @@ export class StrategicBattleSystem {
       const eEn = game.enemyEnergy;
       if (pEn < game.energyThreshold && eEn < game.energyThreshold) return;
 
-      if (pEn >= eEn) {
+      if (game.battleTurn === 'player' && pEn >= game.energyThreshold) {
         const cost = pEn >= game.energyMax ? game.energyMax : game.energyThreshold;
         const mult = pEn >= game.energyMax ? 1.5 : 1;
         game.playerEnergy -= cost;
         BattleSystem.doPlayerAttack(game, mult);
-      } else {
+      } else if (game.battleTurn === 'enemy' && eEn >= game.energyThreshold) {
         const cost = eEn >= game.energyMax ? game.energyMax : game.energyThreshold;
         const mult = eEn >= game.energyMax ? 1.5 : 1;
         game.enemyEnergy -= cost;
