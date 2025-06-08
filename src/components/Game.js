@@ -129,7 +129,13 @@ export class Game {
     this.ui = {};
     this.stage.removeChildren();
     this.resetBattleState();
-    // Přidání pozadí
+    // Odpojení posuvu myší (např. z obchodu)
+    this.app.view.onwheel = null;
+    // Přidání pozadí (pokud již bylo načteno)
+    if (!this.backgroundSprite) {
+      // Ještě nejsou načtena potřebná assety, UI nelze inicializovat
+      return;
+    }
     this.stage.addChild(this.backgroundSprite);
     if (this.state === 'charcreate') {
       // Screen for selecting a character class
@@ -742,6 +748,10 @@ export class Game {
     this.playerFlashTimer = 0;
     this.enemyFlashTimer = 0;
     this.playerAttacksWithoutDamage = 0;
+    this.charShape = null;
+    this.enemyShape = null;
+    this.battleContainer = null;
+    this.autoBattleTimer = 0;
   }
 
   toggleFullscreen() {
