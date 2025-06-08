@@ -132,7 +132,10 @@ export class Game {
     // Inicializace nebo obnova uživatelského rozhraní podle aktuálního stavu hry
     this.ui = {};
     this.stage.removeChildren();
+    const currentResult = this.battleResult;
+    const showBattleResult = this.state === 'battle' && currentResult !== null;
     this.resetBattleState();
+    this.battleResult = showBattleResult ? currentResult : null;
     // Odpojení posuvu myší (např. z obchodu)
     this.app.view.onwheel = null;
     // Přidání pozadí (pokud již bylo načteno)
@@ -382,6 +385,7 @@ export class Game {
         // Přechod do stavu boje a nastavení hráčova tahu na začátek
         this.battleTurn = 'player';
         this.resetBattleState();
+        this.battleResult = null;
         this.state = 'battle';
         this.initUI();
       });
@@ -404,6 +408,7 @@ export class Game {
         // Zahájení nového boje s bossem
         this.battleTurn = 'player';
         this.resetBattleState();
+        this.battleResult = null;
         this.state = 'battle';
         this.initUI();
       });
@@ -774,7 +779,6 @@ export class Game {
     this.playerEnergy = 0;
     this.enemyEnergy = 0;
     this.battleStarted = false;
-    this.battleResult = null;
   }
 
   toggleFullscreen() {
