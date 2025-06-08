@@ -32,7 +32,7 @@ export class BattleSystem {
     switch (BattleSystem._state) {
       case 'idle':
         BattleSystem._state = 'attacking';
-        BattleSystem._timer = 30; // příprava na útok (např. animace)
+        BattleSystem._timer = 90; // příprava na útok (např. animace)
         return;
 
       case 'attacking':
@@ -44,7 +44,7 @@ export class BattleSystem {
           game.battleTurn = 'player';
         }
         BattleSystem._state = 'cooldown';
-        BattleSystem._timer = 60; // pauza po útoku
+        BattleSystem._timer = 120; // pauza po útoku
         return;
 
       case 'cooldown':
