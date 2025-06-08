@@ -10,6 +10,7 @@ import { StatBar } from './StatBar.js';
 import { Character } from './Character.js';
 import { Enemy } from './Enemy.js';
 import { BattleSystem } from './BattleSystem.js';
+import { TurnBattleSystem } from './TurnBattleSystem.js';
 
 import { CLASSES } from '../data/classes.js';
 import { DUNGEON_ENEMIES } from '../data/dungeonEnemies.js';
@@ -41,8 +42,6 @@ export class Game {
     this.attackAnimProgress = 0;
     this.floatingTexts = [];
     this.shopIdx = 0;
-    this.autoBattleTimer = 0;
-    this.autoBattleDelay = 0.01;
     this.playerWeaponSprite = null;
     this.attackEffect = null;
     this.attackEffectAnimProgress = 0;
@@ -71,6 +70,9 @@ export class Game {
     this.screenShakeIntensity = 0;
     this.playerFlashTimer = 0;
     this.enemyFlashTimer = 0;
+    this.playerGauge = 0;
+    this.enemyGauge = 0;
+    this.gaugeThreshold = 100;
     // Načtení všech assetů (obrázků) a po dokončení přechod na obrazovku výběru postavy
     this.loadAssets().then(() => {
       this.state = 'charcreate';
@@ -415,12 +417,9 @@ export class Game {
       });
       this.stage.addChild(backBtn);
     } else if (this.state === 'battle') {
-      // Stav boje – inicializace bojového UI
+      // Stav boje – inicializace bojového UI a nového systému kol
       this.createBattleUI();
-      // Pokud je na tahu hráč a nikdo zrovna neútočí, spustí se odpočet pro automatický útok (auto-battle)
-      if (this.battleTurn === 'player' && !this.playerAttacking && !this.enemyAttacking && this.character.hp > 0 && this.enemy.hp > 0) {
-        this.autoBattleTimer = this.autoBattleDelay;
-      }
+      TurnBattleSystem.init(this);
     } else if (this.state === 'shop') {
       // Zobrazení nabídky obchodu (zbraně/zbroje)
       this.createShopUI();
@@ -494,6 +493,8 @@ export class Game {
     // HP bar hráče
     this.charHpBar = new StatBar('HP', char.hp, char.maxHp, this.playerAvatarX - 100, this.playerAvatarY + AVATAR_SIZE / 2 + 20, 200, 24, 0xffa500);
     this.battleContainer.addChild(this.charHpBar);
+    this.playerGaugeBar = new StatBar('AP', this.playerGauge, this.gaugeThreshold, this.playerAvatarX - 100, this.playerAvatarY + AVATAR_SIZE / 2 + 50, 200, 12, 0x00e0ff);
+    this.battleContainer.addChild(this.playerGaugeBar);
     // Text s hráčovými staty (ATK, DEF, SPD)
     const playerStatsText = new PIXI.Text(`ATK: ${char.stats.atk} | DEF: ${char.stats.def} | SPD: ${char.stats.spd}`,
       { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
@@ -538,6 +539,8 @@ export class Game {
     // HP bar nepřítele
     this.enemyHpBar = new StatBar('HP', enemy.hp, enemy.maxHp, this.enemyAvatarX - 100, this.enemyAvatarY + AVATAR_SIZE / 2 + 20, 200, 24, 0xff2e2e);
     this.battleContainer.addChild(this.enemyHpBar);
+    this.enemyGaugeBar = new StatBar('AP', this.enemyGauge, this.gaugeThreshold, this.enemyAvatarX - 100, this.enemyAvatarY + AVATAR_SIZE / 2 + 50, 200, 12, 0xff2e2e);
+    this.battleContainer.addChild(this.enemyGaugeBar);
     // Text se staty nepřítele
     const enemyStatsText = new PIXI.Text(`ATK: ${enemy.atk} | DEF: ${enemy.def} | SPD: ${enemy.spd}`,
       { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
@@ -753,7 +756,8 @@ export class Game {
     this.charShape = null;
     this.enemyShape = null;
     this.battleContainer = null;
-    this.autoBattleTimer = 0;
+    this.playerGauge = 0;
+    this.enemyGauge = 0;
   }
 
   toggleFullscreen() {
@@ -801,6 +805,8 @@ export class Game {
       // Aktualizace HP barů hráče a nepřítele
       if (this.charHpBar) this.charHpBar.updateBar(this.character.hp, this.character.maxHp);
       if (this.enemyHpBar) this.enemyHpBar.updateBar(this.enemy.hp, this.enemy.maxHp);
+      if (this.playerGaugeBar) this.playerGaugeBar.updateBar(this.playerGauge, this.gaugeThreshold);
+      if (this.enemyGaugeBar) this.enemyGaugeBar.updateBar(this.enemyGauge, this.gaugeThreshold);
       // Flash efekt hráče při zásahu (blikne červeně krátce)
       if (this.playerFlashTimer > 0) {
         this.playerFlashTimer -= delta / 60;
@@ -927,17 +933,8 @@ export class Game {
           this.comboTimer = 0;
         }
       }
-      // Auto-battle logika: pokud nikdo zrovna neútočí, odpočítá čas a spustí další útok
-      if (!this.playerAttacking && !this.enemyAttacking && char.hp > 0 && enemy.hp > 0) {
-        this.autoBattleTimer -= delta / 60;
-        if (this.autoBattleTimer <= 0) {
-          if (this.battleTurn === 'player') {
-            BattleSystem.doPlayerAttack(this);
-          } else if (this.battleTurn === 'enemy') {
-            BattleSystem.doEnemyAttack(this);
-          }
-        }
-      }
+      // New turn-based battle system handled by TurnBattleSystem
+      TurnBattleSystem.update(this, delta);
     }
   }
 }
