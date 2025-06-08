@@ -864,20 +864,20 @@ export class Game {
         this.attackEffectAnimProgress += 0.05 * delta;
         if (char.cls.name === 'Street Samurai') {
           const progress = this.attackEffectAnimProgress;
-          game.attackEffect.x = this.charShape.x + 30 + progress * 80;
-          game.attackEffect.y = this.charShape.y - 10 - progress * 20;
-          game.attackEffect.alpha = 1 - progress;
-          game.attackEffect.rotation = -Math.PI / 4 + progress * Math.PI / 2;
+          this.attackEffect.x = this.charShape.x + 30 + progress * 80;
+          this.attackEffect.y = this.charShape.y - 10 - progress * 20;
+          this.attackEffect.alpha = 1 - progress;
+          this.attackEffect.rotation = -Math.PI / 4 + progress * Math.PI / 2;
         } else if (char.cls.name === 'Netrunner' || char.cls.name === 'Techie') {
           const progress = this.attackEffectAnimProgress;
-          game.attackEffect.x = this.charShape.x + 30 + (this.enemyShape.x - this.charShape.x - 30) * progress;
-          game.attackEffect.y = this.charShape.y + (this.enemyShape.y - this.charShape.y) * progress;
+          this.attackEffect.x = this.charShape.x + 30 + (this.enemyShape.x - this.charShape.x - 30) * progress;
+          this.attackEffect.y = this.charShape.y + (this.enemyShape.y - this.charShape.y) * progress;
         }
         if (this.attackEffectAnimProgress >= 1) {
-          this.battleContainer.removeChild(game.attackEffect);
-          game.attackEffect.destroy();
-          game.attackEffect = null;
-          game.attackEffectAnimProgress = 0;
+          this.battleContainer.removeChild(this.attackEffect);
+          this.attackEffect.destroy();
+          this.attackEffect = null;
+          this.attackEffectAnimProgress = 0;
         }
       }
       // Animace útoku nepřítele (posun avataru nepřítele při útoku)

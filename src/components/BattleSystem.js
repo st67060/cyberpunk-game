@@ -76,6 +76,28 @@ export class BattleSystem {
       game.stage.addChild(game.attackEffect);
     }
     // (Pozn.: Další efekty pro jiné třídy by mohly být doplněny obdobně)
+
+    // Krátké zvýraznění nepřítele při zásahu
+    game.enemyFlashTimer = 0.1;
+
+    // Kontrola existence sprite; pokud chybí, znovu vykreslit UI
+    if (!game.charShape || !game.enemyShape) {
+      game.initUI();
+      return;
+    }
+
+    // Pokud nepřítel zemřel, ukončí se boj
+    if (enemy.hp <= 0) {
+      game.battleTurn = 'none';
+      game.playerAttacking = false;
+      game.initUI();
+      return;
+    }
+
+    // Přepnutí na tah nepřítele a nastavení odpočtu pro další útok
+    game.playerAttacking = false;
+    game.battleTurn = 'enemy';
+    game.autoBattleTimer = game.autoBattleDelay;
   }
 
   static doEnemyAttack(game) {
