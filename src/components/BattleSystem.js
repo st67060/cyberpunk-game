@@ -3,7 +3,7 @@ import { BloomFilter } from '@pixi/filter-bloom';
 import { BlurFilter } from 'pixi.js';
 
 export class BattleSystem {
-  static doPlayerAttack(game) {
+  static doPlayerAttack(game, powerMultiplier = 1) {
     const char = game.character;
     const enemy = game.enemy;
     // Zahájení hráčova útoku
@@ -28,6 +28,10 @@ export class BattleSystem {
     let defMultiplier = (char.cls.name === 'Techie') ? 6 : 5;
     // Výpočet poškození způsobeného nepříteli
     let playerDmg = Math.max(1, (baseAtk + Math.floor(Math.random() * 3)) * atkMultiplier - enemy.def * defMultiplier);
+    playerDmg = Math.floor(playerDmg * powerMultiplier);
+    if (powerMultiplier > 1) {
+      game.spawnFloatingText('POWER!', game.charShape.x, game.charShape.y - 60, 0xffe000, 20, -20);
+    }
     let playerCrit = false;
     if (Math.random() < critChance) {
       playerDmg = Math.floor(playerDmg * critMultiplier);
@@ -110,7 +114,7 @@ export class BattleSystem {
     game.battleTurn = 'enemy';
   }
 
-  static doEnemyAttack(game) {
+  static doEnemyAttack(game, powerMultiplier = 1) {
     const char = game.character;
     const enemy = game.enemy;
     // Zahájení útoku nepřítele
@@ -125,6 +129,10 @@ export class BattleSystem {
     let defMultiplier = (char.cls.name === 'Techie') ? 6 : 5;
     // Výpočet poškození hráče nepřítelem
     let enemyDmg = Math.max(1, (baseAtk + Math.floor(Math.random() * 3)) * atkMultiplier - char.stats.def * defMultiplier);
+    enemyDmg = Math.floor(enemyDmg * powerMultiplier);
+    if (powerMultiplier > 1) {
+      game.spawnFloatingText('OVERCHARGED!', game.enemyShape.x, game.enemyShape.y - 60, 0xff2e2e, 18, -20);
+    }
     let enemyCrit = false;
     if (Math.random() < critChance) {
       enemyDmg = Math.floor(enemyDmg * critMultiplier);

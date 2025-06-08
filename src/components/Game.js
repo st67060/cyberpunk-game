@@ -10,7 +10,7 @@ import { StatBar } from './StatBar.js';
 import { Character } from './Character.js';
 import { Enemy } from './Enemy.js';
 import { BattleSystem } from './BattleSystem.js';
-import { StaminaBattleSystem } from './StaminaBattleSystem.js';
+import { StrategicBattleSystem } from './StrategicBattleSystem.js';
 
 import { CLASSES } from '../data/classes.js';
 import { DUNGEON_ENEMIES } from '../data/dungeonEnemies.js';
@@ -70,9 +70,10 @@ export class Game {
     this.screenShakeIntensity = 0;
     this.playerFlashTimer = 0;
     this.enemyFlashTimer = 0;
-    this.playerStamina = 100;
-    this.enemyStamina = 100;
-    this.staminaMax = 100; this.staminaThreshold = 50;
+    this.playerEnergy = 0;
+    this.enemyEnergy = 0;
+    this.energyMax = 100;
+    this.energyThreshold = 50;
     // Načtení všech assetů (obrázků) a po dokončení přechod na obrazovku výběru postavy
     this.loadAssets().then(() => {
       this.state = 'charcreate';
@@ -419,7 +420,7 @@ export class Game {
     } else if (this.state === 'battle') {
       // Stav boje – inicializace bojového UI a nového systému kol
       this.createBattleUI();
-      StaminaBattleSystem.init(this);
+      StrategicBattleSystem.init(this);
     } else if (this.state === 'shop') {
       // Zobrazení nabídky obchodu (zbraně/zbroje)
       this.createShopUI();
@@ -493,8 +494,8 @@ export class Game {
     // HP bar hráče
     this.charHpBar = new StatBar('HP', char.hp, char.maxHp, this.playerAvatarX - 100, this.playerAvatarY + AVATAR_SIZE / 2 + 20, 200, 24, 0xffa500);
     this.battleContainer.addChild(this.charHpBar);
-    this.playerStaminaBar = new StatBar("STA", this.playerStamina, this.staminaMax, this.playerAvatarX - 100, this.playerAvatarY + AVATAR_SIZE / 2 + 50, 200, 12, 0x00e0ff);
-    this.battleContainer.addChild(this.playerStaminaBar);
+    this.playerEnergyBar = new StatBar("ENG", this.playerEnergy, this.energyMax, this.playerAvatarX - 100, this.playerAvatarY + AVATAR_SIZE / 2 + 50, 200, 12, 0x00e0ff);
+    this.battleContainer.addChild(this.playerEnergyBar);
     // Text s hráčovými staty (ATK, DEF, SPD)
     const playerStatsText = new PIXI.Text(`ATK: ${char.stats.atk} | DEF: ${char.stats.def} | SPD: ${char.stats.spd}`,
       { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
@@ -539,8 +540,8 @@ export class Game {
     // HP bar nepřítele
     this.enemyHpBar = new StatBar('HP', enemy.hp, enemy.maxHp, this.enemyAvatarX - 100, this.enemyAvatarY + AVATAR_SIZE / 2 + 20, 200, 24, 0xff2e2e);
     this.battleContainer.addChild(this.enemyHpBar);
-    this.enemyStaminaBar = new StatBar("STA", this.enemyStamina, this.staminaMax, this.enemyAvatarX - 100, this.enemyAvatarY + AVATAR_SIZE / 2 + 50, 200, 12, 0xff2e2e);
-    this.battleContainer.addChild(this.enemyStaminaBar);
+    this.enemyEnergyBar = new StatBar("ENG", this.enemyEnergy, this.energyMax, this.enemyAvatarX - 100, this.enemyAvatarY + AVATAR_SIZE / 2 + 50, 200, 12, 0xff2e2e);
+    this.battleContainer.addChild(this.enemyEnergyBar);
     // Text se staty nepřítele
     const enemyStatsText = new PIXI.Text(`ATK: ${enemy.atk} | DEF: ${enemy.def} | SPD: ${enemy.spd}`,
       { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
@@ -756,8 +757,8 @@ export class Game {
     this.charShape = null;
     this.enemyShape = null;
     this.battleContainer = null;
-    this.playerStamina = 100;
-    this.enemyStamina = 100;
+    this.playerEnergy = 0;
+    this.enemyEnergy = 0;
   }
 
   toggleFullscreen() {
@@ -805,8 +806,8 @@ export class Game {
       // Aktualizace HP barů hráče a nepřítele
       if (this.charHpBar) this.charHpBar.updateBar(this.character.hp, this.character.maxHp);
       if (this.enemyHpBar) this.enemyHpBar.updateBar(this.enemy.hp, this.enemy.maxHp);
-      if (this.playerStaminaBar) this.playerStaminaBar.updateBar(this.playerStamina, this.staminaMax);
-      if (this.enemyStaminaBar) this.enemyStaminaBar.updateBar(this.enemyStamina, this.staminaMax);
+      if (this.playerEnergyBar) this.playerEnergyBar.updateBar(this.playerEnergy, this.energyMax);
+      if (this.enemyEnergyBar) this.enemyEnergyBar.updateBar(this.enemyEnergy, this.energyMax);
       // Flash efekt hráče při zásahu (blikne červeně krátce)
       if (this.playerFlashTimer > 0) {
         this.playerFlashTimer -= delta / 60;
@@ -933,8 +934,8 @@ export class Game {
           this.comboTimer = 0;
         }
       }
-      // New stamina-based battle system handled by StaminaBattleSystem
-      StaminaBattleSystem.update(this, delta);
+      // New energy-based battle system handled by StrategicBattleSystem
+      StrategicBattleSystem.update(this, delta);
     }
   }
 }
