@@ -39,15 +39,6 @@ export class BattleSystem {
       playerDmg = Math.floor(playerDmg * critMultiplier);
       playerCrit = true;
     }
-    // Bonus za combo – po rychlých po sobě jdoucích útocích roste poškození
-    if (game.comboCount > 0 && game.comboTimer < game.comboTimerMax) {
-      game.comboCount++;
-      playerDmg = Math.floor(playerDmg * (1 + game.comboCount * 0.1));
-      game.spawnFloatingText(`x${game.comboCount}`, game.charShape.x, game.charShape.y - 40, 0xffe000, 20, -20);
-    } else {
-      game.comboCount = 1;
-    }
-    game.comboTimer = 0;
     // Aplikace zásahu – ubrání HP nepřítele
     enemy.hp = Math.max(0, enemy.hp - playerDmg);
     // Pokud nebyly inicializovány sprity postav, obnovit UI
@@ -178,9 +169,6 @@ export class BattleSystem {
     } else {
       game.spawnFloatingText(enemyDmg.toString(), game.charShape.x + game.charShape.width / 2, game.charShape.y, textColor, textSize, -30);
       if (enemyDmg > 0) {
-        // Zásah hráče přeruší případné combo
-        game.comboCount = 0;
-        game.comboTimer = 0;
         // Efekt "krve" při zásahu hráče (malé červené částice)
         if (!game.bloodEffects) game.bloodEffects = [];
         for (let i = 0; i < 7; i++) {
