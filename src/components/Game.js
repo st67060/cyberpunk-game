@@ -466,7 +466,7 @@ export class Game {
       new DropShadowFilter({ distance: 0, blur: 8, color: 0x000000, alpha: 0.5 })
     ];
     this.battleContainer.addChild(playerBgSprite);
-    const charAvatar = PIXI.Sprite.from(char.cls.texture);
+    const charAvatar = PIXI.Sprite.from(char.avatar);
     charAvatar.width = AVATAR_SIZE;
     charAvatar.height = AVATAR_SIZE;
     charAvatar.anchor.set(0.5);
@@ -514,7 +514,7 @@ export class Game {
     ];
     this.battleContainer.addChild(enemyBgSprite);
     // Sprite nepřítele (obrázek buď specifický pro bosse, nebo obecný z ENEMY_ASSETS)
-    const enemyTexture = (enemy.isBoss && enemy.texture) ? enemy.texture : (ENEMY_ASSETS[enemy.name] || ENEMY_ASSETS['Gang Thug']);
+    const enemyTexture = enemy.avatar;
     const enemySprite = PIXI.Sprite.from(enemyTexture);
     enemySprite.width = AVATAR_SIZE;
     enemySprite.height = AVATAR_SIZE;
@@ -747,6 +747,8 @@ export class Game {
     this.app.stage.y = 0;
     this.playerFlashTimer = 0;
     this.enemyFlashTimer = 0;
+    this.comboCount = 0;
+    this.comboTimer = 0;
     this.playerAttacksWithoutDamage = 0;
     this.charShape = null;
     this.enemyShape = null;
@@ -915,6 +917,14 @@ export class Game {
         if (text.alpha <= 0) {
           this.battleContainer.removeChild(text);
           this.floatingTexts.splice(i, 1);
+        }
+      }
+      // Časovač komba – pokud neútočíme dostatečně rychle, kombo se vynuluje
+      if (this.comboCount > 0) {
+        this.comboTimer += delta / 60;
+        if (this.comboTimer > this.comboTimerMax) {
+          this.comboCount = 0;
+          this.comboTimer = 0;
         }
       }
       // Auto-battle logika: pokud nikdo zrovna neútočí, odpočítá čas a spustí další útok

@@ -2,6 +2,8 @@ export class Character {
   constructor(cls) {
     // Inicializace základních atributů podle zvolené třídy (class)
     this.cls = cls;
+    // Cesta k avataru postavy pro zobrazování v boji
+    this.avatar = cls.texture;
     this.level = 1;
     this.exp = 0;
     this.expToNext = 50;
