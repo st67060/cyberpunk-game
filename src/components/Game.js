@@ -152,11 +152,12 @@ export class Game {
         avatar.y = 230;
         const glow = new GlowFilter({
           distance: 15,
-          outerStrength: i === this.classIdx ? 3 : 1.5,
+          outerStrength: i === this.classIdx ? 5 : 1.5,
           innerStrength: 0,
           color: cls.color
         });
         avatar.filters = [glow];
+        avatar.scale.set(i === this.classIdx ? 1.2 : 1);
         avatar.interactive = true;
         avatar.buttonMode = true;
         avatar.on('pointerdown', () => {
@@ -164,6 +165,26 @@ export class Game {
           this.selectedClass = cls;
           this.initUI();
         });
+
+        const infoBox = new PIXI.Container();
+        const infoBg = new PIXI.Graphics();
+        infoBg.beginFill(0x000000, 0.8);
+        infoBg.drawRoundedRect(-70, -60, 140, 70, 8);
+        infoBg.endFill();
+        infoBox.addChild(infoBg);
+        const infoText = new PIXI.Text(`HP: ${cls.hp}\nATK: ${cls.atk}\nDEF: ${cls.def}\nSPD: ${cls.spd}`, {
+          fontFamily: 'monospace', fontSize: 14, fill: 0xffffff
+        });
+        infoText.anchor.set(0.5);
+        infoBox.addChild(infoText);
+        infoBox.x = avatar.x;
+        infoBox.y = avatar.y - 90;
+        infoBox.visible = false;
+        this.stage.addChild(infoBox);
+
+        avatar.on('pointerover', () => { infoBox.visible = true; });
+        avatar.on('pointerout', () => { infoBox.visible = false; });
+
         this.stage.addChild(avatar);
 
         const nameText = new PIXI.Text(cls.name, {
@@ -185,21 +206,28 @@ export class Game {
       });
       this.stage.addChild(startBtn);
     } else if (this.state === 'mainmenu') {
-      // Hlavní menu (např. tlačítko pro vstup do dungeonu)
-      const enterDungeonBtn = new Button('Enter Dungeon', this.app.screen.width / 2 - 105, 250, 210, 60, 0xff2e2e);
-      enterDungeonBtn.on('pointerdown', () => {
+      // Hlavní menu se třemi tlačítky
+      const dungeonBtn = new Button('Dungeon', this.app.screen.width / 2 - 85, 250, 170, 50, 0xff2e2e);
+      dungeonBtn.on('pointerdown', () => {
         this.state = 'dungeon';
         this.message = '';
         this.initUI();
       });
-      this.stage.addChild(enterDungeonBtn);
-        // Tlačítko pro zobrazení profilu postavy
-      const profileBtn = new Button('Profile', this.app.screen.width / 2 - 85, 330, 170, 50, 0x00e0ff);
+      this.stage.addChild(dungeonBtn);
+
+      const profileBtn = new Button('Profile', this.app.screen.width / 2 - 85, 320, 170, 50, 0x00e0ff);
       profileBtn.on('pointerdown', () => {
         this.state = 'profile';
         this.initUI();
       });
       this.stage.addChild(profileBtn);
+
+      const shopBtn = new Button('Shop', this.app.screen.width / 2 - 85, 390, 170, 50, 0x00e0ff);
+      shopBtn.on('pointerdown', () => {
+        this.state = 'shop';
+        this.initUI();
+      });
+      this.stage.addChild(shopBtn);
       // (Případně další prvky hlavního menu by byly zde)
     } else if (this.state === 'profile') {
       // Screen with detailed player information and stat upgrades
@@ -276,13 +304,39 @@ export class Game {
       armorText.y = y + 70;
       this.stage.addChild(armorText);
 
+      const skillsBtn = new Button('Skill Tree', this.app.screen.width / 2 - 85, armorText.y + 40, 170, 50, 0x00e0ff);
+      skillsBtn.on('pointerdown', () => {
+        this.state = 'skilltree';
+        this.initUI();
+      });
+      this.stage.addChild(skillsBtn);
+
       const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
       backBtn.on('pointerdown', () => {
         this.state = 'mainmenu';
         this.initUI();
       });
-      this.stage.addChild(backBtn);
-    } else if (this.state === 'dungeon') {
+        this.stage.addChild(backBtn);
+      } else if (this.state === 'skilltree') {
+        const title = new PIXI.Text('Skill Tree', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+        title.anchor.set(0.5);
+        title.x = this.app.screen.width / 2;
+        title.y = 60;
+        this.stage.addChild(title);
+
+        const info = new PIXI.Text('Skill editor coming soon.', { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+        info.anchor.set(0.5);
+        info.x = this.app.screen.width / 2;
+        info.y = this.app.screen.height / 2;
+        this.stage.addChild(info);
+
+        const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
+        backBtn.on('pointerdown', () => {
+          this.state = 'profile';
+          this.initUI();
+        });
+        this.stage.addChild(backBtn);
+      } else if (this.state === 'dungeon') {
       // Herní obrazovka dungeonu – zobrazení nepřítele nebo výzvy k souboji
       const dungeonText = new PIXI.Text(`Dungeon Level ${this.dungeonLevel}`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffffff });
       dungeonText.anchor.set(0.5);
@@ -340,6 +394,13 @@ export class Game {
         this.initUI();
       });
       this.stage.addChild(shopBtn);
+
+      const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
+      backBtn.on('pointerdown', () => {
+        this.state = 'mainmenu';
+        this.initUI();
+      });
+      this.stage.addChild(backBtn);
     } else if (this.state === 'battle') {
       // Stav boje – inicializace bojového UI
       this.createBattleUI();
@@ -623,14 +684,14 @@ export class Game {
       this.shopItemsContainer.y = newY;
       event.preventDefault();
     };
-    // Tlačítko zpět do dungeonu
-    const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
-    backBtn.on('pointerdown', () => {
-      this.state = 'dungeon';
-      this.initUI();
-    });
-    this.stage.addChild(backBtn);
-  }
+    // Tlačítko zpět do hlavního menu
+      const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
+      backBtn.on('pointerdown', () => {
+        this.state = 'mainmenu';
+        this.initUI();
+      });
+      this.stage.addChild(backBtn);
+    }
 
   resetBattleState() {
     // Reset stavu boje (např. při opuštění obrazovky boje)
