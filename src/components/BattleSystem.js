@@ -9,7 +9,7 @@ export class BattleSystem {
     // Zahájení hráčova útoku
     game.playerAttacking = true;
     game.attackAnimProgress = 0;
-    let baseAtk = char.stats.atk;
+    let baseAtk = Number.isFinite(char.stats.atk) ? char.stats.atk : 1;
     let critChance = 0.1;
     let critMultiplier = 2;
     // Úprava kritických hodnot podle schopností a třídy
@@ -27,7 +27,9 @@ export class BattleSystem {
     let atkMultiplier = (char.cls.name === 'Netrunner') ? 12 : 10;
     let defMultiplier = (char.cls.name === 'Techie') ? 6 : 5;
     // Výpočet poškození způsobeného nepříteli
-    let playerDmg = Math.max(1, (baseAtk + Math.floor(Math.random() * 3)) * atkMultiplier - enemy.def * defMultiplier);
+    const enemyDef = Number.isFinite(enemy.def) ? enemy.def : 0;
+    let playerDmg = Math.max(1, (baseAtk + Math.floor(Math.random() * 3)) * atkMultiplier - enemyDef * defMultiplier);
+    if (!Number.isFinite(playerDmg) || playerDmg <= 0) playerDmg = 1;
     playerDmg = Math.floor(playerDmg * powerMultiplier);
     if (powerMultiplier > 1) {
       game.spawnFloatingText('POWER!', game.charShape.x, game.charShape.y - 60, 0xffe000, 20, -20);

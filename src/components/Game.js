@@ -210,6 +210,10 @@ export class Game {
       startBtn.on('pointerdown', () => {
         // Vytvoření hráčovy postavy a přechod do hlavního menu hry
         this.character = new Character(this.selectedClass);
+        // ihned přepočítej statistiky pro jistotu
+        if (this.character.updateStats) {
+          this.character.updateStats();
+        }
         this.state = 'mainmenu';
         this.initUI();
       });
