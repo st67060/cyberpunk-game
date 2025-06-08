@@ -1,5 +1,5 @@
 export const BOSS_ENEMIES = [
-  { name: 'Boss 01', color: 0xff0000, hp: 400, atk: 35, def: 25, spd: 22, gold: 150, exp: 100, requiredPlayerLevel: 8, isBoss: true, texture: '/assets/Boss1.png' },
+  { name: 'Boss 01', color: 0xff0000, hp: 400, atk: 35, def: 25, spd: 22, gold: 150, exp: 100, requiredPlayerLevel: 0, isBoss: true, texture: '/assets/Boss1.png' },
   { name: 'Boss 02', color: 0x00ff00, hp: 500, atk: 40, def: 30, spd: 25, gold: 180, exp: 120, requiredPlayerLevel: 15, isBoss: true, texture: '/assets/Boss2.png' },
   { name: 'Boss 03', color: 0x0000ff, hp: 600, atk: 45, def: 35, spd: 28, gold: 220, exp: 150, requiredPlayerLevel: 25, isBoss: true, texture: '/assets/boss3.png' },
   { name: 'Boss 04', color: 0xffff00, hp: 700, atk: 50, def: 40, spd: 31, gold: 260, exp: 180, requiredPlayerLevel: 35, isBoss: true, texture: '/assets/Boss4.png' },
