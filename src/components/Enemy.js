@@ -1,3 +1,5 @@
+import { ENEMY_ASSETS } from '../data/enemyAssets.js';
+
 export class Enemy {
   constructor(template, playerLevel = 1, isBoss = false, playerRef = null) {
     this.isBoss = isBoss || template.isBoss || false;
@@ -45,6 +47,11 @@ export class Enemy {
     if (this.isBoss && template.texture) {
       // U bossů můžeme mít speciální texturu (obrázek)
       this.texture = template.texture;
+    } else if (ENEMY_ASSETS[template.name]) {
+      // Běžným nepřátelům přiřadíme texturu z mapy assetů
+      this.texture = ENEMY_ASSETS[template.name];
     }
+    // Avatar použije stejnou texturu
+    this.avatar = this.texture || ENEMY_ASSETS['Gang Thug'];
   }
 }
