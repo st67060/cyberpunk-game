@@ -1,12 +1,14 @@
 export class BattleSystem {
   static init(game) {
-    // Reset turn timer and configure base delay between actions (in frames)
     BattleSystem._timer = 0;
-    BattleSystem._delay = 600; // roughly 1.5 seconds at 60fps
+    BattleSystem._delay = 90; // základní delay mezi akcemi
+    BattleSystem._state = 'idle'; // 'idle' | 'attacking' | 'cooldown'
   }
 
   static update(game, delta) {
     if (!game.battleStarted) return;
+
+    // Konec bitvy – výhra/prohra
     if (game.enemy.hp <= 0) {
       game.battleStarted = false;
       game.battleResult = 'win';
@@ -19,49 +21,69 @@ export class BattleSystem {
       game.initUI();
       return;
     }
+
+    // Odpočet časovače
     if (BattleSystem._timer > 0) {
       BattleSystem._timer -= delta;
       return;
     }
-    if (game.battleTurn === 'player') {
-      BattleSystem.playerAttack(game);
-      game.battleTurn = 'enemy';
-    } else {
-      BattleSystem.enemyAttack(game);
-      game.battleTurn = 'player';
+
+    // Fázový přechod
+    switch (BattleSystem._state) {
+      case 'idle':
+        BattleSystem._state = 'attacking';
+        BattleSystem._timer = 30; // příprava na útok (např. animace)
+        return;
+
+      case 'attacking':
+        if (game.battleTurn === 'player') {
+          BattleSystem.playerAttack(game);
+          game.battleTurn = 'enemy';
+        } else {
+          BattleSystem.enemyAttack(game);
+          game.battleTurn = 'player';
+        }
+        BattleSystem._state = 'cooldown';
+        BattleSystem._timer = 60; // pauza po útoku
+        return;
+
+      case 'cooldown':
+        BattleSystem._state = 'idle';
+        return;
     }
-    BattleSystem._timer = BattleSystem._delay;
   }
 
   static calculateDamage(atk, def) {
-    // Damage now scales directly with the attacker's attack stat.
-    // The defender's defense is ignored in this simplified formula.
     return atk * 10;
   }
 
   static didDodge(def) {
-    const chance = def * 0.005; // 0.5% per DEF point
+    const chance = def * 0.005;
     return Math.random() < chance;
   }
 
   static didCrit(spd) {
-    const chance = spd * 0.005; // 0.5% per SPD point
+    const chance = spd * 0.005;
     return Math.random() < chance;
   }
 
   static playerAttack(game) {
     const { character: char, enemy } = game;
     game.playerAttacking = true;
+
     if (BattleSystem.didDodge(enemy.def)) {
       game.spawnFloatingText('DODGED', game.enemyAvatarX, game.enemyAvatarY - 140, 0xffffff);
       return;
     }
+
     let dmg = BattleSystem.calculateDamage(char.stats.atk, enemy.def);
     const crit = BattleSystem.didCrit(char.stats.spd);
+
     if (crit) {
       dmg *= 2;
       game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY - 160, 0xff0000);
     }
+
     enemy.hp = Math.max(0, enemy.hp - dmg);
     game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, crit ? 0xff0000 : 0xff2e2e);
     game.enemyFlashTimer = 0.2;
@@ -70,16 +92,20 @@ export class BattleSystem {
   static enemyAttack(game) {
     const { character: char, enemy } = game;
     game.enemyAttacking = true;
+
     if (BattleSystem.didDodge(char.stats.def)) {
       game.spawnFloatingText('DODGED', game.playerAvatarX, game.playerAvatarY - 140, 0xffffff);
       return;
     }
+
     let dmg = BattleSystem.calculateDamage(enemy.atk, char.stats.def);
     const crit = BattleSystem.didCrit(enemy.spd);
+
     if (crit) {
       dmg *= 2;
       game.spawnFloatingText('CRIT!', game.playerAvatarX, game.playerAvatarY - 160, 0xff0000);
     }
+
     char.hp = Math.max(0, char.hp - dmg);
     game.spawnFloatingText(`-${dmg}`, game.playerAvatarX, game.playerAvatarY - 140, crit ? 0xff0000 : 0xffe000);
     game.playerFlashTimer = 0.2;
