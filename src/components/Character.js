@@ -29,7 +29,7 @@ export class Character {
     // Aktuální statistiky (včetně vybavení)
     this.stats = { ...this.baseStats };
     // Odvozené atributy
-    this.maxHp = this.stats.hp * 100;
+    this.maxHp = this.stats.hp * 50;
     this.hp = this.maxHp;
     // Výchozí vybavení (pěstě a hadry)
     this.weapon = { name: 'Fists', type: 'weapon', baseAtk: 1, requiredPlayerLevel: 0, texture: null };
@@ -121,9 +121,9 @@ export class Character {
       this.stats.def += this.armor.def;
     }
     // U různých tříd může mít HP jiný násobitel
-    let hpMultiplier = 100;
+    let hpMultiplier = 50;
     if (this.cls.name === 'Street Samurai') {
-      hpMultiplier = 120;
+      hpMultiplier = 60;
     }
     this.maxHp = this.stats.hp * hpMultiplier;
     if (this.hp > this.maxHp) this.hp = this.maxHp;

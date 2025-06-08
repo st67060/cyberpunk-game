@@ -41,7 +41,7 @@ export class Enemy {
       this.gold = Math.max(1, Math.round(template.gold * scalingFactor));
       this.exp = Math.max(1, Math.round(template.exp * scalingFactor));
     }
-    this.maxHp = this.hp * 100;
+    this.maxHp = this.hp * 50;
     // Na začátku boje má nepřítel plné HP
     this.hp = Math.max(1, this.maxHp);
     if (this.isBoss && template.texture) {
