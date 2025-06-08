@@ -39,21 +39,49 @@ export class BattleSystem {
     return atk * 10;
   }
 
+  static didDodge(def) {
+    const chance = def * 0.005; // 0.5% per DEF point
+    return Math.random() < chance;
+  }
+
+  static didCrit(spd) {
+    const chance = spd * 0.005; // 0.5% per SPD point
+    return Math.random() < chance;
+  }
+
   static playerAttack(game) {
     const { character: char, enemy } = game;
-    const dmg = BattleSystem.calculateDamage(char.stats.atk, enemy.def);
-    enemy.hp = Math.max(0, enemy.hp - dmg);
-    game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0xff2e2e);
     game.playerAttacking = true;
+    if (BattleSystem.didDodge(enemy.def)) {
+      game.spawnFloatingText('DODGED', game.enemyAvatarX, game.enemyAvatarY - 140, 0xffffff);
+      return;
+    }
+    let dmg = BattleSystem.calculateDamage(char.stats.atk, enemy.def);
+    const crit = BattleSystem.didCrit(char.stats.spd);
+    if (crit) {
+      dmg *= 2;
+      game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY - 160, 0xff0000);
+    }
+    enemy.hp = Math.max(0, enemy.hp - dmg);
+    game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, crit ? 0xff0000 : 0xff2e2e);
     game.enemyFlashTimer = 0.2;
   }
 
   static enemyAttack(game) {
     const { character: char, enemy } = game;
-    const dmg = BattleSystem.calculateDamage(enemy.atk, char.stats.def);
-    char.hp = Math.max(0, char.hp - dmg);
-    game.spawnFloatingText(`-${dmg}`, game.playerAvatarX, game.playerAvatarY - 140, 0xffe000);
     game.enemyAttacking = true;
+    if (BattleSystem.didDodge(char.stats.def)) {
+      game.spawnFloatingText('DODGED', game.playerAvatarX, game.playerAvatarY - 140, 0xffffff);
+      return;
+    }
+    let dmg = BattleSystem.calculateDamage(enemy.atk, char.stats.def);
+    const crit = BattleSystem.didCrit(enemy.spd);
+    if (crit) {
+      dmg *= 2;
+      game.spawnFloatingText('CRIT!', game.playerAvatarX, game.playerAvatarY - 160, 0xff0000);
+    }
+    char.hp = Math.max(0, char.hp - dmg);
+    game.spawnFloatingText(`-${dmg}`, game.playerAvatarX, game.playerAvatarY - 140, crit ? 0xff0000 : 0xffe000);
     game.playerFlashTimer = 0.2;
   }
 }
