@@ -146,8 +146,8 @@ export class Game {
       CLASSES.forEach((cls, i) => {
         const avatar = PIXI.Sprite.from(cls.texture);
         avatar.anchor.set(0.5);
-        avatar.width = 150;
-        avatar.height = 150;
+        avatar.width = 100;
+        avatar.height = 100;
         avatar.x = gap * (i + 1);
         avatar.y = 230;
         const glow = new GlowFilter({
@@ -178,7 +178,7 @@ export class Game {
         infoText.anchor.set(0.5);
         infoBox.addChild(infoText);
         infoBox.x = avatar.x;
-        infoBox.y = avatar.y - 90;
+        infoBox.y = avatar.y - 70;
         infoBox.visible = false;
         this.stage.addChild(infoBox);
 
@@ -192,7 +192,7 @@ export class Game {
         });
         nameText.anchor.set(0.5);
         nameText.x = avatar.x;
-        nameText.y = avatar.y + 100;
+        nameText.y = avatar.y + 80;
         this.stage.addChild(nameText);
       });
 
@@ -228,6 +228,13 @@ export class Game {
         this.initUI();
       });
       this.stage.addChild(shopBtn);
+
+      const settingsBtn = new Button('Settings', this.app.screen.width / 2 - 85, 460, 170, 50, 0x00e0ff);
+      settingsBtn.on('pointerdown', () => {
+        this.state = 'settings';
+        this.initUI();
+      });
+      this.stage.addChild(settingsBtn);
       // (Případně další prvky hlavního menu by byly zde)
     } else if (this.state === 'profile') {
       // Screen with detailed player information and stat upgrades
@@ -411,6 +418,20 @@ export class Game {
     } else if (this.state === 'shop') {
       // Zobrazení nabídky obchodu (zbraně/zbroje)
       this.createShopUI();
+    } else if (this.state === 'settings') {
+      const title = new PIXI.Text('Settings', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+      title.anchor.set(0.5);
+      title.x = this.app.screen.width / 2;
+      title.y = 60;
+      this.stage.addChild(title);
+
+      const fsBtn = new Button('Toggle Fullscreen', this.app.screen.width / 2 - 120, 200, 240, 50, 0x00e0ff);
+      fsBtn.on('pointerdown', () => { this.toggleFullscreen(); });
+      this.stage.addChild(fsBtn);
+
+      const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
+      backBtn.on('pointerdown', () => { this.state = 'mainmenu'; this.initUI(); });
+      this.stage.addChild(backBtn);
     }
   }
 
@@ -721,6 +742,20 @@ export class Game {
     this.playerFlashTimer = 0;
     this.enemyFlashTimer = 0;
     this.playerAttacksWithoutDamage = 0;
+  }
+
+  toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.body.requestFullscreen().then(() => {
+        this.app.renderer.resize(window.innerWidth, window.innerHeight);
+        this.initUI();
+      });
+    } else {
+      document.exitFullscreen().then(() => {
+        this.app.renderer.resize(1280, 720);
+        this.initUI();
+      });
+    }
   }
 
   update(delta) {
