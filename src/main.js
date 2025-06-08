@@ -17,6 +17,9 @@ import { Game } from './components/Game.js';
   app.canvas.style.display = 'block';
   app.canvas.style.margin = 'auto';
 
+  // Inicializace hry
+  const game = new Game(app);
+
   const resize = () => {
     const w = document.fullscreenElement ? window.innerWidth : 1280;
     const h = document.fullscreenElement ? window.innerHeight : 720;
@@ -24,11 +27,7 @@ import { Game } from './components/Game.js';
     game.initUI();
   };
 
-
   window.addEventListener('resize', resize);
-
-  // Inicializace hry
-  const game = new Game(app);
   resize();
 
   // Game loop
