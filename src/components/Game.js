@@ -9,8 +9,7 @@ import { Button } from './Button.js';
 import { StatBar } from './StatBar.js';
 import { Character } from './Character.js';
 import { Enemy } from './Enemy.js';
-import { BattleSystem } from './BattleSystem.js';
-import { StrategicBattleSystem } from './StrategicBattleSystem.js';
+import { BattleSystem } from './battlesystem.js';
 
 import { CLASSES } from '../data/classes.js';
 import { DUNGEON_ENEMIES } from '../data/dungeonEnemies.js';
@@ -424,7 +423,7 @@ export class Game {
       this.stage.addChild(backBtn);
     } else if (this.state === 'battle') {
       // Stav boje – inicializace bojového UI a nového systému kol
-      StrategicBattleSystem.init(this);
+      BattleSystem.init(this);
       this.createBattleUI();
     } else if (this.state === 'shop') {
       // Zobrazení nabídky obchodu (zbraně/zbroje)
@@ -949,9 +948,9 @@ export class Game {
           this.comboTimer = 0;
         }
       }
-      // New energy-based battle system handled by StrategicBattleSystem
+      // Automatic battle loop handled by BattleSystem
       if (this.battleStarted) {
-        StrategicBattleSystem.update(this, delta);
+        BattleSystem.update(this, delta);
       }
     }
   }
