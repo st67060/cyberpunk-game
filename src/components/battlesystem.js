@@ -7,8 +7,16 @@ export class BattleSystem {
 
   static update(game, delta) {
     if (!game.battleStarted) return;
-    if (game.character.hp <= 0 || game.enemy.hp <= 0) {
+    if (game.enemy.hp <= 0) {
       game.battleStarted = false;
+      game.battleResult = 'win';
+      game.initUI();
+      return;
+    }
+    if (game.character.hp <= 0) {
+      game.battleStarted = false;
+      game.battleResult = 'lose';
+      game.initUI();
       return;
     }
     if (BattleSystem._timer > 0) {
@@ -26,8 +34,9 @@ export class BattleSystem {
   }
 
   static calculateDamage(atk, def) {
-    const base = atk - def * 0.5;
-    return Math.max(1, Math.round(base + Math.random() * 2));
+    // Damage now scales directly with the attacker's attack stat.
+    // The defender's defense is ignored in this simplified formula.
+    return atk * 10;
   }
 
   static playerAttack(game) {
