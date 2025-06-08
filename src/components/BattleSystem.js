@@ -46,6 +46,7 @@ export class BattleSystem {
     enemy.hp = Math.max(0, enemy.hp - playerDmg);
     // Pokud nebyly inicializovány sprity postav, obnovit UI
     if (!game.charShape || !game.enemyShape) {
+      game.playerAttacking = false;
       game.initUI();
       return;
     }
@@ -91,6 +92,7 @@ export class BattleSystem {
 
     // Kontrola existence sprite; pokud chybí, znovu vykreslit UI
     if (!game.charShape || !game.enemyShape) {
+      game.enemyAttacking = false;
       game.initUI();
       return;
     }
@@ -199,6 +201,7 @@ export class BattleSystem {
     game.playerFlashTimer = 0.1;
     // Pokud sprity postav neexistují (např. hráč zemřel a UI je pryč), obnovit UI
     if (!game.charShape || !game.enemyShape) {
+      game.enemyAttacking = false;
       game.initUI();
       return;
     }
