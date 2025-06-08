@@ -292,7 +292,9 @@ export class Game {
         // Vybrání náhodného nepřítele ze seznamu pro daný dungeon level
         const randomEnemyTemplate = DUNGEON_ENEMIES[Math.floor(Math.random() * DUNGEON_ENEMIES.length)];
         this.enemy = new Enemy(randomEnemyTemplate, this.character.level, false, this.character);
-        // Přechod do stavu boje
+        // Přechod do stavu boje a nastavení hráčova tahu na začátek
+        this.battleTurn = 'player';
+        this.resetBattleState();
         this.state = 'battle';
         this.initUI();
       });
@@ -312,6 +314,9 @@ export class Game {
           return;
         }
         this.enemy = new Enemy(bossTemplate, this.character.level, true, this.character);
+        // Zahájení nového boje s bossem
+        this.battleTurn = 'player';
+        this.resetBattleState();
         this.state = 'battle';
         this.initUI();
       });
