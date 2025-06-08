@@ -74,6 +74,7 @@ export class Game {
     this.enemyEnergy = 0;
     this.energyMax = 100;
     this.energyThreshold = 50;
+    this.battleStarted = false;
     // Načtení všech assetů (obrázků) a po dokončení přechod na obrazovku výběru postavy
     this.loadAssets().then(() => {
       this.state = 'charcreate';
@@ -635,6 +636,15 @@ export class Game {
       // Vycentrování tlačítka
       buttonContainer.x = this.app.screen.width / 2 - continueBtn.w / 2;
       buttonContainer.y = this.app.screen.height - 80;
+    } else if (!this.battleStarted) {
+      const startBtn = new Button('Start', 0, 0, 180, 52, 0x00e0ff);
+      startBtn.on('pointerdown', () => {
+        this.battleStarted = true;
+        buttonContainer.removeChild(startBtn);
+      });
+      buttonContainer.addChild(startBtn);
+      buttonContainer.x = this.app.screen.width / 2 - startBtn.w / 2;
+      buttonContainer.y = this.app.screen.height - 80;
     }
   }
 
@@ -763,6 +773,7 @@ export class Game {
     this.battleContainer = null;
     this.playerEnergy = 0;
     this.enemyEnergy = 0;
+    this.battleStarted = false;
   }
 
   toggleFullscreen() {
@@ -939,7 +950,9 @@ export class Game {
         }
       }
       // New energy-based battle system handled by StrategicBattleSystem
-      StrategicBattleSystem.update(this, delta);
+      if (this.battleStarted) {
+        StrategicBattleSystem.update(this, delta);
+      }
     }
   }
 }
