@@ -108,7 +108,6 @@ export class BattleSystem {
     // Přepnutí na tah nepřítele a nastavení odpočtu pro další útok
     game.playerAttacking = false;
     game.battleTurn = 'enemy';
-    game.autoBattleTimer = game.autoBattleDelay;
   }
 
   static doEnemyAttack(game) {
