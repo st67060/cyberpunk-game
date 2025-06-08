@@ -15,11 +15,11 @@ export const ENEMY_ASSETS = {
   'Vortex Sentinel': '/assets/enemy14.png',
   'Chrono-Assassin': '/assets/enemy15.png',
   'Quantum Disruptor': '/assets/enemy16.png',
-  'Gravity Manipulator': 'https://storage.googleapis.com/scraper_ludo/user_images_prod/2bc61851a6c08ec0819cbc5c7c43056d.webp',
-  'Singularity Engine': 'https://storage.googleapis.com/scraper_ludo/user_images_prod/7f2b890c35e88ddf6adc50302179b080.webp',
-  'Cosmic Horror': 'https://storage.googleapis.com/scraper_ludo/user_images_prod/d98f8eac1874d598faa9599ad529538b.webp',
-  'Dimension Shifter': 'https://storage.googleapis.com/scraper_ludo/user_images_prod/7a3f9f1f244f239f90ea1b5d377b4ea8.webp',
-  'Reality Bender': 'https://storage.googleapis.com/scraper_ludo/user_images_prod/12003849c15abb0b6fc148dbd00822ad.webp',
-  'Void Weaver': 'https://storage.googleapis.com/scraper_ludo/user_images_prod/747329a2ac372b33f9bd597096f49c3c.webp',
-  'Omni-King': 'https://storage.googleapis.com/scraper_ludo/user_images_prod/4d06094407104b7d6eb966d0f0189a1c.webp'
+  'Gravity Manipulator': '/assets/enemy16.png',
+  'Singularity Engine': '/assets/enemy16.png',
+  'Cosmic Horror': '/assets/enemy16.png',
+  'Dimension Shifter': '/assets/enemy16.png',
+  'Reality Bender': '/assets/enemy16.png',
+  'Void Weaver': '/assets/enemy16.png',
+  'Omni-King': '/assets/enemy16.png'
 };
