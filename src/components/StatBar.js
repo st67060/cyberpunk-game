@@ -29,8 +29,8 @@ export class StatBar extends PIXI.Container {
   }
 
   updateBar(val, max) {
-    this.value = val;
-    this.max = max;
+    this.value = Number.isFinite(val) ? val : 0;
+    this.max = Number.isFinite(max) && max > 0 ? max : 1;
     // Aktualizace grafické výplně podle poměru value/max
     this.fg.clear();
     this.fg.beginFill(this.fill);

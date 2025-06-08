@@ -20,11 +20,13 @@ export class StrategicBattleSystem {
 
     game.playerEnergy = Math.max(0, Math.min(
       game.energyMax,
-      game.playerEnergy + playerSpd * delta * ENERGY_GAIN_RATE
+      (Number.isFinite(game.playerEnergy) ? game.playerEnergy : 0) +
+        playerSpd * delta * ENERGY_GAIN_RATE
     ));
     game.enemyEnergy = Math.max(0, Math.min(
       game.energyMax,
-      game.enemyEnergy + enemySpd * delta * ENERGY_GAIN_RATE
+      (Number.isFinite(game.enemyEnergy) ? game.enemyEnergy : 0) +
+        enemySpd * delta * ENERGY_GAIN_RATE
     ));
 
     if (!game.playerAttacking && !game.enemyAttacking && char.hp > 0 && enemy.hp > 0) {
