@@ -2,7 +2,7 @@ export class BattleSystem {
   static init(game) {
     // Reset turn timer and configure base delay between actions (in frames)
     BattleSystem._timer = 0;
-    BattleSystem._delay = 90; // roughly 1.5 seconds at 60fps
+    BattleSystem._delay = 600; // roughly 1.5 seconds at 60fps
   }
 
   static update(game, delta) {
