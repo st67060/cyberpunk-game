@@ -74,6 +74,7 @@ export class Game {
     this.energyMax = 100;
     this.energyThreshold = 50;
     this.battleStarted = false;
+    this.battleResult = null;
     // Načtení všech assetů (obrázků) a po dokončení přechod na obrazovku výběru postavy
     this.loadAssets().then(() => {
       this.state = 'charcreate';
@@ -560,8 +561,8 @@ export class Game {
     buttonContainer.x = this.app.screen.width / 2;
     buttonContainer.y = this.app.screen.height - 80;
     this.battleContainer.addChild(buttonContainer);
-    // Kontrola, zda je boj již rozhodnut (enemy.hp <= 0 nebo char.hp <= 0)
-    if (enemy.hp <= 0) {
+    // Kontrola, zda je boj již rozhodnut
+    if (this.battleResult === 'win') {
       // Vítězství
       const winMsg = new PIXI.Text('VICTORY!', { fontFamily: 'monospace', fontSize: 48, fill: 0x00e0ff, fontWeight: 'bold', stroke: 0x000000, strokeThickness: 6 });
       winMsg.anchor.set(0.5);
@@ -597,7 +598,7 @@ export class Game {
       // Vycentrování tlačítka
       buttonContainer.x = this.app.screen.width / 2 - contBtn.w / 2;
       buttonContainer.y = this.app.screen.height - 80;
-    } else if (char.hp <= 0) {
+    } else if (this.battleResult === 'lose') {
       // Porážka hráče
       let goldLost = 0;
       let defeatMsg = '';
@@ -635,7 +636,7 @@ export class Game {
       // Vycentrování tlačítka
       buttonContainer.x = this.app.screen.width / 2 - continueBtn.w / 2;
       buttonContainer.y = this.app.screen.height - 80;
-    } else if (!this.battleStarted) {
+    } else if (!this.battleStarted && this.battleResult === null) {
       const startBtn = new Button('Start', 0, 0, 180, 52, 0x00e0ff);
       startBtn.on('pointerdown', () => {
         this.battleStarted = true;
@@ -773,6 +774,7 @@ export class Game {
     this.playerEnergy = 0;
     this.enemyEnergy = 0;
     this.battleStarted = false;
+    this.battleResult = null;
   }
 
   toggleFullscreen() {
