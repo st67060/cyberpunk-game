@@ -24,16 +24,6 @@ import { Game } from './components/Game.js';
     game.initUI();
   };
 
-  const fullscreenBtn = document.getElementById('fullscreenBtn');
-  if (fullscreenBtn) {
-    fullscreenBtn.addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.body.requestFullscreen().then(resize);
-      } else {
-        document.exitFullscreen().then(resize);
-      }
-    });
-  }
 
   window.addEventListener('resize', resize);
 
