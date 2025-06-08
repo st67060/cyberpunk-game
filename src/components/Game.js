@@ -675,6 +675,8 @@ export class Game {
     }
     // Pokud probíhá boj, aktualizace logiky boje
     if (this.state === 'battle') {
+      const char = this.character;
+      const enemy = this.enemy;
       this.battleAnim += 0.08 * delta;
       // Aktualizace HP barů hráče a nepřítele
       if (this.charHpBar) this.charHpBar.updateBar(this.character.hp, this.character.maxHp);
@@ -752,8 +754,6 @@ export class Game {
       // Aktualizace efektu útoku hráče (např. letící střela nebo seknutí)
       if (this.attackEffect) {
         this.attackEffectAnimProgress += 0.05 * delta;
-        const char = this.character;
-        const enemy = this.enemy;
         if (char.cls.name === 'Street Samurai') {
           const progress = this.attackEffectAnimProgress;
           game.attackEffect.x = this.charShape.x + 30 + progress * 80;
