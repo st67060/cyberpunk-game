@@ -424,8 +424,8 @@ export class Game {
       this.stage.addChild(backBtn);
     } else if (this.state === 'battle') {
       // Stav boje – inicializace bojového UI a nového systému kol
-      this.createBattleUI();
       StrategicBattleSystem.init(this);
+      this.createBattleUI();
     } else if (this.state === 'shop') {
       // Zobrazení nabídky obchodu (zbraně/zbroje)
       this.createShopUI();

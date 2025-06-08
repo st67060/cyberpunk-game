@@ -6,6 +6,7 @@ export class StrategicBattleSystem {
     game.enemyEnergy = 0;
     game.energyMax = 100;
     game.energyThreshold = 50;
+    game.battleStarted = true;
   }
 
   static update(game, delta) {
