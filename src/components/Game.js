@@ -132,39 +132,51 @@ export class Game {
     // Přidání pozadí
     this.stage.addChild(this.backgroundSprite);
     if (this.state === 'charcreate') {
-      // Obrazovka výběru postavy
-      // Zobrazení avataru aktuálně vybrané třídy
-      const classAvatar = PIXI.Sprite.from(this.selectedClass.texture);
-      classAvatar.anchor.set(0.5);
-      classAvatar.x = this.app.screen.width / 2;
-      classAvatar.y = 280;
-      // Filtry pro avatar postavy (záře + bloom)
-      const glowFilter = new GlowFilter({ distance: 15, outerStrength: 2.5, innerStrength: 0, color: this.selectedClass.color });
-      const bloomFilter = new BloomFilter({ threshold: 0.2, bloomScale: 1.5, blur: 10, quality: 5 });
-      classAvatar.filters = [glowFilter, bloomFilter];
-      this.stage.addChild(classAvatar);
-      // Název třídy pod avatarem
-      const classNameText = new PIXI.Text(this.selectedClass.name, { fontFamily: 'monospace', fontSize: 32, fill: this.selectedClass.color });
-      classNameText.anchor.set(0.5);
-      classNameText.x = this.app.screen.width / 2;
-      classNameText.y = classAvatar.y + 180;
-      this.stage.addChild(classNameText);
-      // Tlačítka pro výběr předchozí/následující třídy
-      const prevClassBtn = new Button('<', classAvatar.x - classAvatar.width / 2 - 60, classAvatar.y - 20, 40, 40, 0x222c33);
-      const nextClassBtn = new Button('>', classAvatar.x + classAvatar.width / 2 + 20, classAvatar.y - 20, 40, 40, 0x222c33);
-      prevClassBtn.on('pointerdown', () => {
-        this.classIdx = (this.classIdx + CLASSES.length - 1) % CLASSES.length;
-        this.selectedClass = CLASSES[this.classIdx];
-        this.initUI();
+      // Screen for selecting a character class
+      const titleText = new PIXI.Text('Choose Your Class', {
+        fontFamily: 'monospace', fontSize: 28, fill: 0xffffff
       });
-      nextClassBtn.on('pointerdown', () => {
-        this.classIdx = (this.classIdx + 1) % CLASSES.length;
-        this.selectedClass = CLASSES[this.classIdx];
-        this.initUI();
+      titleText.anchor.set(0.5);
+      titleText.x = this.app.screen.width / 2;
+      titleText.y = 60;
+      this.stage.addChild(titleText);
+
+      // Render all available classes side by side
+      const gap = this.app.screen.width / 4;
+      CLASSES.forEach((cls, i) => {
+        const avatar = PIXI.Sprite.from(cls.texture);
+        avatar.anchor.set(0.5);
+        avatar.width = 150;
+        avatar.height = 150;
+        avatar.x = gap * (i + 1);
+        avatar.y = 230;
+        const glow = new GlowFilter({
+          distance: 15,
+          outerStrength: i === this.classIdx ? 3 : 1.5,
+          innerStrength: 0,
+          color: cls.color
+        });
+        avatar.filters = [glow];
+        avatar.interactive = true;
+        avatar.buttonMode = true;
+        avatar.on('pointerdown', () => {
+          this.classIdx = i;
+          this.selectedClass = cls;
+          this.initUI();
+        });
+        this.stage.addChild(avatar);
+
+        const nameText = new PIXI.Text(cls.name, {
+          fontFamily: 'monospace', fontSize: 20, fill: cls.color
+        });
+        nameText.anchor.set(0.5);
+        nameText.x = avatar.x;
+        nameText.y = avatar.y + 100;
+        this.stage.addChild(nameText);
       });
-      this.stage.addChild(prevClassBtn, nextClassBtn);
-      // Tlačítko potvrzení výběru postavy ("Start Game")
-      const startBtn = new Button('Start Game', this.app.screen.width / 2 - 85, classNameText.y + 60, 170, 50, 0x00e0ff);
+
+      // Start Game button
+      const startBtn = new Button('Start Game', this.app.screen.width / 2 - 85, 420, 170, 50, 0x00e0ff);
       startBtn.on('pointerdown', () => {
         // Vytvoření hráčovy postavy a přechod do hlavního menu hry
         this.character = new Character(this.selectedClass);
