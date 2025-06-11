@@ -90,7 +90,7 @@ export class Game {
   async loadAssets() {
     // Sestavení pole URL všech obrázků, které je třeba načíst
     const assets = CLASSES.map(c => c.texture);
-    // Přidání pozadí dungeonu a všech item/enemy assetů
+    // Přidání pozadí Vaultu 404 a všech item/enemy assetů
     assets.push('/assets/background.png');
     Object.values(ITEM_ASSETS).forEach(url => assets.push(url));
     Object.values(ENEMY_ASSETS).forEach(url => assets.push(url));
@@ -251,7 +251,7 @@ export class Game {
       this.stage.addChild(startBtn);
     } else if (this.state === 'mainmenu') {
       // Hlavní menu se třemi tlačítky
-      const dungeonBtn = new Button('Dungeon', this.app.screen.width / 2 - 85, 250, 170, 50, 0xff2e2e);
+      const dungeonBtn = new Button('Vault 404', this.app.screen.width / 2 - 85, 250, 170, 50, 0xff2e2e);
       dungeonBtn.on('pointerdown', () => {
         this.state = 'dungeon';
         this.message = '';
@@ -266,7 +266,7 @@ export class Game {
       });
       this.stage.addChild(profileBtn);
 
-      const shopBtn = new Button('Shop', this.app.screen.width / 2 - 85, 390, 170, 50, 0x00e0ff);
+      const shopBtn = new Button('Market', this.app.screen.width / 2 - 85, 390, 170, 50, 0x00e0ff);
       shopBtn.on('pointerdown', () => {
         this.state = 'shop';
         this.initUI();
@@ -431,8 +431,8 @@ export class Game {
         });
         this.stage.addChild(backBtn);
       } else if (this.state === 'dungeon') {
-      // Herní obrazovka dungeonu – zobrazení nepřítele nebo výzvy k souboji
-      const dungeonText = new PIXI.Text(`Dungeon Level ${this.dungeonLevel}`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffffff });
+      // Herní obrazovka Vault 404 – zobrazení nepřítele nebo výzvy k souboji
+      const dungeonText = new PIXI.Text(`Vault 404 - Level ${this.dungeonLevel}`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffffff });
       dungeonText.anchor.set(0.5);
       dungeonText.x = this.app.screen.width / 2;
       dungeonText.y = 80;
@@ -449,7 +449,7 @@ export class Game {
       // Tlačítko "Battle Enemy" pro zahájení souboje s náhodným nepřítelem
       const battleBtn = new Button('Battle Enemy', this.app.screen.width / 2 - 105, 300, 210, 60, 0xff2e2e);
       battleBtn.on('pointerdown', () => {
-        // Vybrání náhodného nepřítele ze seznamu pro daný dungeon level
+        // Vybrání náhodného nepřítele ze seznamu pro daný Vault 404 level
         const randomEnemyTemplate = DUNGEON_ENEMIES[Math.floor(Math.random() * DUNGEON_ENEMIES.length)];
         this.enemy = new Enemy(randomEnemyTemplate, this.character.level, false, this.character);
         // Přechod do stavu boje a nastavení hráčova tahu na začátek
@@ -483,8 +483,8 @@ export class Game {
         this.initUI();
       });
       this.stage.addChild(bossBtn);
-      // Tlačítko "Shop" pro otevření obchodu
-      const shopBtn = new Button('Shop', this.app.screen.width / 2 - 55, 460, 110, 50, 0x00e0ff);
+      // Tlačítko "Market" pro otevření obchodu
+      const shopBtn = new Button('Market', this.app.screen.width / 2 - 55, 460, 110, 50, 0x00e0ff);
       shopBtn.on('pointerdown', () => {
         this.state = 'shop';
         this.initUI();
@@ -708,7 +708,7 @@ export class Game {
       this.battleContainer.addChild(goldLossText);
       const continueBtn = new Button('Continue', 0, 0, 180, 52, 0x222c33);
       continueBtn.on('pointerdown', () => {
-        // Návrat do dungeonu (hráč při porážce nezískává nic, jen se vynuluje HP)
+        // Návrat do Vaultu 404 (hráč při porážce nezískává nic, jen se vynuluje HP)
         char.hp = char.maxHp;
         this.state = 'dungeon';
         this.message = '';
@@ -732,7 +732,7 @@ export class Game {
 
   createShopUI() {
     // (Základní implementace UI obchodu – zobrazení seznamu zbraní či zbrojí k prodeji)
-    const shopTitle = new PIXI.Text('Shop', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+    const shopTitle = new PIXI.Text('Market', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
     shopTitle.anchor.set(0.5, 0);
     shopTitle.x = this.app.screen.width / 2;
     shopTitle.y = 20;
