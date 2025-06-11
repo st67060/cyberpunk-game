@@ -3,6 +3,7 @@ import { GlowFilter } from '@pixi/filter-glow';
 import { BloomFilter } from '@pixi/filter-bloom';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { CRTFilter } from '@pixi/filter-crt';
+import { GlitchFilter } from '@pixi/filter-glitch';
 import { BlurFilter } from 'pixi.js';
 
 import { Button } from './Button.js';
@@ -57,6 +58,9 @@ export class Game {
     this.bossesDefeated = 0;
     this.currentBossIndex = 0;
     this.bgDistortFilter = null;
+    this.glitchFilter = null;
+    this.glitchTimer = 0;
+    this.nextGlitchIn = 0;
     this.logoSprite = null;
     this.comboCount = 0;
     this.comboTimer = 0;
@@ -120,7 +124,10 @@ export class Game {
       seed: Math.random()
     });
     this.bgDistortFilter.time = 0;
-    this.backgroundSprite.filters = [this.bgDistortFilter];
+    this.glitchFilter = new GlitchFilter();
+    this.glitchFilter.enabled = false;
+    this.nextGlitchIn = 3 + Math.random() * 5;
+    this.backgroundSprite.filters = [this.bgDistortFilter, this.glitchFilter];
 
     this.logoSprite = PIXI.Sprite.from('/assets/Logo.png');
     this.logoSprite.width = 120;
@@ -956,6 +963,21 @@ export class Game {
     // Animace zkreslení pozadí (CRT efekt)
     if (this.bgDistortFilter) {
       this.bgDistortFilter.time += 0.03 * delta;
+    }
+    if (this.glitchFilter) {
+      if (this.glitchTimer > 0) {
+        this.glitchTimer -= delta / 60;
+        if (this.glitchTimer <= 0) {
+          this.glitchFilter.enabled = false;
+          this.nextGlitchIn = 3 + Math.random() * 5;
+        }
+      } else {
+        this.nextGlitchIn -= delta / 60;
+        if (this.nextGlitchIn <= 0) {
+          this.glitchFilter.enabled = true;
+          this.glitchTimer = 0.15;
+        }
+      }
     }
     // Aktualizace animace všech tlačítek (Button.updateAnimation)
     this.stage.children.forEach(child => {
