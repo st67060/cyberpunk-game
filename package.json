@@ -12,7 +12,8 @@
     "@pixi/filter-glow": "^5.2.1",
     "@pixi/filter-bloom": "^5.1.1",
     "@pixi/filter-drop-shadow": "^5.2.0",
-    "@pixi/filter-crt": "^5.1.1"
+    "@pixi/filter-crt": "^5.1.1",
+    "@pixi/filter-glitch": "^5.1.1"
   },
   "devDependencies": {
     "vite": "^6.3.5"
