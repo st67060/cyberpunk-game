@@ -72,7 +72,7 @@ export class BattleSystem {
     game.playerAttacking = true;
 
     if (BattleSystem.didDodge(enemy.def)) {
-      game.spawnFloatingText('DODGED', game.enemyAvatarX, game.enemyAvatarY - 140, 0xffffff);
+      game.spawnFloatingText('DODGED', game.enemyAvatarX, game.enemyAvatarY - 140, 0xffffff, 36);
       return;
     }
 
@@ -81,11 +81,11 @@ export class BattleSystem {
 
     if (crit) {
       dmg *= 2;
-      game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY - 160, 0xff0000);
+      game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY - 160, 0xff0000, 36);
     }
 
     enemy.hp = Math.max(0, enemy.hp - dmg);
-    game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, crit ? 0xff0000 : 0xff2e2e);
+    game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, crit ? 0xff0000 : 0xff2e2e, 36);
     game.enemyFlashTimer = 0.2;
   }
 
@@ -94,7 +94,7 @@ export class BattleSystem {
     game.enemyAttacking = true;
 
     if (BattleSystem.didDodge(char.stats.def)) {
-      game.spawnFloatingText('DODGED', game.playerAvatarX, game.playerAvatarY - 140, 0xffffff);
+      game.spawnFloatingText('DODGED', game.playerAvatarX, game.playerAvatarY - 140, 0xffffff, 36);
       return;
     }
 
@@ -103,11 +103,11 @@ export class BattleSystem {
 
     if (crit) {
       dmg *= 2;
-      game.spawnFloatingText('CRIT!', game.playerAvatarX, game.playerAvatarY - 160, 0xff0000);
+      game.spawnFloatingText('CRIT!', game.playerAvatarX, game.playerAvatarY - 160, 0xff0000, 36);
     }
 
     char.hp = Math.max(0, char.hp - dmg);
-    game.spawnFloatingText(`-${dmg}`, game.playerAvatarX, game.playerAvatarY - 140, crit ? 0xff0000 : 0xffe000);
+    game.spawnFloatingText(`-${dmg}`, game.playerAvatarX, game.playerAvatarY - 140, crit ? 0xff0000 : 0xffe000, 36);
     game.playerFlashTimer = 0.2;
   }
 }
