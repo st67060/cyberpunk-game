@@ -1,3 +1,14 @@
+export const BASIC_ATTACK = {
+  name: 'Basic Attack',
+  description: 'A straightforward strike dealing damage.',
+  execute(game) {
+    const { character: char, enemy } = game;
+    const dmg = char.stats.atk * 10;
+    enemy.hp = Math.max(0, enemy.hp - dmg);
+    game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0xffe000, 36);
+  }
+};
+
 export const ABILITIES = {
   'Netrunner': [
     {
