@@ -19,6 +19,8 @@ import { ITEM_ASSETS } from '../data/itemAssets.js';
 import { ENEMY_ASSETS } from '../data/enemyAssets.js';
 import { BOSS_ENEMIES } from '../data/bossEnemies.js';
 
+const CLASS_AVATAR_SIZE = 80;
+
 export class Game {
   constructor(app) {
     // Uložení reference na PIXI.Application
@@ -159,8 +161,8 @@ export class Game {
       CLASSES.forEach((cls, i) => {
         const avatar = PIXI.Sprite.from(cls.texture);
         avatar.anchor.set(0.5);
-        avatar.width = 100;
-        avatar.height = 100;
+        avatar.width = CLASS_AVATAR_SIZE;
+        avatar.height = CLASS_AVATAR_SIZE;
         avatar.x = gap * (i + 1);
         avatar.y = 230;
         const glow = new GlowFilter({
