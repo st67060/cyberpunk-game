@@ -82,6 +82,8 @@ export class Game {
     this.enemyEnergy = 0;
     this.energyMax = 100;
     this.energyThreshold = 50;
+    this.droneDamage = 5;
+    this.abilityButtons = null;
     this.battleStarted = false;
     this.battleResult = null;
     // Nastavení hudby na pozadí
@@ -774,6 +776,27 @@ export class Game {
     }
   }
 
+  showAbilityOptions(abilities) {
+    if (!this.battleContainer) return;
+    if (this.abilityButtons) {
+      this.battleContainer.removeChild(this.abilityButtons);
+      this.abilityButtons.destroy({ children: true });
+    }
+    const cont = new PIXI.Container();
+    const startX = this.app.screen.width / 2 - 330;
+    abilities.forEach((ab, idx) => {
+      const btn = new Button(ab.name, startX + idx * 220, this.app.screen.height - 140, 200, 50, 0x00e0ff);
+      btn.on('pointerdown', () => {
+        if (this.battleStarted) {
+          BattleSystem.useAbility(this, ab);
+        }
+      });
+      cont.addChild(btn);
+    });
+    this.battleContainer.addChild(cont);
+    this.abilityButtons = cont;
+  }
+
   createShopUI() {
     // (Základní implementace UI obchodu – zobrazení seznamu zbraní či zbrojí k prodeji)
     const shopTitle = new PIXI.Text('Market', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
@@ -918,8 +941,14 @@ export class Game {
     this.charShape = null;
     this.enemyShape = null;
     this.battleContainer = null;
+    if (this.abilityButtons) {
+      this.stage.removeChild(this.abilityButtons);
+      this.abilityButtons.destroy({ children: true });
+      this.abilityButtons = null;
+    }
     this.playerEnergy = 0;
     this.enemyEnergy = 0;
+    this.droneDamage = 5;
     this.battleStarted = false;
   }
 
@@ -1135,7 +1164,7 @@ export class Game {
           this.comboTimer = 0;
         }
       }
-      // Automatic battle loop handled by BattleSystem
+      // Battle logic handled by BattleSystem
       if (this.battleStarted) {
         BattleSystem.update(this, delta);
       }
