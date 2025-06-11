@@ -974,6 +974,9 @@ export class Game {
       } else {
         this.nextGlitchIn -= delta / 60;
         if (this.nextGlitchIn <= 0) {
+          // Randomize glitch seed each time the effect triggers
+          this.glitchFilter.seed = Math.random();
+          this.glitchFilter.refresh();
           this.glitchFilter.enabled = true;
           this.glitchTimer = 0.15;
         }
