@@ -26,7 +26,7 @@ export class Enemy {
         const c = playerRef.cls;
         playerStartTotal = c.hp + c.atk + c.def + c.spd;
       }
-      const targetTotal = playerStartTotal + (this.level - 1) * 3;
+      const targetTotal = playerStartTotal + (this.level - 1) * 5;
       const baseTotal = template.hp + template.atk + template.def + template.spd;
       const scalingFactor = baseTotal > 0 ? (targetTotal / baseTotal) : 1;
       const variance = 0.05;
