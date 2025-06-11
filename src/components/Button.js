@@ -8,14 +8,15 @@ export class Button extends PIXI.Container {
     this.eventMode = 'static';
     // Vykreslení obdélníkového podkladu tlačítka
     const g = new PIXI.Graphics();
+    g.lineStyle(4, 0x000000);
     g.beginFill(color);
     g.drawRoundedRect(0, 0, w, h, 12);
     g.endFill();
     // Aplikace Glow filtru pro efekt záře
-    g.filters = [new GlowFilter({ distance: 10, outerStrength: 2, innerStrength: 0, color: 0x00ffe0 })];
+    g.filters = [new GlowFilter({ distance: 10, outerStrength: 2, innerStrength: 0, color: 0xff00ff })];
     this.addChild(g);
     // Text popisku tlačítka
-    const t = new PIXI.Text(label, { fontFamily: 'monospace', fontSize: 22, fill: 0xffffff });
+    const t = new PIXI.Text(label, { fontFamily: 'Bangers, monospace', fontSize: 26, fill: 0xffffff, stroke: 0x000000, strokeThickness: 4 });
     t.anchor.set(0.5);
     t.x = w / 2;
     t.y = h / 2;
@@ -38,7 +39,7 @@ export class Button extends PIXI.Container {
     this._initialColor = color;
     this._targetColor = color;
     // Zvýraznění tlačítka při najetí myši
-    this.on('pointerover', () => g.tint = 0x00ffe0);
+    this.on('pointerover', () => g.tint = 0xff00ff);
     this.on('pointerout', () => {
       if (!this._isAnimating) {
         g.tint = this.originalColor;
