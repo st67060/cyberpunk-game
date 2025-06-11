@@ -161,8 +161,9 @@ export class Game {
       CLASSES.forEach((cls, i) => {
         const avatar = PIXI.Sprite.from(cls.texture);
         avatar.anchor.set(0.5);
-        avatar.width = CLASS_AVATAR_SIZE;
-        avatar.height = CLASS_AVATAR_SIZE;
+        const sizeMultiplier = i === this.classIdx ? 1.2 : 1;
+        avatar.width = CLASS_AVATAR_SIZE * sizeMultiplier;
+        avatar.height = CLASS_AVATAR_SIZE * sizeMultiplier;
         avatar.x = gap * (i + 1);
         avatar.y = 230;
         const glow = new GlowFilter({
@@ -172,7 +173,7 @@ export class Game {
           color: cls.color
         });
         avatar.filters = [glow];
-        avatar.scale.set(i === this.classIdx ? 1.2 : 1);
+        // Width and height already apply the desired scaling
         avatar.interactive = true;
         avatar.buttonMode = true;
         avatar.on('pointerdown', () => {
