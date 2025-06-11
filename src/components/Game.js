@@ -117,8 +117,12 @@ export class Game {
   spawnFloatingText(text, x, y, color = 0xffffff, fontSize = 24, offsetY = 0) {
     // Vytvoření poletujícího textu (např. poškození nebo zprávy) na scéně
     const floatingText = new PIXI.Text(text, {
-      fontFamily: 'monospace', fontSize: fontSize, fill: color,
-      fontWeight: 'bold', stroke: 0x000000, strokeThickness: 4
+      fontFamily: 'monospace',
+      fontSize,
+      fill: color,
+      fontWeight: 'bold',
+      stroke: 0x000000,
+      strokeThickness: 4
     });
     floatingText.anchor.set(0.5);
     floatingText.x = x;
@@ -127,8 +131,13 @@ export class Game {
     floatingText.alpha = 1;
     floatingText.life = 0;
     floatingText.scale.set(1);
+    floatingText.zIndex = 5;
     this.floatingTexts.push(floatingText);
-    this.stage.addChild(floatingText);
+    if (this.state === 'battle' && this.battleContainer) {
+      this.battleContainer.addChild(floatingText);
+    } else {
+      this.stage.addChild(floatingText);
+    }
   }
 
   // ... (další metody Game: initUI(), createBattleUI(), createShopUI(), aj., viz níže) ...
@@ -492,7 +501,7 @@ export class Game {
     this.charShape = charAvatar;
     charAvatar.x = this.playerAvatarX;
     charAvatar.y = this.playerAvatarY;
-    charAvatar.zIndex = 1;
+    charAvatar.zIndex = 2;
     // Filtry pro hráčův avatar (záře, bloom, stín)
     charAvatar.filters = [
       new GlowFilter({ distance: 22, outerStrength: 3, innerStrength: 0, color: char.cls.color, quality: 0.5 }),
@@ -545,7 +554,7 @@ export class Game {
     this.enemyShape = enemySprite;
     enemySprite.x = this.enemyAvatarX;
     enemySprite.y = this.enemyAvatarY;
-    enemySprite.zIndex = 1;
+    enemySprite.zIndex = 2;
     // Filtry pro nepřátelský avatar (záře, bloom, stín)
     enemySprite.filters = [
       new GlowFilter({ distance: 25, outerStrength: 4, innerStrength: 0, color: enemy.color, quality: 0.5 }),
