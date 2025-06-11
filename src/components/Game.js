@@ -90,7 +90,7 @@ export class Game {
     this.loadAssets().then(() => {
       this.state = 'charcreate';
       this.initUI();
-      this.playBackgroundMusic();
+      // Music playback will start after the first user interaction
     });
   }
 
@@ -254,6 +254,8 @@ export class Game {
         }
         this.state = 'mainmenu';
         this.initUI();
+        // Play background music after user interaction to avoid autoplay blocks
+        this.playBackgroundMusic();
       });
       this.stage.addChild(startBtn);
     } else if (this.state === 'mainmenu') {
