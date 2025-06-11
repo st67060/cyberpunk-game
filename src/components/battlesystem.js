@@ -14,8 +14,12 @@ export class BattleSystem {
   static generateAbilities(game) {
     const pool = ABILITIES[game.character.cls.name] || [];
     BattleSystem.currentAbilities = [];
-    for (let i = 0; i < 3; i++) {
-      const ability = pool[Math.floor(Math.random() * pool.length)];
+    // first slot is the class basic ability if available
+    const baseAbility = pool[0] || { name: '???', description: '', execute() {} };
+    BattleSystem.currentAbilities.push(baseAbility);
+    // remaining slots are placeholders for future abilities
+    for (let i = 1; i < 3; i++) {
+      const ability = pool[i] || { name: '???', description: '', execute() {} };
       BattleSystem.currentAbilities.push(ability);
     }
     if (typeof game.showAbilityOptions === 'function') {

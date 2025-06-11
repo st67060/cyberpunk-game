@@ -782,19 +782,29 @@ export class Game {
       this.battleContainer.removeChild(this.abilityButtons);
       this.abilityButtons.destroy({ children: true });
     }
-    const cont = new PIXI.Container();
+    const overlay = new PIXI.Container();
+    overlay.zIndex = 10;
+    const bg = new PIXI.Graphics();
+    bg.beginFill(0x000000, 0.6);
+    bg.drawRect(0, 0, this.app.screen.width, this.app.screen.height);
+    bg.endFill();
+    overlay.addChild(bg);
+
     const startX = this.app.screen.width / 2 - 330;
+    const startY = this.app.screen.height / 2 - 60;
     abilities.forEach((ab, idx) => {
-      const btn = new Button(ab.name, startX + idx * 220, this.app.screen.height - 140, 200, 50, 0x00e0ff);
-      btn.on('pointerdown', () => {
+      const card = new Button(ab.name, startX + idx * 220, startY, 200, 100, 0x00e0ff);
+      card.on('pointerdown', () => {
         if (this.battleStarted) {
+          this.battleContainer.removeChild(overlay);
+          this.abilityButtons = null;
           BattleSystem.useAbility(this, ab);
         }
       });
-      cont.addChild(btn);
+      overlay.addChild(card);
     });
-    this.battleContainer.addChild(cont);
-    this.abilityButtons = cont;
+    this.battleContainer.addChild(overlay);
+    this.abilityButtons = overlay;
   }
 
   createShopUI() {
