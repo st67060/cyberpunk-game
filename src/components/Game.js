@@ -91,7 +91,7 @@ export class Game {
     // Sestavení pole URL všech obrázků, které je třeba načíst
     const assets = CLASSES.map(c => c.texture);
     // Přidání pozadí dungeonu a všech item/enemy assetů
-    assets.push('/assets/background.jpg');
+    assets.push('/assets/background.png');
     Object.values(ITEM_ASSETS).forEach(url => assets.push(url));
     Object.values(ENEMY_ASSETS).forEach(url => assets.push(url));
     BOSS_ENEMIES.forEach(boss => { if (boss.texture) assets.push(boss.texture); });
@@ -102,7 +102,7 @@ export class Game {
     // Načtení všech assetů pomocí Pixi Assets API
     await PIXI.Assets.load(assets);
     // Vytvoření sprite pro pozadí hry a aplikace CRT filtru (zkreslení obrazu)
-    this.backgroundSprite = PIXI.Sprite.from('/assets/background.jpg');
+    this.backgroundSprite = PIXI.Sprite.from('/assets/background.png');
     this.backgroundSprite.width = this.app.screen.width;
     this.backgroundSprite.height = this.app.screen.height;
     this.backgroundSprite.zIndex = 0;
