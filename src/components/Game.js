@@ -752,16 +752,16 @@ export class Game {
       // Podklad pro jednu položku
       const itemBox = new PIXI.Graphics();
       itemBox.beginFill(0x2e3c43);
-      itemBox.drawRoundedRect(startX, y + shopMaskY, shopWidth, 60, 14);
+      itemBox.drawRoundedRect(startX, y + shopMaskY, shopWidth, 80, 14);
       itemBox.endFill();
       this.shopItemsContainer.addChild(itemBox);
       // Obrázek položky (pokud existuje v ITEM_ASSETS)
       if (ITEM_ASSETS[itemTemplate.name]) {
         const itemSprite = PIXI.Sprite.from(ITEM_ASSETS[itemTemplate.name]);
-        itemSprite.width = 54;
-        itemSprite.height = 54;
+        itemSprite.width = 72;
+        itemSprite.height = 72;
         itemSprite.x = startX + 12;
-        itemSprite.y = y + shopMaskY + 3;
+        itemSprite.y = y + shopMaskY + 4;
         // Efekt zvýraznění okraje položky
         itemSprite.filters = [new GlowFilter({ distance: 8, outerStrength: 1.5, innerStrength: 0, color: 0xffa500 })];
         this.shopItemsContainer.addChild(itemSprite);
@@ -771,10 +771,18 @@ export class Game {
       itemNameText.x = startX + 80;
       itemNameText.y = y + shopMaskY + 10;
       this.shopItemsContainer.addChild(itemNameText);
+      const statValue = this.shopType === 'weapon'
+        ? this.character.getWeaponStat(itemTemplate, this.character.level)
+        : this.character.getArmorStat(itemTemplate, this.character.level);
+      const statLabel = this.shopType === 'weapon' ? 'ATK' : 'DEF';
+      const statText = new PIXI.Text(`${statLabel}: ${statValue}`, { fontFamily: 'monospace', fontSize: 18, fill: 0x00ff8a });
+      statText.x = startX + 80;
+      statText.y = y + shopMaskY + 40;
+      this.shopItemsContainer.addChild(statText);
       // Cena
       const priceText = new PIXI.Text(`${itemTemplate.baseCost} G`, { fontFamily: 'monospace', fontSize: 18, fill: 0xffe000 });
       priceText.x = startX + shopWidth - 140;
-      priceText.y = y + shopMaskY + 15;
+      priceText.y = y + shopMaskY + 20;
       this.shopItemsContainer.addChild(priceText);
       // Kontrola, zda již hráč položku vlastní
       const owned = (this.shopType === 'weapon'
@@ -784,7 +792,7 @@ export class Game {
       // Tlačítko nákupu nebo informace o vlastnictví
       const btnLabel = owned ? 'Owned' : 'Buy';
       const btnColor = owned ? 0x555555 : 0x00ff8a;
-      const buyBtn = new Button(btnLabel, startX + shopWidth - 70, y + shopMaskY + 10, 60, 36, btnColor);
+      const buyBtn = new Button(btnLabel, startX + shopWidth - 70, y + shopMaskY + 24, 60, 36, btnColor);
 
       if (!owned) {
         buyBtn.on('pointerdown', () => {
@@ -799,13 +807,13 @@ export class Game {
         buyBtn.eventMode = 'none';
       }
       this.shopItemsContainer.addChild(buyBtn);
-      y += 80; // posun pro další položku
+      y += 100; // posun pro další položku
     }
     // Posuv myšovým kolečkem v obchodě
     this.app.view.onwheel = (event) => {
       const scrollAmount = event.deltaY * 0.5;
       let newY = this.shopItemsContainer.y - scrollAmount;
-      const totalItemsHeight = itemsToShow.length * 80;
+      const totalItemsHeight = itemsToShow.length * 100;
       const maxScrollY = shopMaskH - totalItemsHeight;
       newY = Math.min(0, newY);
       newY = Math.max(maxScrollY, newY);
