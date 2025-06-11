@@ -726,7 +726,7 @@ export class Game {
     shopTitle.y = 20;
     this.stage.addChild(shopTitle);
     // Šířka nabídky obchodu
-    const shopWidth = 780;
+    const shopWidth = Math.min(1000, this.app.screen.width * 0.8);
     const startX = this.app.screen.width / 2 - shopWidth / 2;
     // Tlačítka pro přepínání mezi zbraněmi a zbrojemi
     const weaponsTab = new Button('Weapons', startX, 60, 120, 40, 0x00e0ff);
@@ -771,17 +771,13 @@ export class Game {
       itemNameText.x = startX + 80;
       itemNameText.y = y + shopMaskY + 10;
       this.shopItemsContainer.addChild(itemNameText);
-      // Cena a požadovaný level
+      // Cena
       const priceText = new PIXI.Text(`${itemTemplate.baseCost} G`, { fontFamily: 'monospace', fontSize: 18, fill: 0xffe000 });
-      priceText.x = startX + 640;
+      priceText.x = startX + shopWidth - 140;
       priceText.y = y + shopMaskY + 15;
       this.shopItemsContainer.addChild(priceText);
-      const levelReqText = new PIXI.Text(`Req Lv: ${itemTemplate.requiredPlayerLevel}`, { fontFamily: 'monospace', fontSize: 14, fill: 0xcccccc });
-      levelReqText.x = startX + 640;
-      levelReqText.y = y + shopMaskY + 32;
-      this.shopItemsContainer.addChild(levelReqText);
       // Tlačítko "Buy"
-      const buyBtn = new Button('Buy', startX + 740, y + shopMaskY + 10, 60, 36, 0x00ff8a);
+      const buyBtn = new Button('Buy', startX + shopWidth - 40, y + shopMaskY + 10, 60, 36, 0x00ff8a);
       buyBtn.on('pointerdown', () => {
         // Pokus o koupi předmětu
         const success = this.character.buyItem(itemTemplate, this.shopType === 'weapon' ? 'weapon' : 'armor');
