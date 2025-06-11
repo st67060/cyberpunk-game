@@ -27,6 +27,8 @@ export class Game {
     this.app = app;
     // Vytvoření hlavního kontejneru hry a přidání do scény aplikace
     this.stage = new PIXI.Container();
+    // Allow explicit zIndex ordering for children
+    this.stage.sortableChildren = true;
     this.app.stage.addChild(this.stage);
     // Výchozí stav hry a základní proměnné
     this.state = 'loading';
@@ -101,6 +103,7 @@ export class Game {
     this.backgroundSprite = PIXI.Sprite.from('/assets/background.jpg');
     this.backgroundSprite.width = this.app.screen.width;
     this.backgroundSprite.height = this.app.screen.height;
+    this.backgroundSprite.zIndex = 0;
     this.bgDistortFilter = new CRTFilter({
       curvature: 2, lineWidth: 0, lineContrast: 0,
       noise: 0.08, noiseSize: 2,
@@ -459,6 +462,8 @@ export class Game {
     const char = this.character;
     // Kontejner pro prvky boje
     this.battleContainer = new PIXI.Container();
+    this.battleContainer.sortableChildren = true;
+    this.battleContainer.zIndex = 1;
     this.stage.addChild(this.battleContainer);
     // Pozice avatarů hráče a nepřítele
     const AVATAR_SIZE = 280;
@@ -474,6 +479,7 @@ export class Game {
     playerBgSprite.anchor.set(0.5);
     playerBgSprite.x = this.playerAvatarX;
     playerBgSprite.y = this.playerAvatarY;
+    playerBgSprite.zIndex = 0;
     playerBgSprite.filters = [
       new GlowFilter({ distance: 15, outerStrength: 1, innerStrength: 0, color: 0xffa500, quality: 0.5 }),
       new DropShadowFilter({ distance: 0, blur: 8, color: 0x000000, alpha: 0.5 })
@@ -486,6 +492,7 @@ export class Game {
     this.charShape = charAvatar;
     charAvatar.x = this.playerAvatarX;
     charAvatar.y = this.playerAvatarY;
+    charAvatar.zIndex = 1;
     // Filtry pro hráčův avatar (záře, bloom, stín)
     charAvatar.filters = [
       new GlowFilter({ distance: 22, outerStrength: 3, innerStrength: 0, color: char.cls.color, quality: 0.5 }),
@@ -523,6 +530,7 @@ export class Game {
     enemyBgSprite.anchor.set(0.5);
     enemyBgSprite.x = this.enemyAvatarX;
     enemyBgSprite.y = this.enemyAvatarY;
+    enemyBgSprite.zIndex = 0;
     enemyBgSprite.filters = [
       new GlowFilter({ distance: 15, outerStrength: 1, innerStrength: 0, color: 0xff2e2e, quality: 0.5 }),
       new DropShadowFilter({ distance: 0, blur: 8, color: 0x000000, alpha: 0.5 })
@@ -537,6 +545,7 @@ export class Game {
     this.enemyShape = enemySprite;
     enemySprite.x = this.enemyAvatarX;
     enemySprite.y = this.enemyAvatarY;
+    enemySprite.zIndex = 1;
     // Filtry pro nepřátelský avatar (záře, bloom, stín)
     enemySprite.filters = [
       new GlowFilter({ distance: 25, outerStrength: 4, innerStrength: 0, color: enemy.color, quality: 0.5 }),
@@ -568,6 +577,7 @@ export class Game {
     const buttonContainer = new PIXI.Container();
     buttonContainer.x = this.app.screen.width / 2;
     buttonContainer.y = this.app.screen.height - 80;
+    buttonContainer.zIndex = 2;
     this.battleContainer.addChild(buttonContainer);
     // Kontrola, zda je boj již rozhodnut
     if (this.battleResult === 'win') {
