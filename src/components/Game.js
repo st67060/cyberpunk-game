@@ -269,30 +269,50 @@ export class Game {
       this.stage.addChild(settingsBtn);
       // (Případně další prvky hlavního menu by byly zde)
     } else if (this.state === 'profile') {
-      // Screen with detailed player information and stat upgrades
+      // Screen with detailed player information, avatar and stat upgrades
       const char = this.character;
+
+      // Semi-transparent panel behind profile info
+      const panelWidth = 420;
+      const panelHeight = 560;
+      const panelX = this.app.screen.width / 2 - panelWidth / 2;
+      const panelY = 90;
+      const infoPanel = new PIXI.Graphics();
+      infoPanel.beginFill(0x000000, 0.6);
+      infoPanel.drawRoundedRect(panelX, panelY, panelWidth, panelHeight, 16);
+      infoPanel.endFill();
+      this.stage.addChild(infoPanel);
+
       const title = new PIXI.Text('Player Profile', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
       title.anchor.set(0.5);
       title.x = this.app.screen.width / 2;
       title.y = 60;
       this.stage.addChild(title);
 
+      const avatar = PIXI.Sprite.from(char.avatar);
+      avatar.anchor.set(0.5);
+      avatar.width = 130;
+      avatar.height = 130;
+      avatar.x = this.app.screen.width / 2;
+      avatar.y = panelY + 60;
+      this.stage.addChild(avatar);
+
       const classText = new PIXI.Text(`Class: ${char.cls.name}`, { fontFamily: 'monospace', fontSize: 22, fill: 0xffffff });
       classText.anchor.set(0.5);
       classText.x = this.app.screen.width / 2;
-      classText.y = 110;
+      classText.y = avatar.y + 70;
       this.stage.addChild(classText);
 
       const levelText = new PIXI.Text(`Level: ${char.level}`, { fontFamily: 'monospace', fontSize: 22, fill: 0xffffff });
       levelText.anchor.set(0.5);
       levelText.x = this.app.screen.width / 2;
-      levelText.y = 140;
+      levelText.y = classText.y + 30;
       this.stage.addChild(levelText);
 
       const statHeader = new PIXI.Text(`Stat Points: ${char.statPoints}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
       statHeader.anchor.set(0.5);
       statHeader.x = this.app.screen.width / 2;
-      statHeader.y = 175;
+      statHeader.y = levelText.y + 35;
       this.stage.addChild(statHeader);
 
       const statInfo = [
@@ -301,7 +321,7 @@ export class Game {
         { key: 'def', label: `DEF: ${char.stats.def}` },
         { key: 'spd', label: `SPD: ${char.stats.spd}` }
       ];
-      let y = 210;
+      let y = statHeader.y + 10;
       for (const s of statInfo) {
         const statLabel = new PIXI.Text(s.label, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
         statLabel.anchor.set(0, 0.5);
@@ -332,16 +352,36 @@ export class Game {
       this.stage.addChild(goldText);
 
       const weaponText = new PIXI.Text(`Weapon: ${char.weapon.name}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
-      weaponText.anchor.set(0.5);
-      weaponText.x = this.app.screen.width / 2;
+      weaponText.anchor.set(0, 0.5);
+      weaponText.x = this.app.screen.width / 2 - 30;
       weaponText.y = y + 40;
       this.stage.addChild(weaponText);
 
+      if (ITEM_ASSETS[char.weapon.name]) {
+        const weaponSprite = PIXI.Sprite.from(ITEM_ASSETS[char.weapon.name]);
+        weaponSprite.width = 32;
+        weaponSprite.height = 32;
+        weaponSprite.anchor.set(1, 0.5);
+        weaponSprite.x = weaponText.x - 10;
+        weaponSprite.y = weaponText.y;
+        this.stage.addChild(weaponSprite);
+      }
+
       const armorText = new PIXI.Text(`Armor: ${char.armor.name}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
-      armorText.anchor.set(0.5);
-      armorText.x = this.app.screen.width / 2;
+      armorText.anchor.set(0, 0.5);
+      armorText.x = this.app.screen.width / 2 - 30;
       armorText.y = y + 70;
       this.stage.addChild(armorText);
+
+      if (ITEM_ASSETS[char.armor.name]) {
+        const armorSprite = PIXI.Sprite.from(ITEM_ASSETS[char.armor.name]);
+        armorSprite.width = 32;
+        armorSprite.height = 32;
+        armorSprite.anchor.set(1, 0.5);
+        armorSprite.x = armorText.x - 10;
+        armorSprite.y = armorText.y;
+        this.stage.addChild(armorSprite);
+      }
 
       const skillsBtn = new Button('Skill Tree', this.app.screen.width / 2 - 85, armorText.y + 40, 170, 50, 0x00e0ff);
       skillsBtn.on('pointerdown', () => {
