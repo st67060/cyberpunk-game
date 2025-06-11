@@ -309,10 +309,13 @@ export class Game {
       levelText.y = classText.y + 30;
       this.stage.addChild(levelText);
 
+      const levelBar = new StatBar('EXP', char.exp, char.expToNext, this.app.screen.width / 2 - 100, levelText.y + 10, 200, 16, 0x00e0ff);
+      this.stage.addChild(levelBar);
+
       const statHeader = new PIXI.Text(`Stat Points: ${char.statPoints}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
       statHeader.anchor.set(0.5);
       statHeader.x = this.app.screen.width / 2;
-      statHeader.y = levelText.y + 35;
+      statHeader.y = levelBar.y + 30;
       this.stage.addChild(statHeader);
 
       const statInfo = [
@@ -359,8 +362,8 @@ export class Game {
 
       if (ITEM_ASSETS[char.weapon.name]) {
         const weaponSprite = PIXI.Sprite.from(ITEM_ASSETS[char.weapon.name]);
-        weaponSprite.width = 32;
-        weaponSprite.height = 32;
+        weaponSprite.width = 48;
+        weaponSprite.height = 48;
         weaponSprite.anchor.set(1, 0.5);
         weaponSprite.x = weaponText.x - 10;
         weaponSprite.y = weaponText.y;
@@ -375,8 +378,8 @@ export class Game {
 
       if (ITEM_ASSETS[char.armor.name]) {
         const armorSprite = PIXI.Sprite.from(ITEM_ASSETS[char.armor.name]);
-        armorSprite.width = 32;
-        armorSprite.height = 32;
+        armorSprite.width = 48;
+        armorSprite.height = 48;
         armorSprite.anchor.set(1, 0.5);
         armorSprite.x = armorText.x - 10;
         armorSprite.y = armorText.y;
