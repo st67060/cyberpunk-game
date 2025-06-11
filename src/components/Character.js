@@ -41,13 +41,15 @@ export class Character {
     };
   }
 
-  // Výpočet útoku zbraně pro daný level postavy
+  // Výpočet bonusu zbraně pro daný level postavy (v procentech základního ATK)
   getWeaponStat(item, playerLevel) {
-    return item.baseAtk + Math.floor(playerLevel * 0.5);
+    const percent = item.baseAtk + Math.floor(playerLevel * 0.5);
+    return Math.round(this.baseStats.atk * percent / 100);
   }
-  // Výpočet obrany zbroje pro daný level postavy
+  // Výpočet bonusu zbroje pro daný level postavy (v procentech základního HP)
   getArmorStat(item, playerLevel) {
-    return item.baseDef + Math.floor(playerLevel * 0.5);
+    const percent = item.baseDef + Math.floor(playerLevel * 0.5);
+    return Math.round(this.baseStats.hp * percent / 100);
   }
   // Cena předmětu (základní cena, mohla by být modifikována)
   getItemCost(item) {
@@ -60,7 +62,7 @@ export class Character {
       this.weapon = { ...item, atk: this.getWeaponStat(item, this.level) };
     }
     if (item.type === 'armor') {
-      this.armor = { ...item, def: this.getArmorStat(item, this.level) };
+      this.armor = { ...item, hp: this.getArmorStat(item, this.level) };
     }
     this.updateStats();
   }
@@ -97,9 +99,9 @@ export class Character {
       this.stats.atk += this.weapon.atk;
     }
     if (this.armor && this.armor.baseDef !== undefined) {
-      this.stats.def += this.getArmorStat(this.armor, this.level);
-    } else if (this.armor && this.armor.def !== undefined) {
-      this.stats.def += this.armor.def;
+      this.stats.hp += this.getArmorStat(this.armor, this.level);
+    } else if (this.armor && this.armor.hp !== undefined) {
+      this.stats.hp += this.armor.hp;
     }
     // U různých tříd může mít HP jiný násobitel
     let hpMultiplier = 50;

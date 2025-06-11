@@ -774,7 +774,7 @@ export class Game {
       const statValue = this.shopType === 'weapon'
         ? this.character.getWeaponStat(itemTemplate, this.character.level)
         : this.character.getArmorStat(itemTemplate, this.character.level);
-      const statLabel = this.shopType === 'weapon' ? 'ATK' : 'DEF';
+      const statLabel = this.shopType === 'weapon' ? 'ATK' : 'HP';
       const statText = new PIXI.Text(`${statLabel}: ${statValue}`, { fontFamily: 'monospace', fontSize: 18, fill: 0x00ff8a });
       statText.x = startX + 80;
       statText.y = y + shopMaskY + 40;
