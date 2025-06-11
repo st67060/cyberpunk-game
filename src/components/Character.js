@@ -75,31 +75,13 @@ export class Character {
     if (this.gold >= cost) {
       this.gold -= cost;
       const newItem = { ...itemTemplate, type: type };
-      // Přidání předmětu do inventáře a případné automatické equipnutí podle síly
+      // Přidání předmětu do inventáře a automatické equipnutí
       if (type === 'weapon') {
-        if (this.weapon && this.weapon.name !== 'Fists' &&
-            this.getWeaponStat(newItem, this.level) > this.getWeaponStat(this.weapon, this.level)) {
-          this.inventory.weapons = this.inventory.weapons.filter(w => w.name !== this.weapon.name);
-          this.inventory.weapons.push(newItem);
-          this.equip(newItem);
-        } else if (!this.weapon || this.weapon.name === 'Fists') {
-          this.inventory.weapons.push(newItem);
-          this.equip(newItem);
-        } else {
-          this.inventory.weapons.push(newItem);
-        }
-      } else { // type === 'armor'
-        if (this.armor && this.armor.name !== 'Rags' &&
-            this.getArmorStat(newItem, this.level) > this.getArmorStat(this.armor, this.level)) {
-          this.inventory.armors = this.inventory.armors.filter(a => a.name !== this.armor.name);
-          this.inventory.armors.push(newItem);
-          this.equip(newItem);
-        } else if (!this.armor || this.armor.name === 'Rags') {
-          this.inventory.armors.push(newItem);
-          this.equip(newItem);
-        } else {
-          this.inventory.armors.push(newItem);
-        }
+        this.inventory.weapons.push(newItem);
+        this.equip(newItem);
+      } else {
+        this.inventory.armors.push(newItem);
+        this.equip(newItem);
       }
       this.updateStats();
       return true;
