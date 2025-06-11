@@ -80,10 +80,17 @@ export class Game {
     this.energyThreshold = 50;
     this.battleStarted = false;
     this.battleResult = null;
+    // Nastavení hudby na pozadí
+    this.musicVolume = 0.5;
+    this.musicMuted = false;
+    this.bgMusic = new Audio('/assets/background_music.ogg');
+    this.bgMusic.loop = true;
+    this.bgMusic.volume = this.musicVolume;
     // Načtení všech assetů (obrázků) a po dokončení přechod na obrazovku výběru postavy
     this.loadAssets().then(() => {
       this.state = 'charcreate';
       this.initUI();
+      this.playBackgroundMusic();
     });
   }
 
@@ -511,7 +518,35 @@ export class Game {
       title.y = 60;
       this.stage.addChild(title);
 
-      const fsBtn = new Button('Toggle Fullscreen', this.app.screen.width / 2 - 120, 200, 240, 50, 0x00e0ff);
+      const volumeText = new PIXI.Text(`Volume: ${Math.round(this.musicVolume * 100)}%`, { fontFamily: 'monospace', fontSize: 24, fill: 0xffffff });
+      volumeText.anchor.set(0.5);
+      volumeText.x = this.app.screen.width / 2;
+      volumeText.y = 120;
+      this.stage.addChild(volumeText);
+
+      const volDownBtn = new Button('-', this.app.screen.width / 2 - 90, 160, 60, 50, 0x00e0ff);
+      volDownBtn.on('pointerdown', () => {
+        this.adjustVolume(-0.1);
+        volumeText.text = `Volume: ${Math.round(this.musicVolume * 100)}%`;
+      });
+      this.stage.addChild(volDownBtn);
+
+      const volUpBtn = new Button('+', this.app.screen.width / 2 + 30, 160, 60, 50, 0x00e0ff);
+      volUpBtn.on('pointerdown', () => {
+        this.adjustVolume(0.1);
+        volumeText.text = `Volume: ${Math.round(this.musicVolume * 100)}%`;
+      });
+      this.stage.addChild(volUpBtn);
+
+      const muteBtn = new Button(this.musicMuted ? 'Unmute' : 'Mute', this.app.screen.width / 2 - 85, 220, 170, 50, 0x00e0ff);
+      muteBtn.on('pointerdown', () => {
+        this.toggleMute();
+        muteBtn.t.text = this.musicMuted ? 'Unmute' : 'Mute';
+        volumeText.text = `Volume: ${Math.round(this.musicVolume * 100)}%`;
+      });
+      this.stage.addChild(muteBtn);
+
+      const fsBtn = new Button('Toggle Fullscreen', this.app.screen.width / 2 - 120, 290, 240, 50, 0x00e0ff);
       fsBtn.on('pointerdown', () => { this.toggleFullscreen(); });
       this.stage.addChild(fsBtn);
 
@@ -890,6 +925,27 @@ export class Game {
         this.app.renderer.resize(1280, 720);
         this.initUI();
       });
+    }
+  }
+
+  playBackgroundMusic() {
+    if (this.bgMusic) {
+      this.bgMusic.volume = this.musicMuted ? 0 : this.musicVolume;
+      this.bgMusic.play().catch(() => {});
+    }
+  }
+
+  adjustVolume(delta) {
+    this.musicVolume = Math.min(1, Math.max(0, this.musicVolume + delta));
+    if (this.bgMusic && !this.musicMuted) {
+      this.bgMusic.volume = this.musicVolume;
+    }
+  }
+
+  toggleMute() {
+    this.musicMuted = !this.musicMuted;
+    if (this.bgMusic) {
+      this.bgMusic.muted = this.musicMuted;
     }
   }
 
