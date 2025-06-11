@@ -70,7 +70,6 @@ export class Character {
     const isOwned = (type === 'weapon' ? this.inventory.weapons : this.inventory.armors)
       .some(i => i.name === itemTemplate.name);
     if (isOwned) return false;
-    if (this.level < itemTemplate.requiredPlayerLevel) return false;
     const cost = this.getItemCost(itemTemplate);
     if (this.gold >= cost) {
       this.gold -= cost;
