@@ -57,6 +57,7 @@ export class Game {
     this.bossesDefeated = 0;
     this.currentBossIndex = 0;
     this.bgDistortFilter = null;
+    this.logoSprite = null;
     this.comboCount = 0;
     this.comboTimer = 0;
     this.comboTimerMax = 2.0;
@@ -97,6 +98,7 @@ export class Game {
     // Přidání obrázků rámečků pro postavy v souboji
     assets.push('/assets/avatar background.jpg');
     assets.push('/assets/avatar background.jpg');
+    assets.push('/assets/Logo.png');
     // Načtení všech assetů pomocí Pixi Assets API
     await PIXI.Assets.load(assets);
     // Vytvoření sprite pro pozadí hry a aplikace CRT filtru (zkreslení obrazu)
@@ -112,6 +114,13 @@ export class Game {
     });
     this.bgDistortFilter.time = 0;
     this.backgroundSprite.filters = [this.bgDistortFilter];
+
+    this.logoSprite = PIXI.Sprite.from('/assets/Logo.png');
+    this.logoSprite.width = 120;
+    this.logoSprite.height = 120;
+    this.logoSprite.x = 10;
+    this.logoSprite.y = 10;
+    this.logoSprite.zIndex = 10;
   }
 
   spawnFloatingText(text, x, y, color = 0xffffff, fontSize = 24, offsetY = 0) {
@@ -158,6 +167,9 @@ export class Game {
       return;
     }
     this.stage.addChild(this.backgroundSprite);
+    if (this.logoSprite) {
+      this.stage.addChild(this.logoSprite);
+    }
     if (this.state === 'charcreate') {
       // Screen for selecting a character class
       const titleText = new PIXI.Text('Choose Your Class', {
