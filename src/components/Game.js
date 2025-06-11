@@ -776,15 +776,28 @@ export class Game {
       priceText.x = startX + shopWidth - 140;
       priceText.y = y + shopMaskY + 15;
       this.shopItemsContainer.addChild(priceText);
-      // Tlačítko "Buy"
-      const buyBtn = new Button('Buy', startX + shopWidth - 40, y + shopMaskY + 10, 60, 36, 0x00ff8a);
-      buyBtn.on('pointerdown', () => {
-        // Pokus o koupi předmětu
-        const success = this.character.buyItem(itemTemplate, this.shopType === 'weapon' ? 'weapon' : 'armor');
-        if (success) {
-          this.initUI(); // obnovit UI (aktualizuje inventář hráče a zlato)
-        }
-      });
+      // Kontrola, zda již hráč položku vlastní
+      const owned = (this.shopType === 'weapon'
+        ? this.character.inventory.weapons
+        : this.character.inventory.armors).some(i => i.name === itemTemplate.name);
+
+      // Tlačítko nákupu nebo informace o vlastnictví
+      const btnLabel = owned ? 'Owned' : 'Buy';
+      const btnColor = owned ? 0x555555 : 0x00ff8a;
+      const buyBtn = new Button(btnLabel, startX + shopWidth - 70, y + shopMaskY + 10, 60, 36, btnColor);
+
+      if (!owned) {
+        buyBtn.on('pointerdown', () => {
+          // Pokus o koupi předmětu
+          const success = this.character.buyItem(itemTemplate, this.shopType === 'weapon' ? 'weapon' : 'armor');
+          if (success) {
+            this.initUI(); // obnovit UI (aktualizuje inventář hráče a zlato)
+          }
+        });
+      } else {
+        buyBtn.interactive = false;
+        buyBtn.eventMode = 'none';
+      }
       this.shopItemsContainer.addChild(buyBtn);
       y += 80; // posun pro další položku
     }
