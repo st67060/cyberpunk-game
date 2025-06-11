@@ -659,12 +659,16 @@ export class Game {
   createShopUI() {
     // (Základní implementace UI obchodu – zobrazení seznamu zbraní či zbrojí k prodeji)
     const shopTitle = new PIXI.Text('Shop', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
-    shopTitle.x = 20;
+    shopTitle.anchor.set(0.5, 0);
+    shopTitle.x = this.app.screen.width / 2;
     shopTitle.y = 20;
     this.stage.addChild(shopTitle);
+    // Šířka nabídky obchodu
+    const shopWidth = 780;
+    const startX = this.app.screen.width / 2 - shopWidth / 2;
     // Tlačítka pro přepínání mezi zbraněmi a zbrojemi
-    const weaponsTab = new Button('Weapons', 20, 60, 120, 40, 0x00e0ff);
-    const armorsTab = new Button('Armors', 150, 60, 120, 40, 0x00e0ff);
+    const weaponsTab = new Button('Weapons', startX, 60, 120, 40, 0x00e0ff);
+    const armorsTab = new Button('Armors', startX + 130, 60, 120, 40, 0x00e0ff);
     weaponsTab.on('pointerdown', () => { this.shopType = 'weapon'; this.initUI(); });
     armorsTab.on('pointerdown', () => { this.shopType = 'armor'; this.initUI(); });
     this.stage.addChild(weaponsTab, armorsTab);
@@ -675,7 +679,7 @@ export class Game {
     // Maska pro posuvnou oblast položek (aby seznam nepřetékal)
     this.shopScrollMask = new PIXI.Graphics();
     this.shopScrollMask.beginFill(0xff0000);
-    this.shopScrollMask.drawRect(60, shopMaskY, 780, shopMaskH);
+    this.shopScrollMask.drawRect(startX, shopMaskY, shopWidth, shopMaskH);
     this.shopScrollMask.endFill();
     this.shopItemsContainer.mask = this.shopScrollMask;
     this.stage.addChild(this.shopScrollMask, this.shopItemsContainer);
@@ -686,7 +690,7 @@ export class Game {
       // Podklad pro jednu položku
       const itemBox = new PIXI.Graphics();
       itemBox.beginFill(0x2e3c43);
-      itemBox.drawRoundedRect(60, y + shopMaskY, 780, 60, 14);
+      itemBox.drawRoundedRect(startX, y + shopMaskY, shopWidth, 60, 14);
       itemBox.endFill();
       this.shopItemsContainer.addChild(itemBox);
       // Obrázek položky (pokud existuje v ITEM_ASSETS)
@@ -694,7 +698,7 @@ export class Game {
         const itemSprite = PIXI.Sprite.from(ITEM_ASSETS[itemTemplate.name]);
         itemSprite.width = 54;
         itemSprite.height = 54;
-        itemSprite.x = 72;
+        itemSprite.x = startX + 12;
         itemSprite.y = y + shopMaskY + 3;
         // Efekt zvýraznění okraje položky
         itemSprite.filters = [new GlowFilter({ distance: 8, outerStrength: 1.5, innerStrength: 0, color: 0xffa500 })];
@@ -702,20 +706,20 @@ export class Game {
       }
       // Název předmětu
       const itemNameText = new PIXI.Text(itemTemplate.name, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
-      itemNameText.x = 140;
+      itemNameText.x = startX + 80;
       itemNameText.y = y + shopMaskY + 10;
       this.shopItemsContainer.addChild(itemNameText);
       // Cena a požadovaný level
       const priceText = new PIXI.Text(`${itemTemplate.baseCost} G`, { fontFamily: 'monospace', fontSize: 18, fill: 0xffe000 });
-      priceText.x = 700;
+      priceText.x = startX + 640;
       priceText.y = y + shopMaskY + 15;
       this.shopItemsContainer.addChild(priceText);
       const levelReqText = new PIXI.Text(`Req Lv: ${itemTemplate.requiredPlayerLevel}`, { fontFamily: 'monospace', fontSize: 14, fill: 0xcccccc });
-      levelReqText.x = 700;
+      levelReqText.x = startX + 640;
       levelReqText.y = y + shopMaskY + 32;
       this.shopItemsContainer.addChild(levelReqText);
       // Tlačítko "Buy"
-      const buyBtn = new Button('Buy', 800, y + shopMaskY + 10, 60, 36, 0x00ff8a);
+      const buyBtn = new Button('Buy', startX + 740, y + shopMaskY + 10, 60, 36, 0x00ff8a);
       buyBtn.on('pointerdown', () => {
         // Pokus o koupi předmětu
         const success = this.character.buyItem(itemTemplate, this.shopType === 'weapon' ? 'weapon' : 'armor');
