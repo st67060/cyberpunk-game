@@ -19,7 +19,7 @@ import { ITEM_ASSETS } from '../data/itemAssets.js';
 import { ENEMY_ASSETS } from '../data/enemyAssets.js';
 import { BOSS_ENEMIES } from '../data/bossEnemies.js';
 
-const CLASS_AVATAR_SIZE = 120;
+const CLASS_AVATAR_SIZE = 150;
 
 export class Game {
   constructor(app) {
