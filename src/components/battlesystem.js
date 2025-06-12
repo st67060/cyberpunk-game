@@ -120,11 +120,13 @@ export class BattleSystem {
     if (game.enemy.hp <= 0) {
       game.battleStarted = false;
       game.battleResult = 'win';
-      game.initUI();
+      // wait a moment so victory animations remain visible
+      setTimeout(() => game.initUI(), 500);
     } else if (game.character.hp <= 0) {
       game.battleStarted = false;
       game.battleResult = 'lose';
-      game.initUI();
+      // short delay ensures defeat effects are seen
+      setTimeout(() => game.initUI(), 500);
     }
   }
 }
