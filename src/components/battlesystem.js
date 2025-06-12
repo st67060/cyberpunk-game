@@ -64,6 +64,9 @@ export class BattleSystem {
   static calculateDamage(atk, def) {
     return atk * 10;
   }
+ static delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
   static async spawnPlayerAttackEffect(game) {
     if (game.charShape && game.battleContainer) {
@@ -98,6 +101,7 @@ export class BattleSystem {
       game.enemyAttackEffect = effect;
       game.enemyAttackEffectAnimProgress = 0;
     }
+    await BattleSystem.delay(400);
     if (BattleSystem.didDodge(char.stats.def)) {
       game.spawnFloatingText('DODGED', game.playerAvatarX, game.playerAvatarY - 140, 0xffffff, 36);
       return;
