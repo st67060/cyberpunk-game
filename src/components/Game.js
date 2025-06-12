@@ -769,6 +769,7 @@ export class Game {
       startBtn.on('pointerdown', () => {
         this.battleStarted = true;
         buttonContainer.removeChild(startBtn);
+        BattleSystem.generateAbilities(this);
       });
       buttonContainer.addChild(startBtn);
       buttonContainer.x = this.app.screen.width / 2 - startBtn.w / 2;
