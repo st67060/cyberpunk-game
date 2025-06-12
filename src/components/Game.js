@@ -599,11 +599,11 @@ export class Game {
     this.enemyAvatarX = this.app.screen.width * 3 / 4;
     this.enemyAvatarY = this.app.screen.height / 2 - 50;
     // log
-    console.log("char.avatar =", char.avatar);
+console.log("char.avatar =", char.avatar);
 console.log("enemy.avatar =", enemy.avatar);
-console.log("char avatar loaded:", !!PIXI.utils.TextureCache[char.avatar]);
-console.log("enemy avatar loaded:", !!PIXI.utils.TextureCache[enemy.avatar]);
-console.log("enemy attack asset loaded:", !!PIXI.utils.TextureCache['/assets/enemy_basic_attack.png']);
+console.log("char avatar loaded:", !!PIXI.Assets.cache.get(char.avatar));
+console.log("enemy avatar loaded:", !!PIXI.Assets.cache.get(enemy.avatar));
+console.log("enemy attack asset loaded:", !!PIXI.Assets.cache.get('/assets/enemy_basic_attack.png'));
     //log
 // Rámečky pod avátory (s efekty)
     const playerBgSprite = PIXI.Sprite.from('/assets/avatar background.jpg');
