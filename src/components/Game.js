@@ -49,6 +49,8 @@ export class Game {
     this.playerWeaponSprite = null;
     this.attackEffect = null;
     this.attackEffectAnimProgress = 0;
+    this.enemyAttackEffect = null;
+    this.enemyAttackEffectAnimProgress = 0;
     this.shopType = 'weapon';
     // Cache nabídek obchodu (předměty k prodeji podle typu)
     this.shopItemsCache = {
@@ -112,6 +114,7 @@ export class Game {
     assets.push('/assets/avatar background.jpg');
     assets.push('/assets/avatar background.jpg');
     assets.push('/assets/Logo.png');
+    assets.push('/assets/enemy_basic_attack.png');
     // Načtení všech assetů pomocí Pixi Assets API
     await PIXI.Assets.load(assets);
     // Vytvoření sprite pro pozadí hry a aplikace CRT filtru (zkreslení obrazu)
@@ -931,6 +934,12 @@ export class Game {
       this.attackEffect = null;
     }
     this.attackEffectAnimProgress = 0;
+    if (this.enemyAttackEffect) {
+      this.stage.removeChild(this.enemyAttackEffect);
+      this.enemyAttackEffect.destroy();
+      this.enemyAttackEffect = null;
+    }
+    this.enemyAttackEffectAnimProgress = 0;
     this.floatingTexts = [];
     if (this.bloodEffects) {
       this.bloodEffects.forEach(effect => this.stage.removeChild(effect));
@@ -1138,6 +1147,19 @@ export class Game {
           this.attackEffect.destroy();
           this.attackEffect = null;
           this.attackEffectAnimProgress = 0;
+        }
+      }
+      if (this.enemyAttackEffect) {
+        this.enemyAttackEffectAnimProgress += 0.05 * delta;
+        const progress = this.enemyAttackEffectAnimProgress;
+        this.enemyAttackEffect.x = this.enemyShape.x - 30 + (this.charShape.x - this.enemyShape.x + 30) * progress;
+        this.enemyAttackEffect.y = this.enemyShape.y + (this.charShape.y - this.enemyShape.y) * progress;
+        this.enemyAttackEffect.alpha = 1 - progress;
+        if (this.enemyAttackEffectAnimProgress >= 1) {
+          this.battleContainer.removeChild(this.enemyAttackEffect);
+          this.enemyAttackEffect.destroy();
+          this.enemyAttackEffect = null;
+          this.enemyAttackEffectAnimProgress = 0;
         }
       }
       // Animace útoku nepřítele (posun avataru nepřítele při útoku)
