@@ -28,12 +28,12 @@ export class BattleSystem {
     }
   }
 
-  static useAbility(game, ability) {
+  static async useAbility(game, ability) {
     if (!game.battleStarted) return;
     // trigger player attack animation and effect
     game.playerAttacking = true;
     game.attackAnimProgress = 0;
-    BattleSystem.spawnPlayerAttackEffect(game);
+    await BattleSystem.spawnPlayerAttackEffect(game);
 
     ability.execute(game);
     BattleSystem.applyDrone(game);
@@ -65,12 +65,13 @@ export class BattleSystem {
     return atk * 10;
   }
 
-  static spawnPlayerAttackEffect(game) {
+  static async spawnPlayerAttackEffect(game) {
     if (game.charShape && game.battleContainer) {
       let asset = '/assets/samurai_weapon.png';
       const cls = game.character.cls.name;
       if (cls === 'Netrunner') asset = '/assets/netrunner_weapon.png';
       else if (cls === 'Techie') asset = '/assets/techie_gun.png';
+      await game.ensureAsset(asset);
       const effect = PIXI.Sprite.from(asset);
       effect.anchor.set(0.5);
       effect.x = game.charShape.x + 30;
@@ -82,11 +83,12 @@ export class BattleSystem {
     }
   }
 
-  static enemyAttack(game) {
+  static async enemyAttack(game) {
     const { character: char, enemy } = game;
     game.enemyAttacking = true;
     game.attackAnimProgress = 0;
     if (game.enemyShape && game.charShape && game.battleContainer) {
+      await game.ensureAsset('/assets/enemy_basic_attack.png');
       const effect = PIXI.Sprite.from('/assets/enemy_basic_attack.png');
       effect.anchor.set(0.5);
       effect.x = game.enemyShape.x - 30;

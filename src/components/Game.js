@@ -146,6 +146,28 @@ export class Game {
     this.logoSprite.zIndex = 10;
   }
 
+  async ensureAsset(url) {
+    if (!PIXI.Assets.cache.get(url)) {
+      try {
+        await PIXI.Assets.load(url);
+      } catch (err) {
+        console.warn('Failed to load asset:', url, err);
+      }
+    }
+  }
+
+  async startBattle() {
+    const needed = [];
+    if (this.character?.avatar) needed.push(this.character.avatar);
+    if (this.enemy?.avatar) needed.push(this.enemy.avatar);
+    needed.push('/assets/enemy_basic_attack.png');
+    for (const url of needed) {
+      await this.ensureAsset(url);
+    }
+    BattleSystem.init(this);
+    this.createBattleUI();
+  }
+
   spawnFloatingText(text, x, y, color = 0xffffff, fontSize = 24, offsetY = 0) {
     // Vytvoření poletujícího textu (např. poškození nebo zprávy) na scéně
     const floatingText = new PIXI.Text(text, {
@@ -527,17 +549,8 @@ export class Game {
       //this.createShopUI();
     //}
       } else if (this.state === 'battle') {
-  const neededAssets = [];
-
-  if (this.character?.avatar) neededAssets.push(this.character.avatar);
-  if (this.enemy?.avatar) neededAssets.push(this.enemy.avatar);
-  neededAssets.push('/assets/enemy_basic_attack.png');
-
-  PIXI.Assets.load(neededAssets).then(() => {
-    BattleSystem.init(this);
-    this.createBattleUI();
-  });
-}
+        this.startBattle();
+      }
     else if (this.state === 'settings') {
       const title = new PIXI.Text('Settings', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
       title.anchor.set(0.5);
