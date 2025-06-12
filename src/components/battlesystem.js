@@ -1,3 +1,4 @@
+import * as PIXI from 'pixi.js';
 import { ABILITIES } from '../data/abilities.js';
 
 export class BattleSystem {
@@ -56,6 +57,18 @@ export class BattleSystem {
 
   static enemyAttack(game) {
     const { character: char, enemy } = game;
+    game.enemyAttacking = true;
+    game.attackAnimProgress = 0;
+    if (game.enemyShape && game.charShape && game.battleContainer) {
+      const effect = PIXI.Sprite.from('/assets/enemy_basic_attack.png');
+      effect.anchor.set(0.5);
+      effect.x = game.enemyShape.x - 30;
+      effect.y = game.enemyShape.y;
+      effect.zIndex = 3;
+      game.battleContainer.addChild(effect);
+      game.enemyAttackEffect = effect;
+      game.enemyAttackEffectAnimProgress = 0;
+    }
     if (BattleSystem.didDodge(char.stats.def)) {
       game.spawnFloatingText('DODGED', game.playerAvatarX, game.playerAvatarY - 140, 0xffffff, 36);
       return;
