@@ -949,13 +949,21 @@ console.log("enemy attack asset loaded:", !!PIXI.Assets.cache.get('/assets/enemy
     this.attackAnimProgress = 0;
     this.playerWeaponSprite = null;
     if (this.attackEffect) {
-      this.stage.removeChild(this.attackEffect);
+      if (this.battleContainer) {
+        this.battleContainer.removeChild(this.attackEffect);
+      } else {
+        this.stage.removeChild(this.attackEffect);
+      }
       this.attackEffect.destroy();
       this.attackEffect = null;
     }
     this.attackEffectAnimProgress = 0;
     if (this.enemyAttackEffect) {
-      this.stage.removeChild(this.enemyAttackEffect);
+      if (this.battleContainer) {
+        this.battleContainer.removeChild(this.enemyAttackEffect);
+      } else {
+        this.stage.removeChild(this.enemyAttackEffect);
+      }
       this.enemyAttackEffect.destroy();
       this.enemyAttackEffect = null;
     }
