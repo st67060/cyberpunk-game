@@ -522,14 +522,23 @@ export class Game {
         this.initUI();
       });
       this.stage.addChild(backBtn);
-    } else if (this.state === 'battle') {
-      // Stav boje – inicializace bojového UI a nového systému kol
-      BattleSystem.init(this);
-      this.createBattleUI();
-    } else if (this.state === 'shop') {
+    // else if (this.state === 'shop') {
       // Zobrazení nabídky obchodu (zbraně/zbroje)
-      this.createShopUI();
-    } else if (this.state === 'settings') {
+      //this.createShopUI();
+    //}
+      } else if (this.state === 'battle') {
+  const neededAssets = [];
+
+  if (this.character?.avatar) neededAssets.push(this.character.avatar);
+  if (this.enemy?.avatar) neededAssets.push(this.enemy.avatar);
+  neededAssets.push('/assets/enemy_basic_attack.png');
+
+  PIXI.Assets.load(neededAssets).then(() => {
+    BattleSystem.init(this);
+    this.createBattleUI();
+  });
+}
+    else if (this.state === 'settings') {
       const title = new PIXI.Text('Settings', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
       title.anchor.set(0.5);
       title.x = this.app.screen.width / 2;
