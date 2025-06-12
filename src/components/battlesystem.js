@@ -42,9 +42,9 @@ export class BattleSystem {
 
     BattleSystem.turn = 'enemy';
     // slight delay before enemy retaliates so attack effects are visible
-    setTimeout(() => {
+    setTimeout(async () => {
       if (!game.battleStarted) return;
-      BattleSystem.enemyAttack(game);
+      await BattleSystem.enemyAttack(game);
       BattleSystem.applyDrone(game);
       BattleSystem.checkBattleEnd(game);
       if (!game.battleStarted) return;
