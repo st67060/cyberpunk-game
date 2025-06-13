@@ -6,6 +6,7 @@ export const BASIC_ATTACK = {
     const dmg = char.stats.atk * 10;
     enemy.hp = Math.max(0, enemy.hp - dmg);
     game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0xffe000, 36);
+    game.enemyFlashTimer = 0.2;
   }
 };
 
@@ -20,6 +21,7 @@ export const ABILITIES = {
         enemy.def = Math.max(1, enemy.def * 0.95);
         enemy.hp = Math.max(0, enemy.hp - dmg);
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0x00e0ff, 36);
+        game.enemyFlashTimer = 0.2;
       }
     }
   ],
@@ -37,6 +39,7 @@ export const ABILITIES = {
         }
         enemy.hp = Math.max(0, enemy.hp - dmg);
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, crit ? 0xff0000 : 0xff2e2e, 36);
+        game.enemyFlashTimer = 0.2;
       }
     }
   ],
@@ -47,6 +50,7 @@ export const ABILITIES = {
       execute(game) {
         game.droneDamage = Math.round(game.droneDamage * 1.5);
         game.spawnFloatingText('DRONE +50%', game.playerAvatarX, game.playerAvatarY - 160, 0x00ff8a, 32);
+        game.enemyFlashTimer = 0.2;
       }
     }
   ]
