@@ -146,24 +146,7 @@ export class Game {
     this.logoSprite.zIndex = 10;
   }
 
-  async ensureAsset(url) {
-    if (!PIXI.Assets.cache.get(url)) {
-      try {
-        await PIXI.Assets.load(url);
-      } catch (err) {
-        console.warn('Failed to load asset:', url, err);
-      }
-    }
-  }
-
-  async startBattle() {
-    const needed = [];
-    if (this.character?.avatar) needed.push(this.character.avatar);
-    if (this.enemy?.avatar) needed.push(this.enemy.avatar);
-    needed.push('/assets/enemy_basic_attack.png');
-    for (const url of needed) {
-      await this.ensureAsset(url);
-    }
+  startBattle() {
     BattleSystem.init(this);
     this.createBattleUI();
   }
