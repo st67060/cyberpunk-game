@@ -638,7 +638,8 @@ console.log("enemy attack asset loaded:", !!PIXI.Assets.cache.get('/assets/enemy
     this.charShape = charAvatar;
     charAvatar.x = this.playerAvatarX;
     charAvatar.y = this.playerAvatarY;
-    charAvatar.zIndex = 2;
+    // Ensure avatar renders above its background
+    charAvatar.zIndex = 5;
     // Filtry pro hráčův avatar (záře, bloom, stín)
     charAvatar.filters = [
       new GlowFilter({ distance: 22, outerStrength: 3, innerStrength: 0, color: char.cls.color, quality: 0.5 }),
@@ -691,7 +692,8 @@ console.log("enemy attack asset loaded:", !!PIXI.Assets.cache.get('/assets/enemy
     this.enemyShape = enemySprite;
     enemySprite.x = this.enemyAvatarX;
     enemySprite.y = this.enemyAvatarY;
-    enemySprite.zIndex = 2;
+    // Ensure enemy avatar appears above its background
+    enemySprite.zIndex = 5;
     // Filtry pro nepřátelský avatar (záře, bloom, stín)
     enemySprite.filters = [
       new GlowFilter({ distance: 25, outerStrength: 4, innerStrength: 0, color: enemy.color, quality: 0.5 }),
