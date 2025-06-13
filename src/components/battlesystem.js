@@ -36,7 +36,7 @@ export class BattleSystem {
     await BattleSystem.spawnPlayerAttackEffect(game);
 
     ability.execute(game);
-    BattleSystem.applyDrone(game);
+    await BattleSystem.applyDrone(game);
     BattleSystem.checkBattleEnd(game);
     if (!game.battleStarted) return;
 
@@ -45,7 +45,7 @@ export class BattleSystem {
     setTimeout(async () => {
       if (!game.battleStarted) return;
       await BattleSystem.enemyAttack(game);
-      BattleSystem.applyDrone(game);
+      await BattleSystem.applyDrone(game);
       BattleSystem.checkBattleEnd(game);
       if (!game.battleStarted) return;
       BattleSystem.turn = 'player';
@@ -53,12 +53,12 @@ export class BattleSystem {
     }, 500);
   }
 
-  static applyDrone(game) {
+  static async applyDrone(game) {
     if (game.character.cls.name === 'Techie' && game.droneDamage > 0) {
       const dmg = game.droneDamage;
       game.enemy.hp = Math.max(0, game.enemy.hp - dmg);
       game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, 0x00ff8a, 24);
-      BattleSystem.spawnDroneAttackEffect(game);
+      await BattleSystem.spawnDroneAttackEffect(game);
     }
   }
 
@@ -75,7 +75,9 @@ export class BattleSystem {
       const cls = game.character.cls.name;
       if (cls === 'Netrunner') asset = '/assets/netrunner_weapon.png';
       else if (cls === 'Techie') asset = '/assets/techie_gun.png';
-      const effect = PIXI.Sprite.from(asset);
+
+      const texture = await PIXI.Assets.load(asset);
+      const effect = new PIXI.Sprite(texture);
       effect.anchor.set(0.5);
       effect.x = game.charShape.x + 30;
       effect.y = game.charShape.y;
@@ -84,14 +86,14 @@ export class BattleSystem {
       game.battleContainer.addChild(effect);
       game.attackEffect = effect;
       game.attackEffectAnimProgress = 0;
-      // Allow a brief moment for the texture to load so the effect is visible
-      await BattleSystem.delay(100);
     }
   }
 
-  static spawnDroneAttackEffect(game) {
+  static async spawnDroneAttackEffect(game) {
     if (game.charShape && game.battleContainer) {
-      const effect = PIXI.Sprite.from('/assets/techie_drone_attack.png');
+      const asset = '/assets/techie_drone_attack.png';
+      const texture = await PIXI.Assets.load(asset);
+      const effect = new PIXI.Sprite(texture);
       effect.anchor.set(0.5);
       effect.x = game.charShape.x + 30;
       effect.y = game.charShape.y - 40;
@@ -107,7 +109,8 @@ export class BattleSystem {
     game.enemyAttacking = true;
     game.attackAnimProgress = 0;
     if (game.enemyShape && game.charShape && game.battleContainer) {
-      const effect = PIXI.Sprite.from('/assets/enemy_basic_attack.png');
+      const texture = await PIXI.Assets.load('/assets/enemy_basic_attack.png');
+      const effect = new PIXI.Sprite(texture);
       effect.anchor.set(0.5);
       effect.x = game.enemyShape.x - 30;
       effect.y = game.enemyShape.y;
@@ -130,7 +133,7 @@ export class BattleSystem {
     }
     char.hp = Math.max(0, char.hp - dmg);
     game.spawnFloatingText(`-${dmg}`, game.playerAvatarX, game.playerAvatarY - 140, crit ? 0xff0000 : 0xffe000, 36);
-    game.playerFlashTimer = 0.2;
+    game.playerFlashTimer = 0.6; // extend hit flash duration
   }
 
   static didDodge(def) {
