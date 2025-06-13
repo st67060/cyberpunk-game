@@ -641,11 +641,12 @@ console.log("enemy attack asset loaded:", !!PIXI.Assets.cache.get('/assets/enemy
     // Ensure avatar renders above its background
     charAvatar.zIndex = 5;
     // Filtry pro hráčův avatar (záře, bloom, stín)
-    charAvatar.filters = [
-      new GlowFilter({ distance: 22, outerStrength: 3, innerStrength: 0, color: char.cls.color, quality: 0.5 }),
-      new BloomFilter({ threshold: 0.18, bloomScale: 2.2, blur: 13, quality: 0.5 }),
-      new DropShadowFilter({ distance: 0, blur: 12, color: 0x000000, alpha: 0.7 })
-    ];
+    // Filters on some systems caused the avatar to become invisible, so they were removed
+    // charAvatar.filters = [
+    //   new GlowFilter({ distance: 22, outerStrength: 3, innerStrength: 0, color: char.cls.color, quality: 0.5 }),
+    //   new BloomFilter({ threshold: 0.18, bloomScale: 2.2, blur: 13, quality: 0.5 }),
+    //   new DropShadowFilter({ distance: 0, blur: 12, color: 0x000000, alpha: 0.7 })
+    // ];
     this.battleContainer.addChild(charAvatar);
     // Popisek a úroveň hráče
     const charNameText = new PIXI.Text('ME', { fontFamily: 'monospace', fontSize: 32, fill: 0xffa500, fontWeight: 'bold' });
@@ -695,11 +696,12 @@ console.log("enemy attack asset loaded:", !!PIXI.Assets.cache.get('/assets/enemy
     // Ensure enemy avatar appears above its background
     enemySprite.zIndex = 5;
     // Filtry pro nepřátelský avatar (záře, bloom, stín)
-    enemySprite.filters = [
-      new GlowFilter({ distance: 25, outerStrength: 4, innerStrength: 0, color: enemy.color, quality: 0.5 }),
-      new BloomFilter({ threshold: 0.2, bloomScale: 2.5, blur: 18, quality: 0.5 }),
-      new DropShadowFilter({ distance: 0, blur: 16, color: 0x000000, alpha: 0.7 })
-    ];
+    // Some filters caused the enemy avatar to disappear on certain setups
+    // enemySprite.filters = [
+    //   new GlowFilter({ distance: 25, outerStrength: 4, innerStrength: 0, color: enemy.color, quality: 0.5 }),
+    //   new BloomFilter({ threshold: 0.2, bloomScale: 2.5, blur: 18, quality: 0.5 }),
+    //   new DropShadowFilter({ distance: 0, blur: 16, color: 0x000000, alpha: 0.7 })
+    // ];
     this.battleContainer.addChild(enemySprite);
     // Popisek nepřítele (jméno a úroveň)
     const enemyNameText = new PIXI.Text(`${enemy.name} (Lv. ${enemy.level})`, { fontFamily: 'monospace', fontSize: 32, fill: enemy.color, fontWeight: 'bold' });
