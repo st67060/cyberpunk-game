@@ -33,7 +33,7 @@ export class BattleSystem {
     // trigger player attack animation and effect
     game.playerAttacking = true;
     game.attackAnimProgress = 0;
-    BattleSystem.spawnPlayerAttackEffect(game);
+    await BattleSystem.spawnPlayerAttackEffect(game);
 
     ability.execute(game);
     BattleSystem.applyDrone(game);
@@ -69,7 +69,7 @@ export class BattleSystem {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  static spawnPlayerAttackEffect(game) {
+  static async spawnPlayerAttackEffect(game) {
     if (game.charShape && game.battleContainer) {
       let asset = '/assets/samurai_weapon.png';
       const cls = game.character.cls.name;
@@ -84,6 +84,8 @@ export class BattleSystem {
       game.battleContainer.addChild(effect);
       game.attackEffect = effect;
       game.attackEffectAnimProgress = 0;
+      // Allow a brief moment for the texture to load so the effect is visible
+      await BattleSystem.delay(100);
     }
   }
 
