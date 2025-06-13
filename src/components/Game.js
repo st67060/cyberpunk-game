@@ -51,6 +51,8 @@ export class Game {
     this.attackEffectAnimProgress = 0;
     this.enemyAttackEffect = null;
     this.enemyAttackEffectAnimProgress = 0;
+    this.droneAttackEffect = null;
+    this.droneAttackEffectAnimProgress = 0;
     this.shopType = 'weapon';
     // Cache nabídek obchodu (předměty k prodeji podle typu)
     this.shopItemsCache = {
@@ -119,6 +121,7 @@ export class Game {
     assets.push('/assets/samurai_weapon.png');
     assets.push('/assets/netrunner_weapon.png');
     assets.push('/assets/techie_gun.png');
+    assets.push('/assets/techie_drone_attack.png');
     // Načtení všech assetů pomocí Pixi Assets API
     await PIXI.Assets.load(assets);
     // Vytvoření sprite pro pozadí hry a aplikace CRT filtru (zkreslení obrazu)
@@ -972,6 +975,16 @@ export class Game {
       this.enemyAttackEffect = null;
     }
     this.enemyAttackEffectAnimProgress = 0;
+    if (this.droneAttackEffect) {
+      if (this.battleContainer) {
+        this.battleContainer.removeChild(this.droneAttackEffect);
+      } else {
+        this.stage.removeChild(this.droneAttackEffect);
+      }
+      this.droneAttackEffect.destroy();
+      this.droneAttackEffect = null;
+    }
+    this.droneAttackEffectAnimProgress = 0;
     this.floatingTexts = [];
     if (this.bloodEffects) {
       this.bloodEffects.forEach(effect => this.stage.removeChild(effect));
@@ -1186,6 +1199,19 @@ export class Game {
           this.enemyAttackEffect.destroy();
           this.enemyAttackEffect = null;
           this.enemyAttackEffectAnimProgress = 0;
+        }
+      }
+      if (this.droneAttackEffect) {
+        this.droneAttackEffectAnimProgress += 0.05 * delta;
+        const progress = this.droneAttackEffectAnimProgress;
+        this.droneAttackEffect.x = this.charShape.x + 30 + (this.enemyShape.x - this.charShape.x - 30) * progress;
+        this.droneAttackEffect.y = this.charShape.y - 40 + (this.enemyShape.y - this.charShape.y + 40) * progress;
+        this.droneAttackEffect.alpha = 1 - progress;
+        if (this.droneAttackEffectAnimProgress >= 1) {
+          this.battleContainer.removeChild(this.droneAttackEffect);
+          this.droneAttackEffect.destroy();
+          this.droneAttackEffect = null;
+          this.droneAttackEffectAnimProgress = 0;
         }
       }
       // Zobrazení ikonky nepřítele bez animací

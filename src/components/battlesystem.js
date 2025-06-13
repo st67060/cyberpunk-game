@@ -58,6 +58,7 @@ export class BattleSystem {
       const dmg = game.droneDamage;
       game.enemy.hp = Math.max(0, game.enemy.hp - dmg);
       game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, 0x00ff8a, 24);
+      BattleSystem.spawnDroneAttackEffect(game);
     }
   }
 
@@ -83,6 +84,19 @@ export class BattleSystem {
       game.battleContainer.addChild(effect);
       game.attackEffect = effect;
       game.attackEffectAnimProgress = 0;
+    }
+  }
+
+  static spawnDroneAttackEffect(game) {
+    if (game.charShape && game.battleContainer) {
+      const effect = PIXI.Sprite.from('/assets/techie_drone_attack.png');
+      effect.anchor.set(0.5);
+      effect.x = game.charShape.x + 30;
+      effect.y = game.charShape.y - 40;
+      effect.zIndex = 8;
+      game.battleContainer.addChild(effect);
+      game.droneAttackEffect = effect;
+      game.droneAttackEffectAnimProgress = 0;
     }
   }
 
