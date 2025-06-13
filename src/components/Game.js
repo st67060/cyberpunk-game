@@ -146,9 +146,9 @@ export class Game {
     this.logoSprite.zIndex = 10;
   }
 
-  startBattle() {
+  async startBattle() {
     BattleSystem.init(this);
-    this.createBattleUI();
+    await this.createBattleUI();
   }
 
   spawnFloatingText(text, x, y, color = 0xffffff, fontSize = 24, offsetY = 0) {
@@ -579,9 +579,20 @@ export class Game {
     }
   }
 
-  createBattleUI() {
+  async createBattleUI() {
     const enemy = this.enemy;
     const char = this.character;
+    // Ensure avatar textures are loaded
+    const toLoad = [];
+    if (!PIXI.Assets.cache.get(char.avatar)) toLoad.push(char.avatar);
+    if (!PIXI.Assets.cache.get(enemy.avatar)) toLoad.push(enemy.avatar);
+    if (toLoad.length) {
+      try {
+        await PIXI.Assets.load(toLoad);
+      } catch (err) {
+        console.error('Failed loading avatars', err);
+      }
+    }
     // Kontejner pro prvky boje
     this.battleContainer = new PIXI.Container();
     this.battleContainer.sortableChildren = true;
