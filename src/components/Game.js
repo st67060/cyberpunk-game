@@ -605,14 +605,7 @@ export class Game {
     this.playerAvatarY = this.app.screen.height / 2 - 50;
     this.enemyAvatarX = this.app.screen.width * 3 / 4;
     this.enemyAvatarY = this.app.screen.height / 2 - 50;
-    // log
-console.log("char.avatar =", char.avatar);
-console.log("enemy.avatar =", enemy.avatar);
-console.log("char avatar loaded:", !!PIXI.Assets.cache.get(char.avatar));
-console.log("enemy avatar loaded:", !!PIXI.Assets.cache.get(enemy.avatar));
-console.log("enemy attack asset loaded:", !!PIXI.Assets.cache.get('/assets/enemy_basic_attack.png'));
-    //log
-// Rámečky pod avátory (s efekty)
+    // Rámečky pod avátory (s efekty)
     const playerBgSprite = PIXI.Sprite.from('/assets/avatar background.jpg');
     playerBgSprite.width = AVATAR_BG_SIZE;
     playerBgSprite.height = AVATAR_BG_SIZE;
@@ -1100,18 +1093,22 @@ console.log("enemy attack asset loaded:", !!PIXI.Assets.cache.get('/assets/enemy
       // Flash efekt hráče při zásahu (blikne červeně krátce)
       if (this.playerFlashTimer > 0) {
         this.playerFlashTimer -= delta / 60;
-        this.charShape.tint = 0xff0000;
-        if (this.playerFlashTimer <= 0) {
+        if (this.charShape) this.charShape.tint = 0xff0000;
+        if (this.playerFlashTimer <= 0 && this.charShape) {
           this.charShape.tint = 0xffffff;
         }
+      } else if (this.charShape && this.charShape.tint !== 0xffffff) {
+        this.charShape.tint = 0xffffff;
       }
       // Flash efekt nepřítele při zásahu
       if (this.enemyFlashTimer > 0) {
         this.enemyFlashTimer -= delta / 60;
-        this.enemyShape.tint = 0xff0000;
-        if (this.enemyFlashTimer <= 0) {
+        if (this.enemyShape) this.enemyShape.tint = 0xff0000;
+        if (this.enemyFlashTimer <= 0 && this.enemyShape) {
           this.enemyShape.tint = 0xffffff;
         }
+      } else if (this.enemyShape && this.enemyShape.tint !== 0xffffff) {
+        this.enemyShape.tint = 0xffffff;
       }
       // Animace částic krve (pokud existují)
       if (this.bloodEffects) {

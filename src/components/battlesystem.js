@@ -79,7 +79,7 @@ export class BattleSystem {
       effect.x = game.charShape.x + 30;
       effect.y = game.charShape.y;
       // Display attack effect above avatars
-      effect.zIndex = 6;
+      effect.zIndex = 8;
       game.battleContainer.addChild(effect);
       game.attackEffect = effect;
       game.attackEffectAnimProgress = 0;
@@ -96,7 +96,7 @@ export class BattleSystem {
       effect.x = game.enemyShape.x - 30;
       effect.y = game.enemyShape.y;
       // Display enemy attack effect above avatars
-      effect.zIndex = 6;
+      effect.zIndex = 8;
       game.battleContainer.addChild(effect);
       game.enemyAttackEffect = effect;
       game.enemyAttackEffectAnimProgress = 0;
