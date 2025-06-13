@@ -1146,20 +1146,10 @@ console.log("enemy attack asset loaded:", !!PIXI.Assets.cache.get('/assets/enemy
           }
         }
       }
-      // Animace útoku hráče (posun směrem k nepříteli a zpět během útoku)
-      if (this.playerAttacking && this.charShape) {
-        this.attackAnimProgress += 0.05 * delta;
-        const progress = Math.sin(this.attackAnimProgress * Math.PI);
-        this.charShape.x = this.playerAvatarX + progress * (this.enemyAvatarX - this.playerAvatarX) * 0.5;
-        this.charShape.y = this.playerAvatarY + Math.abs(Math.cos(this.battleAnim + 1)) * 10;
-        if (this.attackAnimProgress >= 1) {
-          this.playerAttacking = false;
-          this.attackAnimProgress = 0;
-        }
-      } else if (this.charShape) {
-        // Klidová "dýchající" animace avataru hráče
-        this.charShape.x = this.playerAvatarX + Math.sin(this.battleAnim + 1) * 12;
-        this.charShape.y = this.playerAvatarY + Math.abs(Math.cos(this.battleAnim + 1)) * 10;
+      // Zobrazení ikonky hráče bez animací
+      if (this.charShape) {
+        this.charShape.x = this.playerAvatarX;
+        this.charShape.y = this.playerAvatarY;
       }
       // Odstranění sprite zbraně z předchozího kola (aby se překreslil při dalším útoku)
       if (this.playerWeaponSprite) {
@@ -1201,20 +1191,10 @@ console.log("enemy attack asset loaded:", !!PIXI.Assets.cache.get('/assets/enemy
           this.enemyAttackEffectAnimProgress = 0;
         }
       }
-      // Animace útoku nepřítele (posun avataru nepřítele při útoku)
-      if (this.enemyAttacking && this.enemyShape) {
-        this.attackAnimProgress += 0.05 * delta;
-        const progress = Math.sin(this.attackAnimProgress * Math.PI);
-        this.enemyShape.x = this.enemyAvatarX - progress * (this.enemyAvatarX - this.playerAvatarX) * 0.5;
-        this.enemyShape.y = this.enemyAvatarY + Math.abs(Math.cos(this.battleAnim)) * 10;
-        if (this.attackAnimProgress >= 1) {
-          this.enemyAttacking = false;
-          this.attackAnimProgress = 0;
-        }
-      } else if (this.enemyShape) {
-        // Klidová animace nepřítele
-        this.enemyShape.x = this.enemyAvatarX + Math.sin(this.battleAnim) * 12;
-        this.enemyShape.y = this.enemyAvatarY + Math.abs(Math.cos(this.battleAnim)) * 10;
+      // Zobrazení ikonky nepřítele bez animací
+      if (this.enemyShape) {
+        this.enemyShape.x = this.enemyAvatarX;
+        this.enemyShape.y = this.enemyAvatarY;
       }
       // Animace všech poletujících textů (postupné stoupání a mizení)
       for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
