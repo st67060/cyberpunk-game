@@ -1,10 +1,9 @@
-import * as PIXI from 'pixi.js';
+import { Application, Container, Sprite, Text, Graphics, Assets, BlurFilter } from 'pixi.js';
 import { GlowFilter } from '@pixi/filter-glow';
 import { BloomFilter } from '@pixi/filter-bloom';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { CRTFilter } from '@pixi/filter-crt';
 import { GlitchFilter } from '@pixi/filter-glitch';
-import { BlurFilter } from 'pixi.js';
 
 import { Button } from './Button.js';
 import { StatBar } from './StatBar.js';
@@ -27,7 +26,7 @@ export class Game {
     // Uložení reference na PIXI.Application
     this.app = app;
     // Vytvoření hlavního kontejneru hry a přidání do scény aplikace
-    this.stage = new PIXI.Container();
+    this.stage = new Container();
     // Allow explicit zIndex ordering for children
     this.stage.sortableChildren = true;
     this.app.stage.addChild(this.stage);
@@ -123,9 +122,9 @@ export class Game {
     assets.push('/assets/techie_gun.png');
     assets.push('/assets/techie_drone_attack.png');
     // Načtení všech assetů pomocí Pixi Assets API
-    await PIXI.Assets.load(assets);
+    await Assets.load(assets);
     // Vytvoření sprite pro pozadí hry a aplikace CRT filtru (zkreslení obrazu)
-    this.backgroundSprite = PIXI.Sprite.from('/assets/background.png');
+    this.backgroundSprite = Sprite.from('/assets/background.png');
     this.backgroundSprite.width = this.app.screen.width;
     this.backgroundSprite.height = this.app.screen.height;
     this.backgroundSprite.zIndex = 0;
@@ -141,7 +140,7 @@ export class Game {
     this.nextGlitchIn = 3 + Math.random() * 5;
     this.backgroundSprite.filters = [this.bgDistortFilter, this.glitchFilter];
 
-    this.logoSprite = PIXI.Sprite.from('/assets/Logo.png');
+    this.logoSprite = Sprite.from('/assets/Logo.png');
     this.logoSprite.width = 120;
     this.logoSprite.height = 120;
     this.logoSprite.x = 10;
@@ -156,7 +155,7 @@ export class Game {
 
   spawnFloatingText(text, x, y, color = 0xffffff, fontSize = 24, offsetY = 0) {
     // Vytvoření poletujícího textu (např. poškození nebo zprávy) na scéně
-    const floatingText = new PIXI.Text(text, {
+    const floatingText = new Text(text, {
       fontFamily: 'monospace',
       fontSize,
       fill: color,
@@ -203,7 +202,7 @@ export class Game {
     }
     if (this.state === 'charcreate') {
       // Screen for selecting a character class
-      const titleText = new PIXI.Text('Choose Your Class', {
+      const titleText = new Text('Choose Your Class', {
         fontFamily: 'monospace', fontSize: 28, fill: 0xffffff
       });
       titleText.anchor.set(0.5);
@@ -214,7 +213,7 @@ export class Game {
       // Render all available classes side by side
       const gap = this.app.screen.width / 4;
       CLASSES.forEach((cls, i) => {
-        const avatar = PIXI.Sprite.from(cls.texture);
+        const avatar = Sprite.from(cls.texture);
         avatar.anchor.set(0.5);
         const sizeMultiplier = i === this.classIdx ? 1.2 : 1;
         avatar.width = CLASS_AVATAR_SIZE * sizeMultiplier;
@@ -237,13 +236,13 @@ export class Game {
           this.initUI();
         });
 
-        const infoBox = new PIXI.Container();
-        const infoBg = new PIXI.Graphics();
+        const infoBox = new Container();
+        const infoBg = new Graphics();
         infoBg.beginFill(0x000000, 0.8);
         infoBg.drawRoundedRect(-70, -60, 140, 70, 8);
         infoBg.endFill();
         infoBox.addChild(infoBg);
-        const infoText = new PIXI.Text(`HP: ${cls.hp}\nATK: ${cls.atk}\nDEF: ${cls.def}\nSPD: ${cls.spd}`, {
+        const infoText = new Text(`HP: ${cls.hp}\nATK: ${cls.atk}\nDEF: ${cls.def}\nSPD: ${cls.spd}`, {
           fontFamily: 'monospace', fontSize: 14, fill: 0xffffff
         });
         infoText.anchor.set(0.5);
@@ -258,7 +257,7 @@ export class Game {
 
         this.stage.addChild(avatar);
 
-        const nameText = new PIXI.Text(cls.name, {
+        const nameText = new Text(cls.name, {
           fontFamily: 'monospace', fontSize: 20, fill: cls.color
         });
         nameText.anchor.set(0.5);
@@ -322,19 +321,19 @@ export class Game {
       const panelHeight = 560;
       const panelX = this.app.screen.width / 2 - panelWidth / 2;
       const panelY = 90;
-      const infoPanel = new PIXI.Graphics();
+      const infoPanel = new Graphics();
       infoPanel.beginFill(0x000000, 0.6);
       infoPanel.drawRoundedRect(panelX, panelY, panelWidth, panelHeight, 16);
       infoPanel.endFill();
       this.stage.addChild(infoPanel);
 
-      const title = new PIXI.Text('Player Profile', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+      const title = new Text('Player Profile', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
       title.anchor.set(0.5);
       title.x = this.app.screen.width / 2;
       title.y = 60;
       this.stage.addChild(title);
 
-      const avatar = PIXI.Sprite.from(char.avatar);
+      const avatar = Sprite.from(char.avatar);
       avatar.anchor.set(0.5);
       avatar.width = 130;
       avatar.height = 130;
@@ -342,13 +341,13 @@ export class Game {
       avatar.y = panelY + 60;
       this.stage.addChild(avatar);
 
-      const classText = new PIXI.Text(`Class: ${char.cls.name}`, { fontFamily: 'monospace', fontSize: 22, fill: 0xffffff });
+      const classText = new Text(`Class: ${char.cls.name}`, { fontFamily: 'monospace', fontSize: 22, fill: 0xffffff });
       classText.anchor.set(0.5);
       classText.x = this.app.screen.width / 2;
       classText.y = avatar.y + 70;
       this.stage.addChild(classText);
 
-      const levelText = new PIXI.Text(`Level: ${char.level}`, { fontFamily: 'monospace', fontSize: 22, fill: 0xffffff });
+      const levelText = new Text(`Level: ${char.level}`, { fontFamily: 'monospace', fontSize: 22, fill: 0xffffff });
       levelText.anchor.set(0.5);
       levelText.x = this.app.screen.width / 2;
       levelText.y = classText.y + 30;
@@ -357,7 +356,7 @@ export class Game {
       const levelBar = new StatBar('EXP', char.exp, char.expToNext, this.app.screen.width / 2 - 100, levelText.y + 10, 200, 16, 0x00e0ff);
       this.stage.addChild(levelBar);
 
-      const statHeader = new PIXI.Text(`Stat Points: ${char.statPoints}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
+      const statHeader = new Text(`Stat Points: ${char.statPoints}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
       statHeader.anchor.set(0.5);
       statHeader.x = this.app.screen.width / 2;
       statHeader.y = levelBar.y + 30;
@@ -371,14 +370,14 @@ export class Game {
       ];
       let y = statHeader.y + 10;
       for (const s of statInfo) {
-        const statLabel = new PIXI.Text(s.label, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+        const statLabel = new Text(s.label, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
         statLabel.anchor.set(0, 0.5);
         statLabel.x = this.app.screen.width / 2 - 90;
         statLabel.y = y + 20;
         this.stage.addChild(statLabel);
 
         const cost = char.statPoints > 0 ? '1 SP' : `${char.statCosts[s.key]}G`;
-        const costText = new PIXI.Text(cost, { fontFamily: 'monospace', fontSize: 14, fill: 0xcccccc });
+        const costText = new Text(cost, { fontFamily: 'monospace', fontSize: 14, fill: 0xcccccc });
         costText.anchor.set(1, 0.5);
         costText.x = this.app.screen.width / 2 + 130;
         costText.y = y + 20;
@@ -393,20 +392,20 @@ export class Game {
         y += 50;
       }
 
-      const goldText = new PIXI.Text(`Gold: ${char.gold}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
+      const goldText = new Text(`Gold: ${char.gold}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
       goldText.anchor.set(0.5);
       goldText.x = this.app.screen.width / 2;
       goldText.y = y + 10;
       this.stage.addChild(goldText);
 
-      const weaponText = new PIXI.Text(`Weapon: ${char.weapon.name}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+      const weaponText = new Text(`Weapon: ${char.weapon.name}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
       weaponText.anchor.set(0, 0.5);
       weaponText.x = this.app.screen.width / 2 - 30;
       weaponText.y = y + 40;
       this.stage.addChild(weaponText);
 
       if (ITEM_ASSETS[char.weapon.name]) {
-        const weaponSprite = PIXI.Sprite.from(ITEM_ASSETS[char.weapon.name]);
+        const weaponSprite = Sprite.from(ITEM_ASSETS[char.weapon.name]);
         weaponSprite.width = 48;
         weaponSprite.height = 48;
         weaponSprite.anchor.set(1, 0.5);
@@ -415,14 +414,14 @@ export class Game {
         this.stage.addChild(weaponSprite);
       }
 
-      const armorText = new PIXI.Text(`Armor: ${char.armor.name}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+      const armorText = new Text(`Armor: ${char.armor.name}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
       armorText.anchor.set(0, 0.5);
       armorText.x = this.app.screen.width / 2 - 30;
       armorText.y = y + 70;
       this.stage.addChild(armorText);
 
       if (ITEM_ASSETS[char.armor.name]) {
-        const armorSprite = PIXI.Sprite.from(ITEM_ASSETS[char.armor.name]);
+        const armorSprite = Sprite.from(ITEM_ASSETS[char.armor.name]);
         armorSprite.width = 48;
         armorSprite.height = 48;
         armorSprite.anchor.set(1, 0.5);
@@ -445,13 +444,13 @@ export class Game {
       });
         this.stage.addChild(backBtn);
       } else if (this.state === 'skilltree') {
-        const title = new PIXI.Text('Skill Tree', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+        const title = new Text('Skill Tree', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
         title.anchor.set(0.5);
         title.x = this.app.screen.width / 2;
         title.y = 60;
         this.stage.addChild(title);
 
-        const info = new PIXI.Text('Skill editor coming soon.', { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+        const info = new Text('Skill editor coming soon.', { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
         info.anchor.set(0.5);
         info.x = this.app.screen.width / 2;
         info.y = this.app.screen.height / 2;
@@ -465,14 +464,14 @@ export class Game {
         this.stage.addChild(backBtn);
       } else if (this.state === 'dungeon') {
       // Herní obrazovka Vault 404 – zobrazení nepřítele nebo výzvy k souboji
-      const dungeonText = new PIXI.Text(`Vault 404 - Level ${this.dungeonLevel}`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffffff });
+      const dungeonText = new Text(`Vault 404 - Level ${this.dungeonLevel}`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffffff });
       dungeonText.anchor.set(0.5);
       dungeonText.x = this.app.screen.width / 2;
       dungeonText.y = 80;
       this.stage.addChild(dungeonText);
       if (this.message) {
         // Zobrazení případné zprávy (např. po poražení bosse)
-        const messageText = new PIXI.Text(this.message, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
+        const messageText = new Text(this.message, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
         messageText.anchor.set(0.5);
         messageText.x = this.app.screen.width / 2;
         messageText.y = 120;
@@ -538,13 +537,13 @@ export class Game {
         this.startBattle();
       }
     else if (this.state === 'settings') {
-      const title = new PIXI.Text('Settings', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+      const title = new Text('Settings', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
       title.anchor.set(0.5);
       title.x = this.app.screen.width / 2;
       title.y = 60;
       this.stage.addChild(title);
 
-      const volumeText = new PIXI.Text(`Volume: ${Math.round(this.musicVolume * 100)}%`, { fontFamily: 'monospace', fontSize: 24, fill: 0xffffff });
+      const volumeText = new Text(`Volume: ${Math.round(this.musicVolume * 100)}%`, { fontFamily: 'monospace', fontSize: 24, fill: 0xffffff });
       volumeText.anchor.set(0.5);
       volumeText.x = this.app.screen.width / 2;
       volumeText.y = 120;
@@ -587,17 +586,17 @@ export class Game {
     const char = this.character;
     // Ensure avatar textures are loaded
     const toLoad = [];
-    if (!PIXI.Assets.cache.get(char.avatar)) toLoad.push(char.avatar);
-    if (!PIXI.Assets.cache.get(enemy.avatar)) toLoad.push(enemy.avatar);
+    if (!Assets.cache.get(char.avatar)) toLoad.push(char.avatar);
+    if (!Assets.cache.get(enemy.avatar)) toLoad.push(enemy.avatar);
     if (toLoad.length) {
       try {
-        await PIXI.Assets.load(toLoad);
+        await Assets.load(toLoad);
       } catch (err) {
         console.error('Failed loading avatars', err);
       }
     }
     // Kontejner pro prvky boje
-    this.battleContainer = new PIXI.Container();
+    this.battleContainer = new Container();
     this.battleContainer.sortableChildren = true;
     this.battleContainer.zIndex = 1;
     this.stage.addChild(this.battleContainer);
@@ -609,7 +608,7 @@ export class Game {
     this.enemyAvatarX = this.app.screen.width * 3 / 4;
     this.enemyAvatarY = this.app.screen.height / 2 - 50;
     // Rámečky pod avátory (s efekty)
-    const playerBgSprite = PIXI.Sprite.from('/assets/avatar background.jpg');
+    const playerBgSprite = Sprite.from('/assets/avatar background.jpg');
     playerBgSprite.width = AVATAR_BG_SIZE;
     playerBgSprite.height = AVATAR_BG_SIZE;
     playerBgSprite.anchor.set(0.5);
@@ -621,7 +620,7 @@ export class Game {
       new DropShadowFilter({ distance: 0, blur: 8, color: 0x000000, alpha: 0.5 })
     ];
     this.battleContainer.addChild(playerBgSprite);
-    const charAvatar = PIXI.Sprite.from(char.avatar);
+    const charAvatar = Sprite.from(char.avatar);
     charAvatar.width = AVATAR_SIZE;
     charAvatar.height = AVATAR_SIZE;
     charAvatar.anchor.set(0.5);
@@ -639,12 +638,12 @@ export class Game {
     // ];
     this.battleContainer.addChild(charAvatar);
     // Popisek a úroveň hráče
-    const charNameText = new PIXI.Text('ME', { fontFamily: 'monospace', fontSize: 32, fill: 0xffa500, fontWeight: 'bold' });
+    const charNameText = new Text('ME', { fontFamily: 'monospace', fontSize: 32, fill: 0xffa500, fontWeight: 'bold' });
     charNameText.anchor.set(0.5);
     charNameText.x = this.playerAvatarX - 30;
     charNameText.y = this.playerAvatarY - AVATAR_SIZE / 2 - 30;
     this.battleContainer.addChild(charNameText);
-    const playerLevelText = new PIXI.Text(`Lv. ${char.level}`, { fontFamily: 'monospace', fontSize: 24, fill: 0xffffff });
+    const playerLevelText = new Text(`Lv. ${char.level}`, { fontFamily: 'monospace', fontSize: 24, fill: 0xffffff });
     playerLevelText.anchor.set(0.5);
     playerLevelText.x = charNameText.x + charNameText.width / 2 + 30;
     playerLevelText.y = charNameText.y;
@@ -655,14 +654,14 @@ export class Game {
     this.playerEnergyBar = new StatBar("ENG", this.playerEnergy, this.energyMax, this.playerAvatarX - 100, this.playerAvatarY + AVATAR_SIZE / 2 + 50, 200, 12, 0x00e0ff);
     this.battleContainer.addChild(this.playerEnergyBar);
     // Text s hráčovými staty (ATK, DEF, SPD)
-    const playerStatsText = new PIXI.Text(`ATK: ${char.stats.atk} | DEF: ${char.stats.def} | SPD: ${char.stats.spd}`,
+    const playerStatsText = new Text(`ATK: ${char.stats.atk} | DEF: ${char.stats.def} | SPD: ${char.stats.spd}`,
       { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
     playerStatsText.anchor.set(0.5);
     playerStatsText.x = this.playerAvatarX;
     playerStatsText.y = this.playerAvatarY + AVATAR_SIZE / 2 + 60;
     this.battleContainer.addChild(playerStatsText);
     // Rámeček pro nepřítele
-    const enemyBgSprite = PIXI.Sprite.from('/assets/avatar background.jpg');
+    const enemyBgSprite = Sprite.from('/assets/avatar background.jpg');
     enemyBgSprite.width = AVATAR_BG_SIZE;
     enemyBgSprite.height = AVATAR_BG_SIZE;
     enemyBgSprite.anchor.set(0.5);
@@ -676,7 +675,7 @@ export class Game {
     this.battleContainer.addChild(enemyBgSprite);
     // Sprite nepřítele (obrázek buď specifický pro bosse, nebo obecný z ENEMY_ASSETS)
     const enemyTexture = enemy.avatar;
-    const enemySprite = PIXI.Sprite.from(enemyTexture);
+    const enemySprite = Sprite.from(enemyTexture);
     enemySprite.width = AVATAR_SIZE;
     enemySprite.height = AVATAR_SIZE;
     enemySprite.anchor.set(0.5);
@@ -694,7 +693,7 @@ export class Game {
     // ];
     this.battleContainer.addChild(enemySprite);
     // Popisek nepřítele (jméno a úroveň)
-    const enemyNameText = new PIXI.Text(`${enemy.name} (Lv. ${enemy.level})`, { fontFamily: 'monospace', fontSize: 32, fill: enemy.color, fontWeight: 'bold' });
+    const enemyNameText = new Text(`${enemy.name} (Lv. ${enemy.level})`, { fontFamily: 'monospace', fontSize: 32, fill: enemy.color, fontWeight: 'bold' });
     enemyNameText.anchor.set(0.5);
     enemyNameText.x = this.enemyAvatarX;
     enemyNameText.y = this.enemyAvatarY - AVATAR_SIZE / 2 - 30;
@@ -705,7 +704,7 @@ export class Game {
     this.enemyEnergyBar = new StatBar("ENG", this.enemyEnergy, this.energyMax, this.enemyAvatarX - 100, this.enemyAvatarY + AVATAR_SIZE / 2 + 50, 200, 12, 0xff2e2e);
     this.battleContainer.addChild(this.enemyEnergyBar);
     // Text se staty nepřítele
-    const enemyStatsText = new PIXI.Text(`ATK: ${enemy.atk} | DEF: ${enemy.def} | SPD: ${enemy.spd}`,
+    const enemyStatsText = new Text(`ATK: ${enemy.atk} | DEF: ${enemy.def} | SPD: ${enemy.spd}`,
       { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
     enemyStatsText.anchor.set(0.5);
     enemyStatsText.x = this.enemyAvatarX;
@@ -714,7 +713,7 @@ export class Game {
     // Přidání již vytvořených floatingTexts (např. při opakovaném vykreslení)
     this.floatingTexts.forEach(text => this.battleContainer.addChild(text));
     // Kontejner pro tlačítka ve spodní části (Continue, apod.)
-    const buttonContainer = new PIXI.Container();
+    const buttonContainer = new Container();
     buttonContainer.x = this.app.screen.width / 2;
     buttonContainer.y = this.app.screen.height - 80;
     buttonContainer.zIndex = 2;
@@ -722,7 +721,7 @@ export class Game {
     // Kontrola, zda je boj již rozhodnut
     if (this.battleResult === 'win') {
       // Vítězství
-      const winMsg = new PIXI.Text('VICTORY!', { fontFamily: 'monospace', fontSize: 48, fill: 0x00e0ff, fontWeight: 'bold', stroke: 0x000000, strokeThickness: 6 });
+      const winMsg = new Text('VICTORY!', { fontFamily: 'monospace', fontSize: 48, fill: 0x00e0ff, fontWeight: 'bold', stroke: 0x000000, strokeThickness: 6 });
       winMsg.anchor.set(0.5);
       winMsg.x = this.app.screen.width / 2;
       winMsg.y = this.app.screen.height / 2 - 50;
@@ -732,7 +731,7 @@ export class Game {
         new DropShadowFilter({ distance: 6, color: 0x000000, alpha: 0.7, blur: 4 })
       ];
       this.battleContainer.addChild(winMsg);
-      const lootText = new PIXI.Text(`+${enemy.gold} Gold   +${enemy.exp} EXP`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffe000 });
+      const lootText = new Text(`+${enemy.gold} Gold   +${enemy.exp} EXP`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffe000 });
       lootText.anchor.set(0.5);
       lootText.x = this.app.screen.width / 2;
       lootText.y = this.app.screen.height / 2 + 20;
@@ -767,7 +766,7 @@ export class Game {
       } else {
         defeatMsg = `You were defeated!`;
       }
-      const loseMsg = new PIXI.Text('DEFEAT!', { fontFamily: 'monospace', fontSize: 48, fill: 0xff2e2e, fontWeight: 'bold', stroke: 0x000000, strokeThickness: 6 });
+      const loseMsg = new Text('DEFEAT!', { fontFamily: 'monospace', fontSize: 48, fill: 0xff2e2e, fontWeight: 'bold', stroke: 0x000000, strokeThickness: 6 });
       loseMsg.anchor.set(0.5);
       loseMsg.x = this.app.screen.width / 2;
       loseMsg.y = this.app.screen.height / 2 - 50;
@@ -777,7 +776,7 @@ export class Game {
         new DropShadowFilter({ distance: 6, color: 0x000000, alpha: 0.7, blur: 4 })
       ];
       this.battleContainer.addChild(loseMsg);
-      const goldLossText = new PIXI.Text(defeatMsg, { fontFamily: 'monospace', fontSize: 28, fill: 0xffe000 });
+      const goldLossText = new Text(defeatMsg, { fontFamily: 'monospace', fontSize: 28, fill: 0xffe000 });
       goldLossText.anchor.set(0.5);
       goldLossText.x = this.app.screen.width / 2;
       goldLossText.y = this.app.screen.height / 2 + 20;
@@ -813,9 +812,9 @@ export class Game {
       this.battleContainer.removeChild(this.abilityButtons);
       this.abilityButtons.destroy({ children: true });
     }
-    const overlay = new PIXI.Container();
+    const overlay = new Container();
     overlay.zIndex = 10;
-    const bg = new PIXI.Graphics();
+    const bg = new Graphics();
     bg.beginFill(0x000000, 0.6);
     bg.drawRect(0, 0, this.app.screen.width, this.app.screen.height);
     bg.endFill();
@@ -840,7 +839,7 @@ export class Game {
 
   createShopUI() {
     // (Základní implementace UI obchodu – zobrazení seznamu zbraní či zbrojí k prodeji)
-    const shopTitle = new PIXI.Text('Market', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+    const shopTitle = new Text('Market', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
     shopTitle.anchor.set(0.5, 0);
     shopTitle.x = this.app.screen.width / 2;
     shopTitle.y = 20;
@@ -855,11 +854,11 @@ export class Game {
     armorsTab.on('pointerdown', () => { this.shopType = 'armor'; this.initUI(); });
     this.stage.addChild(weaponsTab, armorsTab);
     // Vykreslení seznamu položek obchodu
-    this.shopItemsContainer = new PIXI.Container();
+    this.shopItemsContainer = new Container();
     const shopMaskY = 120;
     const shopMaskH = 400;
     // Maska pro posuvnou oblast položek (aby seznam nepřetékal)
-    this.shopScrollMask = new PIXI.Graphics();
+    this.shopScrollMask = new Graphics();
     this.shopScrollMask.beginFill(0xff0000);
     this.shopScrollMask.drawRect(startX, shopMaskY, shopWidth, shopMaskH);
     this.shopScrollMask.endFill();
@@ -870,14 +869,14 @@ export class Game {
     let y = 0;
     for (const itemTemplate of itemsToShow) {
       // Podklad pro jednu položku
-      const itemBox = new PIXI.Graphics();
+      const itemBox = new Graphics();
       itemBox.beginFill(0x2e3c43);
       itemBox.drawRoundedRect(startX, y + shopMaskY, shopWidth, 80, 14);
       itemBox.endFill();
       this.shopItemsContainer.addChild(itemBox);
       // Obrázek položky (pokud existuje v ITEM_ASSETS)
       if (ITEM_ASSETS[itemTemplate.name]) {
-        const itemSprite = PIXI.Sprite.from(ITEM_ASSETS[itemTemplate.name]);
+        const itemSprite = Sprite.from(ITEM_ASSETS[itemTemplate.name]);
         itemSprite.width = 72;
         itemSprite.height = 72;
         itemSprite.x = startX + 12;
@@ -887,7 +886,7 @@ export class Game {
         this.shopItemsContainer.addChild(itemSprite);
       }
       // Název předmětu
-      const itemNameText = new PIXI.Text(itemTemplate.name, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+      const itemNameText = new Text(itemTemplate.name, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
       itemNameText.x = startX + 80;
       itemNameText.y = y + shopMaskY + 10;
       this.shopItemsContainer.addChild(itemNameText);
@@ -895,12 +894,12 @@ export class Game {
         ? this.character.getWeaponStat(itemTemplate, this.character.level)
         : this.character.getArmorStat(itemTemplate, this.character.level);
       const statLabel = this.shopType === 'weapon' ? 'ATK' : 'HP';
-      const statText = new PIXI.Text(`${statLabel}: ${statValue}`, { fontFamily: 'monospace', fontSize: 18, fill: 0x00ff8a });
+      const statText = new Text(`${statLabel}: ${statValue}`, { fontFamily: 'monospace', fontSize: 18, fill: 0x00ff8a });
       statText.x = startX + 80;
       statText.y = y + shopMaskY + 40;
       this.shopItemsContainer.addChild(statText);
       // Cena
-      const priceText = new PIXI.Text(`${itemTemplate.baseCost} G`, { fontFamily: 'monospace', fontSize: 18, fill: 0xffe000 });
+      const priceText = new Text(`${itemTemplate.baseCost} G`, { fontFamily: 'monospace', fontSize: 18, fill: 0xffe000 });
       priceText.x = startX + shopWidth - 140;
       priceText.y = y + shopMaskY + 20;
       this.shopItemsContainer.addChild(priceText);

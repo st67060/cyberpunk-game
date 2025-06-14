@@ -1,13 +1,13 @@
-import * as PIXI from 'pixi.js';
+import { Container, Graphics, Text } from 'pixi.js';
 import { GlowFilter } from '@pixi/filter-glow';
 
-export class Button extends PIXI.Container {
+export class Button extends Container {
   constructor(label, x, y, w = 170, h = 48, color = 0x2e3c43) {
     super();
     this.interactive = true;
     this.eventMode = 'static';
     // Vykreslení obdélníkového podkladu tlačítka
-    const g = new PIXI.Graphics();
+    const g = new Graphics();
     g.lineStyle(4, 0x000000);
     g.beginFill(color);
     g.drawRoundedRect(0, 0, w, h, 12);
@@ -16,7 +16,7 @@ export class Button extends PIXI.Container {
     g.filters = [new GlowFilter({ distance: 10, outerStrength: 2, innerStrength: 0, color: 0xff00ff })];
     this.addChild(g);
     // Text popisku tlačítka
-    const t = new PIXI.Text(label, { fontFamily: 'Bangers, monospace', fontSize: 26, fill: 0xffffff, stroke: 0x000000, strokeThickness: 4 });
+    const t = new Text(label, { fontFamily: 'Bangers, monospace', fontSize: 26, fill: 0xffffff, stroke: 0x000000, strokeThickness: 4 });
     t.anchor.set(0.5);
     t.x = w / 2;
     t.y = h / 2;
