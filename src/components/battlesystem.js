@@ -1,4 +1,5 @@
-import { Graphics, BLEND_MODES } from 'pixi.js';
+import { Graphics } from 'pixi.js';
+import { BLEND_MODES } from '@pixi/constants';
 import { ABILITIES, BASIC_ATTACK } from '../data/abilities.js';
 
 const ENEMY_DELAY = 500;
