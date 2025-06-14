@@ -1,5 +1,9 @@
 import { Assets, Sprite } from 'pixi.js';
-import { ABILITIES } from '../data/abilities.js';
+import { ABILITIES, BASIC_ATTACK } from '../data/abilities.js';
+
+const ENEMY_DELAY = 500;
+const PLAYER_EFFECT_DELAY = 300;
+const UI_DELAY = 300;
 
 export class BattleSystem {
   static init(game) {
@@ -15,11 +19,10 @@ export class BattleSystem {
   static generateAbilities(game) {
     const pool = ABILITIES[game.character.cls.name] || [];
     BattleSystem.currentAbilities = [];
-    // first slot is the class basic ability if available
-    const baseAbility = pool[0] || { name: '???', description: '', execute() {} };
-    BattleSystem.currentAbilities.push(baseAbility);
-    // remaining slots are placeholders for future abilities
-    for (let i = 1; i < 3; i++) {
+    // Basic attack is always available in the first slot
+    BattleSystem.currentAbilities.push(BASIC_ATTACK);
+    // Fill the rest with class abilities or placeholders
+    for (let i = 0; i < 2; i++) {
       const ability = pool[i] || { name: '???', description: '', execute() {} };
       BattleSystem.currentAbilities.push(ability);
     }
@@ -29,28 +32,36 @@ export class BattleSystem {
   }
 
   static async useAbility(game, ability) {
+    if (!game.battleStarted || BattleSystem.turn !== 'player') return;
+    await BattleSystem.playerTurn(game, ability);
     if (!game.battleStarted) return;
+
+    BattleSystem.turn = 'enemy';
+    await BattleSystem.delay(ENEMY_DELAY);
+    await BattleSystem.enemyTurn(game);
+    if (!game.battleStarted) return;
+    await BattleSystem.delay(UI_DELAY);
+
+    BattleSystem.turn = 'player';
+    BattleSystem.generateAbilities(game);
+  }
+
+  static async playerTurn(game, ability) {
     // trigger player attack animation and effect
     game.playerAttacking = true;
     game.attackAnimProgress = 0;
     await BattleSystem.spawnPlayerAttackEffect(game);
+    await BattleSystem.delay(PLAYER_EFFECT_DELAY);
 
     ability.execute(game);
     await BattleSystem.applyDrone(game);
     BattleSystem.checkBattleEnd(game);
-    if (!game.battleStarted) return;
+  }
 
-    BattleSystem.turn = 'enemy';
-    // slight delay before enemy retaliates so attack effects are visible
-    setTimeout(async () => {
-      if (!game.battleStarted) return;
-      await BattleSystem.enemyAttack(game);
-      await BattleSystem.applyDrone(game);
-      BattleSystem.checkBattleEnd(game);
-      if (!game.battleStarted) return;
-      BattleSystem.turn = 'player';
-      BattleSystem.generateAbilities(game);
-    }, 500);
+  static async enemyTurn(game) {
+    await BattleSystem.enemyAttack(game);
+    await BattleSystem.applyDrone(game);
+    BattleSystem.checkBattleEnd(game);
   }
 
   static async applyDrone(game) {
