@@ -1,4 +1,4 @@
-import { Assets, Sprite } from 'pixi.js';
+import { Graphics } from 'pixi.js';
 import { ABILITIES, BASIC_ATTACK } from '../data/abilities.js';
 
 const ENEMY_DELAY = 500;
@@ -82,17 +82,23 @@ export class BattleSystem {
 
   static async spawnPlayerAttackEffect(game) {
     if (game.charShape && game.battleContainer) {
-      let asset = '/assets/samurai_weapon.png';
       const cls = game.character.cls.name;
-      if (cls === 'Netrunner') asset = '/assets/netrunner_weapon.png';
-      else if (cls === 'Techie') asset = '/assets/techie_gun.png';
-
-      const texture = await Assets.load(asset);
-      const effect = new Sprite(texture);
-      effect.anchor.set(0.5);
+      const effect = new Graphics();
+      if (cls === 'Street Samurai') {
+        effect.beginFill(0xffffff);
+        effect.drawRect(-10, -2, 20, 4);
+        effect.endFill();
+      } else if (cls === 'Netrunner') {
+        effect.beginFill(0x00ffff);
+        effect.drawCircle(0, 0, 5);
+        effect.endFill();
+      } else {
+        effect.beginFill(0xffa000);
+        effect.drawCircle(0, 0, 4);
+        effect.endFill();
+      }
       effect.x = game.charShape.x + 30;
       effect.y = game.charShape.y;
-      // Display attack effect above avatars
       effect.zIndex = 8;
       game.battleContainer.addChild(effect);
       game.attackEffect = effect;
@@ -102,10 +108,10 @@ export class BattleSystem {
 
   static async spawnDroneAttackEffect(game) {
     if (game.charShape && game.battleContainer) {
-      const asset = '/assets/techie_drone_attack.png';
-      const texture = await Assets.load(asset);
-      const effect = new Sprite(texture);
-      effect.anchor.set(0.5);
+      const effect = new Graphics();
+      effect.beginFill(0xffe066);
+      effect.drawCircle(0, 0, 4);
+      effect.endFill();
       effect.x = game.charShape.x + 30;
       effect.y = game.charShape.y - 40;
       effect.zIndex = 8;
@@ -120,12 +126,12 @@ export class BattleSystem {
     game.enemyAttacking = true;
     game.attackAnimProgress = 0;
     if (game.enemyShape && game.charShape && game.battleContainer) {
-      const texture = await Assets.load('/assets/enemy_basic_attack.png');
-      const effect = new Sprite(texture);
-      effect.anchor.set(0.5);
+      const effect = new Graphics();
+      effect.beginFill(0xff0000);
+      effect.drawCircle(0, 0, 5);
+      effect.endFill();
       effect.x = game.enemyShape.x - 30;
       effect.y = game.enemyShape.y;
-      // Display enemy attack effect above avatars
       effect.zIndex = 8;
       game.battleContainer.addChild(effect);
       game.enemyAttackEffect = effect;

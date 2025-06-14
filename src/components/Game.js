@@ -115,12 +115,7 @@ export class Game {
     assets.push('/assets/avatar background.jpg');
     assets.push('/assets/avatar background.jpg');
     assets.push('/assets/Logo.png');
-    assets.push('/assets/enemy_basic_attack.png');
-    // Class weapon effects
-    assets.push('/assets/samurai_weapon.png');
-    assets.push('/assets/netrunner_weapon.png');
-    assets.push('/assets/techie_gun.png');
-    assets.push('/assets/techie_drone_attack.png');
+    // Attack effect assets were removed; effects are drawn via PIXI Graphics
     // Načtení všech assetů pomocí Pixi Assets API
     await Assets.load(assets);
     // Vytvoření sprite pro pozadí hry a aplikace CRT filtru (zkreslení obrazu)
