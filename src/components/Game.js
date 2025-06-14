@@ -528,10 +528,9 @@ export class Game {
         this.initUI();
       });
       this.stage.addChild(backBtn);
-    // else if (this.state === 'shop') {
+    } else if (this.state === 'shop') {
       // Zobrazení nabídky obchodu (zbraně/zbroje)
-      //this.createShopUI();
-    //}
+      this.createShopUI();
       } else if (this.state === 'battle') {
         this.startBattle();
       }
