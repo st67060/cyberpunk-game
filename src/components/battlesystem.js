@@ -1,4 +1,4 @@
-import { Graphics } from 'pixi.js';
+import { Graphics, BLEND_MODES } from 'pixi.js';
 import { ABILITIES, BASIC_ATTACK } from '../data/abilities.js';
 
 const ENEMY_DELAY = 500;
@@ -86,23 +86,26 @@ export class BattleSystem {
       const effect = new Graphics();
       if (cls === 'Street Samurai') {
         effect.beginFill(0xffffff);
-        effect.drawRect(-10, -2, 20, 4);
+        effect.drawRect(-20, -4, 40, 8);
         effect.endFill();
       } else if (cls === 'Netrunner') {
         effect.beginFill(0x00ffff);
-        effect.drawCircle(0, 0, 5);
+        effect.drawCircle(0, 0, 12);
         effect.endFill();
       } else {
         effect.beginFill(0xffa000);
-        effect.drawCircle(0, 0, 4);
+        effect.drawCircle(0, 0, 10);
         effect.endFill();
       }
+      effect.alpha = 0.85;
+      effect.blendMode = BLEND_MODES.ADD;
       effect.x = game.charShape.x + 30;
       effect.y = game.charShape.y;
       effect.zIndex = 8;
       game.battleContainer.addChild(effect);
       game.attackEffect = effect;
       game.attackEffectAnimProgress = 0;
+      game.battleContainer.sortChildren();
       if (game.enemyShape) {
         const zone = new Graphics();
         zone.beginFill(0xff0000, 0.2);
@@ -114,6 +117,7 @@ export class BattleSystem {
         game.battleContainer.addChild(zone);
         game.attackZone = zone;
         game.attackZoneLife = 0;
+        game.battleContainer.sortChildren();
       }
     }
   }
@@ -122,14 +126,17 @@ export class BattleSystem {
     if (game.charShape && game.battleContainer) {
       const effect = new Graphics();
       effect.beginFill(0xffe066);
-      effect.drawCircle(0, 0, 4);
+      effect.drawCircle(0, 0, 10);
       effect.endFill();
+      effect.alpha = 0.85;
+      effect.blendMode = BLEND_MODES.ADD;
       effect.x = game.charShape.x + 30;
       effect.y = game.charShape.y - 40;
       effect.zIndex = 8;
       game.battleContainer.addChild(effect);
       game.droneAttackEffect = effect;
       game.droneAttackEffectAnimProgress = 0;
+      game.battleContainer.sortChildren();
     }
   }
 
@@ -140,14 +147,17 @@ export class BattleSystem {
     if (game.enemyShape && game.charShape && game.battleContainer) {
       const effect = new Graphics();
       effect.beginFill(0xff0000);
-      effect.drawCircle(0, 0, 5);
+      effect.drawCircle(0, 0, 12);
       effect.endFill();
+      effect.alpha = 0.85;
+      effect.blendMode = BLEND_MODES.ADD;
       effect.x = game.enemyShape.x - 30;
       effect.y = game.enemyShape.y;
       effect.zIndex = 8;
       game.battleContainer.addChild(effect);
       game.enemyAttackEffect = effect;
       game.enemyAttackEffectAnimProgress = 0;
+      game.battleContainer.sortChildren();
       const zone = new Graphics();
       zone.beginFill(0xff0000, 0.2);
       zone.drawCircle(0, 0, 60);
@@ -158,6 +168,7 @@ export class BattleSystem {
       game.battleContainer.addChild(zone);
       game.enemyAttackZone = zone;
       game.enemyAttackZoneLife = 0;
+      game.battleContainer.sortChildren();
     }
     await BattleSystem.delay(400);
     if (BattleSystem.didDodge(char.stats.def)) {
