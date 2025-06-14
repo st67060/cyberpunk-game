@@ -103,6 +103,18 @@ export class BattleSystem {
       game.battleContainer.addChild(effect);
       game.attackEffect = effect;
       game.attackEffectAnimProgress = 0;
+      if (game.enemyShape) {
+        const zone = new Graphics();
+        zone.beginFill(0xff0000, 0.2);
+        zone.drawCircle(0, 0, 60);
+        zone.endFill();
+        zone.x = game.enemyShape.x;
+        zone.y = game.enemyShape.y;
+        zone.zIndex = 6;
+        game.battleContainer.addChild(zone);
+        game.attackZone = zone;
+        game.attackZoneLife = 0;
+      }
     }
   }
 
@@ -136,6 +148,16 @@ export class BattleSystem {
       game.battleContainer.addChild(effect);
       game.enemyAttackEffect = effect;
       game.enemyAttackEffectAnimProgress = 0;
+      const zone = new Graphics();
+      zone.beginFill(0xff0000, 0.2);
+      zone.drawCircle(0, 0, 60);
+      zone.endFill();
+      zone.x = game.charShape.x;
+      zone.y = game.charShape.y;
+      zone.zIndex = 6;
+      game.battleContainer.addChild(zone);
+      game.enemyAttackZone = zone;
+      game.enemyAttackZoneLife = 0;
     }
     await BattleSystem.delay(400);
     if (BattleSystem.didDodge(char.stats.def)) {
