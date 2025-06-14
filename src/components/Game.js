@@ -52,6 +52,10 @@ export class Game {
     this.enemyAttackEffectAnimProgress = 0;
     this.droneAttackEffect = null;
     this.droneAttackEffectAnimProgress = 0;
+    this.attackZone = null;
+    this.attackZoneLife = 0;
+    this.enemyAttackZone = null;
+    this.enemyAttackZoneLife = 0;
     this.shopType = 'weapon';
     // Cache nabídek obchodu (předměty k prodeji podle typu)
     this.shopItemsCache = {
@@ -979,6 +983,26 @@ export class Game {
       this.droneAttackEffect = null;
     }
     this.droneAttackEffectAnimProgress = 0;
+    if (this.attackZone) {
+      if (this.battleContainer) {
+        this.battleContainer.removeChild(this.attackZone);
+      } else {
+        this.stage.removeChild(this.attackZone);
+      }
+      this.attackZone.destroy();
+      this.attackZone = null;
+    }
+    this.attackZoneLife = 0;
+    if (this.enemyAttackZone) {
+      if (this.battleContainer) {
+        this.battleContainer.removeChild(this.enemyAttackZone);
+      } else {
+        this.stage.removeChild(this.enemyAttackZone);
+      }
+      this.enemyAttackZone.destroy();
+      this.enemyAttackZone = null;
+    }
+    this.enemyAttackZoneLife = 0;
     this.floatingTexts = [];
     if (this.bloodEffects) {
       this.bloodEffects.forEach(effect => this.stage.removeChild(effect));
@@ -1206,6 +1230,26 @@ export class Game {
           this.droneAttackEffect.destroy();
           this.droneAttackEffect = null;
           this.droneAttackEffectAnimProgress = 0;
+        }
+      }
+      if (this.attackZone) {
+        this.attackZoneLife += delta / 60;
+        this.attackZone.alpha = 1 - this.attackZoneLife * 2;
+        if (this.attackZoneLife >= 0.5) {
+          this.battleContainer.removeChild(this.attackZone);
+          this.attackZone.destroy();
+          this.attackZone = null;
+          this.attackZoneLife = 0;
+        }
+      }
+      if (this.enemyAttackZone) {
+        this.enemyAttackZoneLife += delta / 60;
+        this.enemyAttackZone.alpha = 1 - this.enemyAttackZoneLife * 2;
+        if (this.enemyAttackZoneLife >= 0.5) {
+          this.battleContainer.removeChild(this.enemyAttackZone);
+          this.enemyAttackZone.destroy();
+          this.enemyAttackZone = null;
+          this.enemyAttackZoneLife = 0;
         }
       }
       // Zobrazení ikonky nepřítele bez animací
