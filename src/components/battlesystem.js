@@ -1,4 +1,4 @@
-import * as PIXI from 'pixi.js';
+import { Assets, Sprite } from 'pixi.js';
 import { ABILITIES } from '../data/abilities.js';
 
 export class BattleSystem {
@@ -76,8 +76,8 @@ export class BattleSystem {
       if (cls === 'Netrunner') asset = '/assets/netrunner_weapon.png';
       else if (cls === 'Techie') asset = '/assets/techie_gun.png';
 
-      const texture = await PIXI.Assets.load(asset);
-      const effect = new PIXI.Sprite(texture);
+      const texture = await Assets.load(asset);
+      const effect = new Sprite(texture);
       effect.anchor.set(0.5);
       effect.x = game.charShape.x + 30;
       effect.y = game.charShape.y;
@@ -92,8 +92,8 @@ export class BattleSystem {
   static async spawnDroneAttackEffect(game) {
     if (game.charShape && game.battleContainer) {
       const asset = '/assets/techie_drone_attack.png';
-      const texture = await PIXI.Assets.load(asset);
-      const effect = new PIXI.Sprite(texture);
+      const texture = await Assets.load(asset);
+      const effect = new Sprite(texture);
       effect.anchor.set(0.5);
       effect.x = game.charShape.x + 30;
       effect.y = game.charShape.y - 40;
@@ -109,8 +109,8 @@ export class BattleSystem {
     game.enemyAttacking = true;
     game.attackAnimProgress = 0;
     if (game.enemyShape && game.charShape && game.battleContainer) {
-      const texture = await PIXI.Assets.load('/assets/enemy_basic_attack.png');
-      const effect = new PIXI.Sprite(texture);
+      const texture = await Assets.load('/assets/enemy_basic_attack.png');
+      const effect = new Sprite(texture);
       effect.anchor.set(0.5);
       effect.x = game.enemyShape.x - 30;
       effect.y = game.enemyShape.y;

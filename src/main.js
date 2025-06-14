@@ -1,9 +1,9 @@
-import * as PIXI from 'pixi.js';
+import { Application } from 'pixi.js';
 import { Game } from './components/Game.js';
 
 (async () => {
   // Inicializace Pixi aplikace (Pixi v8 styl)
-  const app = new PIXI.Application();
+  const app = new Application();
   await app.init({
     width: 1280,
     height: 720,
