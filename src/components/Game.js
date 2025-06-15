@@ -750,16 +750,19 @@ export class Game {
         new DropShadowFilter({ distance: 6, color: 0x000000, alpha: 0.7, blur: 4 })
       ];
       this.battleContainer.addChild(winMsg);
-      const lootText = new Text(`+${enemy.gold} Gold   +${enemy.exp} EXP`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffe000 });
+      const spdMultiplier = 1 + char.stats.spd * 0.01;
+      const goldGain = Math.round(enemy.gold * spdMultiplier);
+      const expGain = Math.round(enemy.exp * spdMultiplier);
+      const lootText = new Text(`+${goldGain} Gold   +${expGain} EXP`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffe000 });
       lootText.anchor.set(0.5);
       lootText.x = this.app.screen.width / 2;
       lootText.y = this.app.screen.height / 2 + 20;
       this.battleContainer.addChild(lootText);
       const contBtn = new Button('Continue', 0, 0, 180, 52, 0x222c33);
       contBtn.on('pointerdown', () => {
-        // Odměna za vítězství
-        char.gold += enemy.gold;
-        char.gainExp(enemy.exp);
+        // Odměna za vítězství - zohledňuje SPD hráče
+        char.gold += goldGain;
+        char.gainExp(expGain);
         char.hp = char.maxHp;
         if (enemy.isBoss) {
           this.bossesDefeated++;
