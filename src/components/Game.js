@@ -344,12 +344,20 @@ export class Game {
       const panelX = this.app.screen.width / 2 - panelWidth / 2;
       const panelY = 90;
       const infoPanel = new Graphics();
-      infoPanel.beginFill(0x000000, 0.6);
+      infoPanel.lineStyle(4, 0xff00ff, 0.8);
+      infoPanel.beginFill(0x000000, 0.7);
       infoPanel.drawRoundedRect(panelX, panelY, panelWidth, panelHeight, 16);
       infoPanel.endFill();
+      infoPanel.filters = [new GlowFilter({ distance: 12, outerStrength: 2, innerStrength: 0, color: 0xff00ff })];
       this.stage.addChild(infoPanel);
 
-      const title = new Text('Player Profile', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+      const title = new Text('Player Profile', {
+        fontFamily: 'Bangers, monospace',
+        fontSize: 48,
+        fill: 0xff00ff,
+        stroke: 0x000000,
+        strokeThickness: 5
+      });
       title.anchor.set(0.5);
       title.x = this.app.screen.width / 2;
       title.y = 60;
@@ -364,13 +372,25 @@ export class Game {
       avatar.filters = [char.glowFilter];
       this.stage.addChild(avatar);
 
-      const classText = new Text(`Class: ${char.cls.name}`, { fontFamily: 'monospace', fontSize: 22, fill: 0xffffff });
+      const classText = new Text(`Class: ${char.cls.name}`, {
+        fontFamily: 'Bangers, monospace',
+        fontSize: 28,
+        fill: 0xffffff,
+        stroke: 0x000000,
+        strokeThickness: 4
+      });
       classText.anchor.set(0.5);
       classText.x = this.app.screen.width / 2;
       classText.y = avatar.y + 70;
       this.stage.addChild(classText);
 
-      const levelText = new Text(`Level: ${char.level}`, { fontFamily: 'monospace', fontSize: 22, fill: 0xffffff });
+      const levelText = new Text(`Level: ${char.level}`, {
+        fontFamily: 'Bangers, monospace',
+        fontSize: 28,
+        fill: 0xffffff,
+        stroke: 0x000000,
+        strokeThickness: 4
+      });
       levelText.anchor.set(0.5);
       levelText.x = this.app.screen.width / 2;
       levelText.y = classText.y + 30;
@@ -379,7 +399,13 @@ export class Game {
       const levelBar = new StatBar('EXP', char.exp, char.expToNext, this.app.screen.width / 2 - 100, levelText.y + 10, 200, 16, 0x00e0ff);
       this.stage.addChild(levelBar);
 
-      const statHeader = new Text(`Stat Points: ${char.statPoints}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
+      const statHeader = new Text(`Stat Points: ${char.statPoints}`, {
+        fontFamily: 'Bangers, monospace',
+        fontSize: 26,
+        fill: 0xffe000,
+        stroke: 0x000000,
+        strokeThickness: 4
+      });
       statHeader.anchor.set(0.5);
       statHeader.x = this.app.screen.width / 2;
       statHeader.y = levelBar.y + 30;
@@ -405,14 +431,26 @@ export class Game {
       ];
       let y = statHeader.y + 10;
       for (const s of statInfo) {
-        const statLabel = new Text(s.label, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+        const statLabel = new Text(s.label, {
+          fontFamily: 'Bangers, monospace',
+          fontSize: 24,
+          fill: 0xffffff,
+          stroke: 0x000000,
+          strokeThickness: 4
+        });
         statLabel.anchor.set(0, 0.5);
         statLabel.x = this.app.screen.width / 2 - 90;
         statLabel.y = y + 20;
         this.stage.addChild(statLabel);
 
         const cost = char.statPoints > 0 ? '1 SP' : `${char.statCosts[s.key]}G`;
-        const costText = new Text(cost, { fontFamily: 'monospace', fontSize: 14, fill: 0xcccccc });
+        const costText = new Text(cost, {
+          fontFamily: 'Bangers, monospace',
+          fontSize: 18,
+          fill: 0xcccccc,
+          stroke: 0x000000,
+          strokeThickness: 3
+        });
         costText.anchor.set(1, 0.5);
         costText.x = this.app.screen.width / 2 + 130;
         costText.y = y + 20;
@@ -427,13 +465,25 @@ export class Game {
         y += 50;
       }
 
-      const goldText = new Text(`Gold: ${char.gold}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
+      const goldText = new Text(`Gold: ${char.gold}`, {
+        fontFamily: 'Bangers, monospace',
+        fontSize: 26,
+        fill: 0xffe000,
+        stroke: 0x000000,
+        strokeThickness: 4
+      });
       goldText.anchor.set(0.5);
       goldText.x = this.app.screen.width / 2;
       goldText.y = y + 10;
       this.stage.addChild(goldText);
 
-      const weaponText = new Text(`Weapon: ${char.weapon.name}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+      const weaponText = new Text(`Weapon: ${char.weapon.name}`, {
+        fontFamily: 'Bangers, monospace',
+        fontSize: 24,
+        fill: 0xffffff,
+        stroke: 0x000000,
+        strokeThickness: 4
+      });
       weaponText.anchor.set(0, 0.5);
       weaponText.x = this.app.screen.width / 2 - 30;
       weaponText.y = y + 40;
@@ -449,7 +499,13 @@ export class Game {
         this.stage.addChild(weaponSprite);
       }
 
-      const armorText = new Text(`Armor: ${char.armor.name}`, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+      const armorText = new Text(`Armor: ${char.armor.name}`, {
+        fontFamily: 'Bangers, monospace',
+        fontSize: 24,
+        fill: 0xffffff,
+        stroke: 0x000000,
+        strokeThickness: 4
+      });
       armorText.anchor.set(0, 0.5);
       armorText.x = this.app.screen.width / 2 - 30;
       armorText.y = y + 70;
@@ -479,13 +535,25 @@ export class Game {
       });
         this.stage.addChild(backBtn);
       } else if (this.state === 'skilltree') {
-        const title = new Text('Skill Tree', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+        const title = new Text('Skill Tree', {
+          fontFamily: 'Bangers, monospace',
+          fontSize: 40,
+          fill: 0xff00ff,
+          stroke: 0x000000,
+          strokeThickness: 5
+        });
         title.anchor.set(0.5);
         title.x = this.app.screen.width / 2;
         title.y = 60;
         this.stage.addChild(title);
 
-        const info = new Text('Skill editor coming soon.', { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+        const info = new Text('Skill editor coming soon.', {
+          fontFamily: 'Bangers, monospace',
+          fontSize: 24,
+          fill: 0xffffff,
+          stroke: 0x000000,
+          strokeThickness: 4
+        });
         info.anchor.set(0.5);
         info.x = this.app.screen.width / 2;
         info.y = this.app.screen.height / 2;
