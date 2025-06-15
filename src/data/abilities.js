@@ -27,6 +27,43 @@ export const ABILITIES = {
         game.echoLoopActive = true;
         game.spawnFloatingText('Echo Loop', game.playerAvatarX, game.playerAvatarY - 160, 0x00e0ff, 32);
       }
+    },
+    {
+      name: 'Glitch Pulse',
+      cost: 1500,
+      cooldown: 3,
+      description: 'Příští 2 kola po každém tahu nepřítele obdrží dodatečné poškození.',
+      execute(game) {
+        const char = game.character;
+        const enemy = game.enemy;
+        const dmg = Math.round(char.stats.atk * 5 + enemy.maxHp * 0.03);
+        game.glitchPulseDamage = dmg;
+        game.glitchPulseTurns = 2;
+        game.spawnFloatingText('Glitch Pulse', game.enemyAvatarX, game.enemyAvatarY - 160, 0x00e0ff, 32);
+      }
+    },
+    {
+      name: 'Overload Attack',
+      cost: 4500,
+      cooldown: 1,
+      damage: 'ATK x20',
+      description: 'Útok za 200% DMG, 50% šance utržit 10% vlastního HP.',
+      getDamage(game) {
+        return game.character.stats.atk * 20;
+      },
+      execute(game) {
+        const { character: char, enemy } = game;
+        let dmg = char.stats.atk * 20;
+        enemy.hp = Math.max(0, enemy.hp - dmg);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0x00e0ff, 36);
+        game.enemyFlashTimer = 0.6;
+        if (Math.random() < 0.5) {
+          const recoil = Math.round(char.maxHp * 0.1);
+          char.hp = Math.max(0, char.hp - recoil);
+          game.spawnFloatingText(`-${recoil}`, game.playerAvatarX, game.playerAvatarY - 140, 0xff0000, 36);
+          game.playerFlashTimer = 0.6;
+        }
+      }
     }
   ],
   'Street Samurai': [

@@ -49,6 +49,7 @@ export class BattleSystem {
     BattleSystem.turn = 'enemy';
     await BattleSystem.delay(ENEMY_DELAY);
     await BattleSystem.enemyTurn(game);
+    BattleSystem.applyStatusEffects(game);
     if (!game.battleStarted) return;
     BattleSystem.tickCooldowns(game);
     await BattleSystem.delay(UI_DELAY);
@@ -93,6 +94,16 @@ export class BattleSystem {
       game.enemy.hp = Math.max(0, game.enemy.hp - dmg);
       game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, 0x00ff8a, 24);
       await BattleSystem.spawnDroneAttackEffect(game);
+    }
+  }
+
+  static applyStatusEffects(game) {
+    if (game.glitchPulseTurns > 0) {
+      const dmg = game.glitchPulseDamage || Math.round(game.character.stats.atk * 5 + game.enemy.maxHp * 0.03);
+      game.enemy.hp = Math.max(0, game.enemy.hp - dmg);
+      game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, 0x00e0ff, 24);
+      game.enemyFlashTimer = 0.6;
+      game.glitchPulseTurns -= 1;
     }
   }
 

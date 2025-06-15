@@ -93,6 +93,8 @@ export class Game {
     this.energyMax = 100;
     this.energyThreshold = 50;
     this.droneDamage = 5;
+    this.glitchPulseTurns = 0;
+    this.glitchPulseDamage = 0;
     this.echoLoopActive = false;
     this.abilityButtons = null;
     this.battleStarted = false;
@@ -1129,6 +1131,8 @@ export class Game {
     this.playerEnergy = 0;
     this.enemyEnergy = 0;
     this.droneDamage = 5;
+    this.glitchPulseTurns = 0;
+    this.glitchPulseDamage = 0;
     this.echoLoopActive = false;
     this.battleStarted = false;
   }
