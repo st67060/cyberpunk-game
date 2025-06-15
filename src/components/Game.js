@@ -630,7 +630,7 @@ export class Game {
     this.enemyAvatarX = this.app.screen.width * 3 / 4;
     this.enemyAvatarY = this.app.screen.height / 2 - 50;
     // Rámečky pod avátory (s efekty)
-    const playerBgSprite = Sprite.from('/assets/avatar background.jpg');
+    const playerBgSprite = Sprite.from('/assets/frame.png');
     playerBgSprite.width = AVATAR_BG_SIZE;
     playerBgSprite.height = AVATAR_BG_SIZE;
     playerBgSprite.anchor.set(0.5);
@@ -679,7 +679,7 @@ export class Game {
     this.battleContainer.addChild(playerStatsText);
     this.playerStatsText = playerStatsText;
     // Rámeček pro nepřítele
-    const enemyBgSprite = Sprite.from('/assets/avatar background.jpg');
+    const enemyBgSprite = Sprite.from('/assets/frame.png');
     enemyBgSprite.width = AVATAR_BG_SIZE;
     enemyBgSprite.height = AVATAR_BG_SIZE;
     enemyBgSprite.anchor.set(0.5);
