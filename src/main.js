@@ -9,7 +9,8 @@ import { Game } from './components/Game.js';
     height: 720,
     background: '#181e24', // v8 používá string, ne hex
     antialias: true,
-    resolution: 1
+    resolution: 1,
+    preferWebGPU: false // WebGL has better filter support
   });
 
   // Přidání canvas do DOMu
