@@ -34,8 +34,9 @@ export class Game {
     this.app.stage.addChild(this.stage);
     // Výchozí stav hry a základní proměnné
     this.state = 'loading';
-    this.classIdx = 0;
-    this.selectedClass = CLASSES[this.classIdx];
+    // At game start no class is selected
+    this.classIdx = -1;
+    this.selectedClass = null;
     this.character = null;
     this.enemy = null;
     this.dungeonLevel = 1;
@@ -260,34 +261,48 @@ export class Game {
         this.stage.addChild(nameText);
       });
 
-      // Start Game button
-      const startBtn = new Button('Start Game', this.app.screen.width / 2 - 85, 420, 170, 50, 0x00e0ff);
-      startBtn.on('pointerdown', () => {
-        // Vytvoření hráčovy postavy a přechod do hlavního menu hry
-        this.character = new Character(this.selectedClass);
-        // ihned přepočítej statistiky pro jistotu
-        if (this.character.updateStats) {
-          this.character.updateStats();
-        }
-        this.state = 'mainmenu';
-        this.initUI();
-        // Play background music after user interaction to avoid autoplay blocks
-        this.playBackgroundMusic();
-      });
-      this.stage.addChild(startBtn);
+      if (this.selectedClass) {
+        // Start Game button is shown only when a class is selected
+        const startBtn = new Button('Start Game', this.app.screen.width / 2 - 85, 420, 170, 50, 0x00e0ff);
+        startBtn.on('pointerdown', () => {
+          // Vytvoření hráčovy postavy a přechod do hlavního menu hry
+          this.character = new Character(this.selectedClass);
+          // ihned přepočítej statistiky pro jistotu
+          if (this.character.updateStats) {
+            this.character.updateStats();
+          }
+          this.state = 'mainmenu';
+          this.initUI();
+          // Play background music after user interaction to avoid autoplay blocks
+          this.playBackgroundMusic();
+        });
+        this.stage.addChild(startBtn);
 
-      const descText = new Text(this.selectedClass.desc, {
-        fontFamily: 'monospace',
-        fontSize: 16,
-        fill: 0xffffff,
-        wordWrap: true,
-        wordWrapWidth: this.app.screen.width - 120,
-        align: 'center'
-      });
-      descText.anchor.set(0.5, 0);
-      descText.x = this.app.screen.width / 2;
-      descText.y = startBtn.y + 60;
-      this.stage.addChild(descText);
+        // Description in a comic-cyberpunk style frame
+        const frameWidth = this.app.screen.width - 160;
+        const frameX = this.app.screen.width / 2 - frameWidth / 2;
+        const frameY = startBtn.y + 60;
+        const descFrame = new Graphics();
+        descFrame.lineStyle(4, 0xff00ff, 1);
+        descFrame.beginFill(0x000000, 0.6);
+        descFrame.drawRoundedRect(frameX, frameY, frameWidth, 90, 12);
+        descFrame.endFill();
+        descFrame.filters = [new GlowFilter({ distance: 10, outerStrength: 2, innerStrength: 0, color: 0xff00ff })];
+        this.stage.addChild(descFrame);
+
+        const descText = new Text(this.selectedClass.desc, {
+          fontFamily: 'Bangers, monospace',
+          fontSize: 16,
+          fill: 0xffffff,
+          wordWrap: true,
+          wordWrapWidth: frameWidth - 20,
+          align: 'center'
+        });
+        descText.anchor.set(0.5);
+        descText.x = this.app.screen.width / 2;
+        descText.y = frameY + 45;
+        this.stage.addChild(descText);
+      }
     } else if (this.state === 'mainmenu') {
       // Hlavní menu se třemi tlačítky
       const dungeonBtn = new Button('Vault 404', this.app.screen.width / 2 - 85, 250, 170, 50, 0xff2e2e);
