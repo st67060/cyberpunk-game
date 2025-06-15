@@ -396,7 +396,7 @@ export class Game {
         },
         {
           key: 'def',
-          label: `DEF: ${char.stats.def} \u223c ${(char.stats.def * 0.5).toFixed(1)}% dodge, ${Math.min(char.stats.def * 0.5, 80).toFixed(1)}% block`
+          label: `DEF: ${char.stats.def} \u223c blocks ${char.stats.def * 5} dmg`
         },
         {
           key: 'spd',

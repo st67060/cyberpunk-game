@@ -120,8 +120,7 @@ export class BattleSystem {
 
   static calculateDamage(atk, def) {
     const base = atk * 10;
-    const reduction = Math.min(def * 0.005, 0.8);
-    const dmg = Math.round(base * (1 - reduction));
+    const dmg = Math.round(base - def * 5);
     return Math.max(1, dmg);
   }
  static delay(ms) {
@@ -219,10 +218,6 @@ export class BattleSystem {
       game.battleContainer.sortChildren();
     }
     await BattleSystem.delay(400);
-    if (BattleSystem.didDodge(char.stats.def)) {
-      game.spawnFloatingText('DODGED', game.playerAvatarX, game.playerAvatarY - 140, 0xffffff, 36);
-      return;
-    }
     let dmg = BattleSystem.calculateDamage(enemy.atk, char.stats.def);
     const crit = Math.random() < enemy.spd * 0.005;
     if (crit) {
@@ -234,10 +229,6 @@ export class BattleSystem {
     game.playerFlashTimer = 0.6; // extend hit flash duration
   }
 
-  static didDodge(def) {
-    const chance = def * 0.005;
-    return Math.random() < chance;
-  }
 
   static checkBattleEnd(game) {
     if (game.enemy.hp <= 0) {
