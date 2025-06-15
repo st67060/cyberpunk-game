@@ -339,9 +339,9 @@ export class Game {
       const char = this.character;
 
       // Semi-transparent panel behind profile info
-      const panelWidth = 420;
+      const panelWidth = this.app.screen.width - 40;
       const panelHeight = 560;
-      const panelX = this.app.screen.width / 2 - panelWidth / 2;
+      const panelX = 20;
       const panelY = 90;
       const infoPanel = new Graphics();
       infoPanel.lineStyle(4, 0xff00ff, 0.8);
@@ -365,8 +365,8 @@ export class Game {
 
       const avatar = Sprite.from(char.avatar);
       avatar.anchor.set(0.5);
-      avatar.width = 130;
-      avatar.height = 130;
+      avatar.width = 160;
+      avatar.height = 160;
       avatar.x = this.app.screen.width / 2;
       avatar.y = panelY + 60;
       avatar.filters = [char.glowFilter];
@@ -528,6 +528,13 @@ export class Game {
       });
       this.stage.addChild(skillsBtn);
 
+      const abilitiesBtn = new Button('Abilities', this.app.screen.width / 2 - 85, skillsBtn.y + 60, 170, 50, 0x00e0ff);
+      abilitiesBtn.on('pointerdown', () => {
+        this.state = 'abilities';
+        this.initUI();
+      });
+      this.stage.addChild(abilitiesBtn);
+
       const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
       backBtn.on('pointerdown', () => {
         this.state = 'mainmenu';
@@ -558,6 +565,45 @@ export class Game {
         info.x = this.app.screen.width / 2;
         info.y = this.app.screen.height / 2;
         this.stage.addChild(info);
+
+        const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
+        backBtn.on('pointerdown', () => {
+          this.state = 'profile';
+          this.initUI();
+        });
+        this.stage.addChild(backBtn);
+      } else if (this.state === 'abilities') {
+        const title = new Text('Abilities', {
+          fontFamily: 'Bangers, monospace',
+          fontSize: 40,
+          fill: 0xff00ff,
+          stroke: 0x000000,
+          strokeThickness: 5
+        });
+        title.anchor.set(0.5);
+        title.x = this.app.screen.width / 2;
+        title.y = 60;
+        this.stage.addChild(title);
+
+        let y = 120;
+        const allAbilities = ABILITIES[this.character.cls.name] || [];
+        for (const ab of allAbilities) {
+          const owned = this.character.abilities.some(a => a.name === ab.name);
+          const label = owned ? ab.name : `${ab.name} (Locked)`;
+          const color = owned ? 0xffffff : 0x777777;
+          const abText = new Text(label, {
+            fontFamily: 'Bangers, monospace',
+            fontSize: 24,
+            fill: color,
+            stroke: 0x000000,
+            strokeThickness: 4
+          });
+          abText.anchor.set(0.5);
+          abText.x = this.app.screen.width / 2;
+          abText.y = y;
+          this.stage.addChild(abText);
+          y += 50;
+        }
 
         const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
         backBtn.on('pointerdown', () => {
