@@ -247,24 +247,7 @@ export class Game {
           this.initUI();
         });
 
-        const infoBox = new Container();
-        const infoBg = new Graphics();
-        infoBg.beginFill(0x000000, 0.8);
-        infoBg.drawRoundedRect(-70, -60, 140, 70, 8);
-        infoBg.endFill();
-        infoBox.addChild(infoBg);
-        const infoText = new Text(`HP: ${cls.hp}\nATK: ${cls.atk}\nDEF: ${cls.def}\nSPD: ${cls.spd}`, {
-          fontFamily: 'monospace', fontSize: 14, fill: 0xffffff
-        });
-        infoText.anchor.set(0.5);
-        infoBox.addChild(infoText);
-        infoBox.x = avatar.x;
-        infoBox.y = avatar.y - 70;
-        infoBox.visible = false;
-        this.stage.addChild(infoBox);
 
-        avatar.on('pointerover', () => { infoBox.visible = true; });
-        avatar.on('pointerout', () => { infoBox.visible = false; });
 
         this.stage.addChild(avatar);
 
@@ -292,6 +275,19 @@ export class Game {
         this.playBackgroundMusic();
       });
       this.stage.addChild(startBtn);
+
+      const descText = new Text(this.selectedClass.desc, {
+        fontFamily: 'monospace',
+        fontSize: 16,
+        fill: 0xffffff,
+        wordWrap: true,
+        wordWrapWidth: this.app.screen.width - 120,
+        align: 'center'
+      });
+      descText.anchor.set(0.5, 0);
+      descText.x = this.app.screen.width / 2;
+      descText.y = startBtn.y + 60;
+      this.stage.addChild(descText);
     } else if (this.state === 'mainmenu') {
       // Hlavní menu se třemi tlačítky
       const dungeonBtn = new Button('Vault 404', this.app.screen.width / 2 - 85, 250, 170, 50, 0xff2e2e);
