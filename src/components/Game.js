@@ -21,7 +21,7 @@ import { BOSS_ENEMIES } from '../data/bossEnemies.js';
 import { ABILITY_ASSETS } from '../data/abilityAssets.js';
 import { ABILITIES } from '../data/abilities.js';
 
-const CLASS_AVATAR_SIZE = 150;
+const CLASS_AVATAR_SIZE = 200;
 
 export class Game {
   constructor(app) {
@@ -257,7 +257,7 @@ export class Game {
         });
         nameText.anchor.set(0.5);
         nameText.x = avatar.x;
-        nameText.y = avatar.y + 80;
+        nameText.y = avatar.y + CLASS_AVATAR_SIZE / 2 + 30;
         this.stage.addChild(nameText);
       });
 
