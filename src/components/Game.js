@@ -833,7 +833,7 @@ export class Game {
     overlay.addChild(bg);
 
     const cardWidth = 325;
-    const cardHeight = 250;
+    const cardHeight = 350; // increased height for larger attack cards
     const startX = this.app.screen.width / 2 - 512;
     const startY = this.app.screen.height / 2 - cardHeight / 2;
     abilities.forEach((ab, idx) => {
@@ -841,12 +841,12 @@ export class Game {
       // reposition title
       card.t.style.fontSize = 20;
       card.t.anchor.set(0.5, 0);
-      card.t.y = 60;
+      card.t.y = 160; // position title below enlarged icon
 
       if (ABILITY_ASSETS[ab.name]) {
         const icon = Sprite.from(ABILITY_ASSETS[ab.name]);
-        icon.width = 72;
-        icon.height = 72;
+        icon.width = 144; // double icon size
+        icon.height = 144;
         icon.anchor.set(0.5, 0);
         icon.x = card.w / 2;
         icon.y = 6;
@@ -863,7 +863,7 @@ export class Game {
       });
       desc.anchor.set(0.5, 0);
       desc.x = card.w / 2;
-      desc.y = 120;
+      desc.y = 220; // moved down to avoid overlap with icon
       card.addChild(desc);
 
       if (ab.cooldown !== undefined && ab.cooldown > 0) {
