@@ -364,11 +364,11 @@ export class Game {
       this.stage.addChild(title);
 
       const avatar = Sprite.from(char.avatar);
-      avatar.anchor.set(0.5);
-      avatar.width = 160;
-      avatar.height = 160;
-      avatar.x = this.app.screen.width / 2;
-      avatar.y = panelY + 60;
+      avatar.anchor.set(0, 0);
+      avatar.width = 320;
+      avatar.height = 320;
+      avatar.x = panelX + 20;
+      avatar.y = panelY + 20;
       avatar.filters = [char.glowFilter];
       this.stage.addChild(avatar);
 
@@ -379,9 +379,9 @@ export class Game {
         stroke: 0x000000,
         strokeThickness: 4
       });
-      classText.anchor.set(0.5);
-      classText.x = this.app.screen.width / 2;
-      classText.y = avatar.y + 70;
+      classText.anchor.set(0, 0.5);
+      classText.x = avatar.x;
+      classText.y = avatar.y + avatar.height + 20;
       this.stage.addChild(classText);
 
       const levelText = new Text(`Level: ${char.level}`, {
@@ -391,8 +391,8 @@ export class Game {
         stroke: 0x000000,
         strokeThickness: 4
       });
-      levelText.anchor.set(0.5);
-      levelText.x = this.app.screen.width / 2;
+      levelText.anchor.set(0, 0.5);
+      levelText.x = avatar.x;
       levelText.y = classText.y + 30;
       this.stage.addChild(levelText);
 
@@ -452,11 +452,11 @@ export class Game {
           strokeThickness: 3
         });
         costText.anchor.set(1, 0.5);
-        costText.x = this.app.screen.width / 2 + 130;
+        costText.x = this.app.screen.width / 2 + 150;
         costText.y = y + 20;
         this.stage.addChild(costText);
 
-        const upBtn = new Button('+', this.app.screen.width / 2 + 140, y, 40, 40, 0x00ff8a);
+        const upBtn = new Button('+', this.app.screen.width / 2 + 170, y, 40, 40, 0x00ff8a);
         upBtn.on('pointerdown', () => {
           char.spendStat(s.key);
           this.initUI();
