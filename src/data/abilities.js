@@ -1,6 +1,7 @@
 export const BASIC_ATTACK = {
   name: 'Basic Attack',
   description: 'A straightforward strike dealing damage.',
+  damage: 'ATK x10',
   execute(game) {
     const { character: char, enemy } = game;
     const dmg = char.stats.atk * 10;
@@ -15,6 +16,7 @@ export const ABILITIES = {
     {
       name: 'Data Spike',
       description: 'Deals damage and reduces enemy DEF by 5% for the battle.',
+      damage: 'ATK x10',
       execute(game) {
         const { character: char, enemy } = game;
         let dmg = char.stats.atk * 10;
@@ -29,6 +31,7 @@ export const ABILITIES = {
     {
       name: 'Blade Strike',
       description: 'Attack with 30% chance to critically hit.',
+      damage: 'ATK x10 (30% crit)',
       execute(game) {
         const { character: char, enemy } = game;
         let dmg = char.stats.atk * 10;

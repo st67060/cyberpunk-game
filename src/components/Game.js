@@ -819,9 +819,37 @@ export class Game {
     overlay.addChild(bg);
 
     const startX = this.app.screen.width / 2 - 330;
-    const startY = this.app.screen.height / 2 - 60;
+    const startY = this.app.screen.height / 2 - 70;
     abilities.forEach((ab, idx) => {
-      const card = new Button(ab.name, startX + idx * 220, startY, 200, 100, 0x00e0ff);
+      const card = new Button(ab.name, startX + idx * 220, startY, 200, 120, 0x00e0ff);
+      // reposition title
+      card.t.style.fontSize = 20;
+      card.t.anchor.set(0.5, 0);
+      card.t.y = 8;
+
+      const desc = new Text(ab.description, {
+        fontFamily: 'monospace',
+        fontSize: 14,
+        fill: 0xffffff,
+        wordWrap: true,
+        wordWrapWidth: 180,
+        align: 'center'
+      });
+      desc.anchor.set(0.5, 0);
+      desc.x = card.w / 2;
+      desc.y = 36;
+      card.addChild(desc);
+
+      if (ab.damage) {
+        const dmgText = new Text(`DMG: ${ab.damage}`, {
+          fontFamily: 'monospace', fontSize: 14, fill: 0xffe000
+        });
+        dmgText.anchor.set(0.5, 0);
+        dmgText.x = card.w / 2;
+        dmgText.y = card.h - 24;
+        card.addChild(dmgText);
+      }
+
       card.on('pointerdown', () => {
         if (this.battleStarted) {
           this.battleContainer.removeChild(overlay);
