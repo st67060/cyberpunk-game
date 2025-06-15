@@ -1,6 +1,6 @@
 import { Graphics } from 'pixi.js';
 import { BLEND_MODES } from '@pixi/constants';
-import { ABILITIES, BASIC_ATTACK } from '../data/abilities.js';
+import { ABILITIES } from '../data/abilities.js';
 
 const ENEMY_DELAY = 500;
 const PLAYER_EFFECT_DELAY = 300;
@@ -10,6 +10,10 @@ export class BattleSystem {
   static init(game) {
     BattleSystem.turn = 'player';
     BattleSystem.awaitingChoice = true;
+    game.echoLoopActive = false;
+    if (game.character && Array.isArray(game.character.abilities)) {
+      game.character.abilities.forEach(ab => { ab.cooldownRemaining = 0; });
+    }
     BattleSystem.generateAbilities(game);
   }
 
@@ -18,13 +22,13 @@ export class BattleSystem {
   }
 
   static generateAbilities(game) {
-    const pool = ABILITIES[game.character.cls.name] || [];
+    const known = game.character.abilities || [];
     BattleSystem.currentAbilities = [];
-    // Basic attack is always available in the first slot
-    BattleSystem.currentAbilities.push(BASIC_ATTACK);
-    // Fill the rest with class abilities or placeholders
+    const basic = known[0];
+    if (basic) BattleSystem.currentAbilities.push(basic);
+    const available = known.slice(1).filter(a => (a.cooldownRemaining || 0) === 0);
     for (let i = 0; i < 2; i++) {
-      const ability = pool[i] || { name: '???', description: '', execute() {} };
+      const ability = available[i] || { name: '???', description: '', execute() {} };
       BattleSystem.currentAbilities.push(ability);
     }
     if (typeof game.showAbilityOptions === 'function') {
@@ -37,10 +41,16 @@ export class BattleSystem {
     await BattleSystem.playerTurn(game, ability);
     if (!game.battleStarted) return;
 
+    // apply cooldown for used ability
+    if (ability.cooldown !== undefined) {
+      ability.cooldownRemaining = (ability.cooldown || 0) + 1;
+    }
+
     BattleSystem.turn = 'enemy';
     await BattleSystem.delay(ENEMY_DELAY);
     await BattleSystem.enemyTurn(game);
     if (!game.battleStarted) return;
+    BattleSystem.tickCooldowns(game);
     await BattleSystem.delay(UI_DELAY);
 
     BattleSystem.turn = 'player';
@@ -55,6 +65,11 @@ export class BattleSystem {
     await BattleSystem.delay(PLAYER_EFFECT_DELAY);
 
     ability.execute(game);
+    if (game.echoLoopActive && ability.name !== 'Echo Loop') {
+      await BattleSystem.delay(PLAYER_EFFECT_DELAY);
+      ability.execute(game);
+      game.echoLoopActive = false;
+    }
     await BattleSystem.applyDrone(game);
     BattleSystem.checkBattleEnd(game);
   }
@@ -63,6 +78,13 @@ export class BattleSystem {
     await BattleSystem.enemyAttack(game);
     await BattleSystem.applyDrone(game);
     BattleSystem.checkBattleEnd(game);
+  }
+
+  static tickCooldowns(game) {
+    if (!game.character || !game.character.abilities) return;
+    for (const ab of game.character.abilities) {
+      if (ab.cooldownRemaining > 0) ab.cooldownRemaining -= 1;
+    }
   }
 
   static async applyDrone(game) {
