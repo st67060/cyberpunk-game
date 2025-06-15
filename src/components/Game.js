@@ -361,6 +361,7 @@ export class Game {
       avatar.height = 130;
       avatar.x = this.app.screen.width / 2;
       avatar.y = panelY + 60;
+      avatar.filters = [char.glowFilter];
       this.stage.addChild(avatar);
 
       const classText = new Text(`Class: ${char.cls.name}`, { fontFamily: 'monospace', fontSize: 22, fill: 0xffffff });
@@ -650,13 +651,8 @@ export class Game {
     charAvatar.y = this.playerAvatarY;
     // Ensure avatar renders above its background
     charAvatar.zIndex = 5;
-    // Filtry pro hráčův avatar (záře, bloom, stín)
-    // Filters on some systems caused the avatar to become invisible, so they were removed
-    // charAvatar.filters = [
-    //   new GlowFilter({ distance: 22, outerStrength: 3, innerStrength: 0, color: char.cls.color, quality: 0.5 }),
-    //   new BloomFilter({ threshold: 0.18, bloomScale: 2.2, blur: 13, quality: 0.5 }),
-    //   new DropShadowFilter({ distance: 0, blur: 12, color: 0x000000, alpha: 0.7 })
-    // ];
+    // Apply cyberpunk glow effect on the player's avatar
+    charAvatar.filters = [char.glowFilter];
     this.battleContainer.addChild(charAvatar);
     // Popisek a úroveň hráče
     const charNameText = new Text('ME', { fontFamily: 'monospace', fontSize: 32, fill: 0xffa500, fontWeight: 'bold' });

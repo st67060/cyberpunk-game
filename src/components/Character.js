@@ -1,4 +1,5 @@
 import { ABILITIES } from '../data/abilities.js';
+import { GlowFilter } from '@pixi/filter-glow';
 
 export class Character {
   constructor(cls) {
@@ -42,6 +43,15 @@ export class Character {
       weapons: [],
       armors: []
     };
+
+    // Glow effect used when rendering the avatar
+    this.glowFilter = new GlowFilter({
+      distance: 15,
+      outerStrength: 3,
+      innerStrength: 0,
+      color: cls.color,
+      quality: 0.5
+    });
 
     // Learned abilities - start with the class basic ability
     this.abilities = [];
