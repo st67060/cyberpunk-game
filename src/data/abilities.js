@@ -22,7 +22,7 @@ export const ABILITIES = {
       name: 'Echo Loop',
       cost: 50,
       cooldown: 2,
-      description: 'Následující karta se příští kolo aktivuje 2×.',
+      description: 'The next card activates twice on the following turn.',
       execute(game) {
         game.echoLoopActive = true;
         game.spawnFloatingText('Echo Loop', game.playerAvatarX, game.playerAvatarY - 160, 0x00e0ff, 32);
@@ -32,7 +32,7 @@ export const ABILITIES = {
       name: 'Glitch Pulse',
       cost: 1500,
       cooldown: 3,
-      description: 'Příští 2 kola po každém tahu nepřítele obdrží dodatečné poškození.',
+      description: 'For the next 2 turns, additional damage is dealt after each enemy action.',
       execute(game) {
         const char = game.character;
         const enemy = game.enemy;
@@ -47,7 +47,7 @@ export const ABILITIES = {
       cost: 4500,
       cooldown: 1,
       damage: 'ATK x20',
-      description: 'Útok za 200% DMG, 50% šance utržit 10% vlastního HP.',
+      description: 'Attack for 200% damage with a 50% chance to take 10% of your own HP.',
       getDamage(game) {
         return game.character.stats.atk * 20;
       },
@@ -69,7 +69,7 @@ export const ABILITIES = {
       name: 'Stat Hijack',
       cost: 350,
       cooldown: 4,
-      description: 'Ukradne 20% ATK nepřítele na 3 kola.',
+      description: 'Steals 20% of the enemy\'s ATK for 3 turns.',
       execute(game) {
         const char = game.character;
         const enemy = game.enemy;
@@ -86,7 +86,7 @@ export const ABILITIES = {
       cost: 200,
       cooldown: 1,
       damage: 'ATK x0.5',
-      description: 'Poškození 50% ATK, každým použitím se násobí 1.5×.',
+      description: 'Deals damage equal to 50% ATK, multiplying by 1.5× with each use.',
       getDamage(game) {
         const mult = game.trojanSpikeMult || 0.5;
         return Math.round(game.character.stats.atk * mult);

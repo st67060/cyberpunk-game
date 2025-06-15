@@ -832,12 +832,12 @@ export class Game {
     bg.endFill();
     overlay.addChild(bg);
 
-    const cardWidth = 260;
-    const cardHeight = 180;
-    const startX = this.app.screen.width / 2 - 410;
+    const cardWidth = 325;
+    const cardHeight = 250;
+    const startX = this.app.screen.width / 2 - 512;
     const startY = this.app.screen.height / 2 - cardHeight / 2;
     abilities.forEach((ab, idx) => {
-      const card = new Button(ab.name, startX + idx * 280, startY, cardWidth, cardHeight, 0x2e3c43);
+      const card = new Button(ab.name, startX + idx * 350, startY, cardWidth, cardHeight, 0x2e3c43);
       // reposition title
       card.t.style.fontSize = 20;
       card.t.anchor.set(0.5, 0);
@@ -863,7 +863,7 @@ export class Game {
       });
       desc.anchor.set(0.5, 0);
       desc.x = card.w / 2;
-      desc.y = 100;
+      desc.y = 120;
       card.addChild(desc);
 
       if (ab.cooldown !== undefined && ab.cooldown > 0) {
