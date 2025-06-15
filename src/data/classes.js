@@ -6,7 +6,7 @@ export const CLASSES = [
     atk: 12,
     def: 4,
     spd: 11,
-    texture: '/vite.svg',
+    texture: '/assets/netrunner_avatar.png',
     desc: 'Expert hacker who manipulates the digital world.'
   },
   {
