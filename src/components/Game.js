@@ -845,8 +845,8 @@ export class Game {
 
       if (ABILITY_ASSETS[ab.name]) {
         const icon = Sprite.from(ABILITY_ASSETS[ab.name]);
-        icon.width = 48;
-        icon.height = 48;
+        icon.width = 72;
+        icon.height = 72;
         icon.anchor.set(0.5, 0);
         icon.x = card.w / 2;
         icon.y = 6;
