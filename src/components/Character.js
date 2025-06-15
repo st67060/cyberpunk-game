@@ -1,3 +1,5 @@
+import { ABILITIES } from '../data/abilities.js';
+
 export class Character {
   constructor(cls) {
     // Inicializace základních atributů podle zvolené třídy (class)
@@ -39,6 +41,14 @@ export class Character {
       weapons: [],
       armors: []
     };
+
+    // Learned abilities - start with the class basic ability
+    this.abilities = [];
+    const startingAbility = (ABILITIES[this.cls.name] || [])[0];
+    if (startingAbility) {
+      // clone the ability to avoid mutating templates
+      this.abilities.push({ ...startingAbility, cooldownRemaining: 0 });
+    }
   }
 
   // Výpočet bonusu zbraně pro daný level postavy (v procentech základního ATK)
@@ -85,6 +95,19 @@ export class Character {
         this.equip(newItem);
       }
       this.updateStats();
+      return true;
+    }
+    return false;
+  }
+
+  buyAbility(ability) {
+    const owned = this.abilities.some(a => a.name === ability.name);
+    if (owned) return false;
+    const cost = ability.cost || 0;
+    if (this.gold >= cost) {
+      this.gold -= cost;
+      // clone to track individual cooldown
+      this.abilities.push({ ...ability, cooldownRemaining: 0 });
       return true;
     }
     return false;

@@ -19,6 +19,7 @@ import { ITEM_ASSETS } from '../data/itemAssets.js';
 import { ENEMY_ASSETS } from '../data/enemyAssets.js';
 import { BOSS_ENEMIES } from '../data/bossEnemies.js';
 import { ABILITY_ASSETS } from '../data/abilityAssets.js';
+import { ABILITIES } from '../data/abilities.js';
 
 const CLASS_AVATAR_SIZE = 150;
 
@@ -61,7 +62,8 @@ export class Game {
     // Cache nabídek obchodu (předměty k prodeji podle typu)
     this.shopItemsCache = {
       weapon: WEAPON_ITEMS,
-      armor: ARMOR_ITEMS
+      armor: ARMOR_ITEMS,
+      ability: []
     };
     this.bossesDefeated = 0;
     this.currentBossIndex = 0;
@@ -91,6 +93,7 @@ export class Game {
     this.energyMax = 100;
     this.energyThreshold = 50;
     this.droneDamage = 5;
+    this.echoLoopActive = false;
     this.abilityButtons = null;
     this.battleStarted = false;
     this.battleResult = null;
@@ -852,6 +855,16 @@ export class Game {
       desc.y = 92;
       card.addChild(desc);
 
+      if (ab.cooldown !== undefined && ab.cooldown > 0) {
+        const cdText = new Text(`CD: ${ab.cooldown}`, {
+          fontFamily: 'monospace', fontSize: 14, fill: 0xffe000
+        });
+        cdText.anchor.set(0.5, 0);
+        cdText.x = card.w / 2;
+        cdText.y = card.h - 42;
+        card.addChild(cdText);
+      }
+
       if (typeof ab.getDamage === 'function') {
         const approx = ab.getDamage(this);
         const dmgText = new Text(`DMG: ~${approx}`, {
@@ -894,12 +907,14 @@ export class Game {
     // Šířka nabídky obchodu
     const shopWidth = Math.min(1000, this.app.screen.width * 0.8);
     const startX = this.app.screen.width / 2 - shopWidth / 2;
-    // Tlačítka pro přepínání mezi zbraněmi a zbrojemi
+    // Tlačítka pro přepínání kategorií
     const weaponsTab = new Button('Weapons', startX, 60, 120, 40, 0x00e0ff);
     const armorsTab = new Button('Armors', startX + 130, 60, 120, 40, 0x00e0ff);
+    const abilitiesTab = new Button('Abilities', startX + 260, 60, 120, 40, 0x00e0ff);
     weaponsTab.on('pointerdown', () => { this.shopType = 'weapon'; this.initUI(); });
     armorsTab.on('pointerdown', () => { this.shopType = 'armor'; this.initUI(); });
-    this.stage.addChild(weaponsTab, armorsTab);
+    abilitiesTab.on('pointerdown', () => { this.shopType = 'ability'; this.initUI(); });
+    this.stage.addChild(weaponsTab, armorsTab, abilitiesTab);
     // Vykreslení seznamu položek obchodu
     this.shopItemsContainer = new Container();
     const shopMaskY = 120;
@@ -912,6 +927,9 @@ export class Game {
     this.shopItemsContainer.mask = this.shopScrollMask;
     this.stage.addChild(this.shopScrollMask, this.shopItemsContainer);
     // Seznam položek k zobrazení (podle zvolené záložky)
+    if (this.shopType === 'ability') {
+      this.shopItemsCache.ability = ABILITIES[this.character.cls.name];
+    }
     const itemsToShow = this.shopItemsCache[this.shopType];
     let y = 0;
     for (const itemTemplate of itemsToShow) {
@@ -921,39 +939,65 @@ export class Game {
       itemBox.drawRoundedRect(startX, y + shopMaskY, shopWidth, 80, 14);
       itemBox.endFill();
       this.shopItemsContainer.addChild(itemBox);
-      // Obrázek položky (pokud existuje v ITEM_ASSETS)
-      if (ITEM_ASSETS[itemTemplate.name]) {
+      // Obrázek položky (pokud existuje v assetech)
+      if (this.shopType !== 'ability' && ITEM_ASSETS[itemTemplate.name]) {
         const itemSprite = Sprite.from(ITEM_ASSETS[itemTemplate.name]);
         itemSprite.width = 72;
         itemSprite.height = 72;
         itemSprite.x = startX + 12;
         itemSprite.y = y + shopMaskY + 4;
-        // Efekt zvýraznění okraje položky
         itemSprite.filters = [new GlowFilter({ distance: 8, outerStrength: 1.5, innerStrength: 0, color: 0xffa500 })];
         this.shopItemsContainer.addChild(itemSprite);
+      } else if (this.shopType === 'ability' && ABILITY_ASSETS[itemTemplate.name]) {
+        const icon = Sprite.from(ABILITY_ASSETS[itemTemplate.name]);
+        icon.width = 72;
+        icon.height = 72;
+        icon.x = startX + 12;
+        icon.y = y + shopMaskY + 4;
+        icon.filters = [new GlowFilter({ distance: 8, outerStrength: 1.5, innerStrength: 0, color: 0xffa500 })];
+        this.shopItemsContainer.addChild(icon);
       }
-      // Název předmětu
+      // Název položky
       const itemNameText = new Text(itemTemplate.name, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
       itemNameText.x = startX + 80;
       itemNameText.y = y + shopMaskY + 10;
       this.shopItemsContainer.addChild(itemNameText);
-      const statValue = this.shopType === 'weapon'
-        ? this.character.getWeaponStat(itemTemplate, this.character.level)
-        : this.character.getArmorStat(itemTemplate, this.character.level);
-      const statLabel = this.shopType === 'weapon' ? 'ATK' : 'HP';
-      const statText = new Text(`${statLabel}: ${statValue}`, { fontFamily: 'monospace', fontSize: 18, fill: 0x00ff8a });
-      statText.x = startX + 80;
-      statText.y = y + shopMaskY + 40;
-      this.shopItemsContainer.addChild(statText);
+      if (this.shopType === 'ability') {
+        const desc = new Text(itemTemplate.description, { fontFamily: 'monospace', fontSize: 16, fill: 0x00ff8a, wordWrap: true, wordWrapWidth: shopWidth - 200 });
+        desc.x = startX + 80;
+        desc.y = y + shopMaskY + 36;
+        this.shopItemsContainer.addChild(desc);
+        if (itemTemplate.cooldown !== undefined && itemTemplate.cooldown > 0) {
+          const cd = new Text(`CD: ${itemTemplate.cooldown}`, { fontFamily: 'monospace', fontSize: 14, fill: 0xffe000 });
+          cd.x = startX + shopWidth - 220;
+          cd.y = y + shopMaskY + 10;
+          this.shopItemsContainer.addChild(cd);
+        }
+      } else {
+        const statValue = this.shopType === 'weapon'
+          ? this.character.getWeaponStat(itemTemplate, this.character.level)
+          : this.character.getArmorStat(itemTemplate, this.character.level);
+        const statLabel = this.shopType === 'weapon' ? 'ATK' : 'HP';
+        const statText = new Text(`${statLabel}: ${statValue}`, { fontFamily: 'monospace', fontSize: 18, fill: 0x00ff8a });
+        statText.x = startX + 80;
+        statText.y = y + shopMaskY + 40;
+        this.shopItemsContainer.addChild(statText);
+      }
       // Cena
-      const priceText = new Text(`${itemTemplate.baseCost} G`, { fontFamily: 'monospace', fontSize: 18, fill: 0xffe000 });
+      const priceVal = this.shopType === 'ability' ? itemTemplate.cost : itemTemplate.baseCost;
+      const priceText = new Text(`${priceVal} G`, { fontFamily: 'monospace', fontSize: 18, fill: 0xffe000 });
       priceText.x = startX + shopWidth - 140;
       priceText.y = y + shopMaskY + 20;
       this.shopItemsContainer.addChild(priceText);
       // Kontrola, zda již hráč položku vlastní
-      const owned = (this.shopType === 'weapon'
-        ? this.character.inventory.weapons
-        : this.character.inventory.armors).some(i => i.name === itemTemplate.name);
+      let owned = false;
+      if (this.shopType === 'weapon') {
+        owned = this.character.inventory.weapons.some(i => i.name === itemTemplate.name);
+      } else if (this.shopType === 'armor') {
+        owned = this.character.inventory.armors.some(i => i.name === itemTemplate.name);
+      } else {
+        owned = this.character.abilities.some(a => a.name === itemTemplate.name);
+      }
 
       // Tlačítko nákupu nebo informace o vlastnictví
       const btnLabel = owned ? 'Owned' : 'Buy';
@@ -963,7 +1007,12 @@ export class Game {
       if (!owned) {
         buyBtn.on('pointerdown', () => {
           // Pokus o koupi předmětu
-          const success = this.character.buyItem(itemTemplate, this.shopType === 'weapon' ? 'weapon' : 'armor');
+          let success = false;
+          if (this.shopType === 'ability') {
+            success = this.character.buyAbility(itemTemplate);
+          } else {
+            success = this.character.buyItem(itemTemplate, this.shopType === 'weapon' ? 'weapon' : 'armor');
+          }
           if (success) {
             this.initUI(); // obnovit UI (aktualizuje inventář hráče a zlato)
           }
@@ -1080,6 +1129,7 @@ export class Game {
     this.playerEnergy = 0;
     this.enemyEnergy = 0;
     this.droneDamage = 5;
+    this.echoLoopActive = false;
     this.battleStarted = false;
   }
 

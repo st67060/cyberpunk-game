@@ -1,23 +1,9 @@
-export const BASIC_ATTACK = {
-  name: 'Basic Attack',
-  description: 'A straightforward strike dealing damage.',
-  damage: 'ATK x10',
-  getDamage(game) {
-    return game.character.stats.atk * 10;
-  },
-  execute(game) {
-    const { character: char, enemy } = game;
-    const dmg = char.stats.atk * 10;
-    enemy.hp = Math.max(0, enemy.hp - dmg);
-    game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0xffe000, 36);
-    game.enemyFlashTimer = 0.6; // longer red flash when enemy takes damage
-  }
-};
-
 export const ABILITIES = {
   'Netrunner': [
     {
       name: 'Data Spike',
+      cost: 0,
+      cooldown: 0,
       description: 'Deals damage and reduces enemy DEF by 5% for the battle.',
       damage: 'ATK x10',
       getDamage(game) {
@@ -31,11 +17,23 @@ export const ABILITIES = {
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0x00e0ff, 36);
         game.enemyFlashTimer = 0.6; // extend flash duration
       }
+    },
+    {
+      name: 'Echo Loop',
+      cost: 50,
+      cooldown: 2,
+      description: 'Následující karta se příští kolo aktivuje 2×.',
+      execute(game) {
+        game.echoLoopActive = true;
+        game.spawnFloatingText('Echo Loop', game.playerAvatarX, game.playerAvatarY - 160, 0x00e0ff, 32);
+      }
     }
   ],
   'Street Samurai': [
     {
       name: 'Blade Strike',
+      cost: 0,
+      cooldown: 0,
       description: 'Attack with 30% chance to critically hit.',
       damage: 'ATK x10 (30% crit)',
       getDamage(game) {
@@ -58,6 +56,8 @@ export const ABILITIES = {
   'Techie': [
     {
       name: 'Drone Boost',
+      cost: 0,
+      cooldown: 0,
       description: 'Increase drone damage by 50%.',
       execute(game) {
         game.droneDamage = Math.round(game.droneDamage * 1.5);
