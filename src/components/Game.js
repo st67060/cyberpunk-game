@@ -372,6 +372,9 @@ export class Game {
       avatar.filters = [char.glowFilter];
       this.stage.addChild(avatar);
 
+      const infoX = avatar.x + avatar.width + 40;
+      let infoY = avatar.y + 10;
+
       const classText = new Text(`Class: ${char.cls.name}`, {
         fontFamily: 'Bangers, monospace',
         fontSize: 28,
@@ -380,9 +383,10 @@ export class Game {
         strokeThickness: 4
       });
       classText.anchor.set(0, 0.5);
-      classText.x = avatar.x;
-      classText.y = avatar.y + avatar.height + 20;
+      classText.x = infoX;
+      classText.y = infoY;
       this.stage.addChild(classText);
+      infoY += 30;
 
       const levelText = new Text(`Level: ${char.level}`, {
         fontFamily: 'Bangers, monospace',
@@ -392,12 +396,14 @@ export class Game {
         strokeThickness: 4
       });
       levelText.anchor.set(0, 0.5);
-      levelText.x = avatar.x;
-      levelText.y = classText.y + 30;
+      levelText.x = infoX;
+      levelText.y = infoY;
       this.stage.addChild(levelText);
+      infoY += 30;
 
-      const levelBar = new StatBar('EXP', char.exp, char.expToNext, this.app.screen.width / 2 - 100, levelText.y + 10, 200, 16, 0x00e0ff);
+      const levelBar = new StatBar('EXP', char.exp, char.expToNext, infoX, levelText.y + 10, 200, 16, 0x00e0ff);
       this.stage.addChild(levelBar);
+      infoY = levelBar.y + 40;
 
       const statHeader = new Text(`Stat Points: ${char.statPoints}`, {
         fontFamily: 'Bangers, monospace',
@@ -406,10 +412,11 @@ export class Game {
         stroke: 0x000000,
         strokeThickness: 4
       });
-      statHeader.anchor.set(0.5);
-      statHeader.x = this.app.screen.width / 2;
-      statHeader.y = levelBar.y + 30;
+      statHeader.anchor.set(0, 0.5);
+      statHeader.x = infoX;
+      statHeader.y = infoY;
       this.stage.addChild(statHeader);
+      infoY += 30;
 
       const statInfo = [
         {
@@ -439,7 +446,7 @@ export class Game {
           strokeThickness: 4
         });
         statLabel.anchor.set(0, 0.5);
-        statLabel.x = this.app.screen.width / 2 - 90;
+        statLabel.x = infoX;
         statLabel.y = y + 20;
         this.stage.addChild(statLabel);
 
@@ -452,11 +459,11 @@ export class Game {
           strokeThickness: 3
         });
         costText.anchor.set(1, 0.5);
-        costText.x = this.app.screen.width / 2 + 150;
+        costText.x = infoX + 230;
         costText.y = y + 20;
         this.stage.addChild(costText);
 
-        const upBtn = new Button('+', this.app.screen.width / 2 + 170, y, 40, 40, 0x00ff8a);
+        const upBtn = new Button('+', infoX + 250, y, 40, 40, 0x00ff8a);
         upBtn.on('pointerdown', () => {
           char.spendStat(s.key);
           this.initUI();
@@ -472,8 +479,8 @@ export class Game {
         stroke: 0x000000,
         strokeThickness: 4
       });
-      goldText.anchor.set(0.5);
-      goldText.x = this.app.screen.width / 2;
+      goldText.anchor.set(0, 0.5);
+      goldText.x = infoX;
       goldText.y = y + 10;
       this.stage.addChild(goldText);
 
@@ -485,7 +492,7 @@ export class Game {
         strokeThickness: 4
       });
       weaponText.anchor.set(0, 0.5);
-      weaponText.x = this.app.screen.width / 2 - 30;
+      weaponText.x = infoX;
       weaponText.y = y + 40;
       this.stage.addChild(weaponText);
 
@@ -507,7 +514,7 @@ export class Game {
         strokeThickness: 4
       });
       armorText.anchor.set(0, 0.5);
-      armorText.x = this.app.screen.width / 2 - 30;
+      armorText.x = infoX;
       armorText.y = y + 70;
       this.stage.addChild(armorText);
 
