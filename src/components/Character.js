@@ -9,7 +9,8 @@ export class Character {
     this.level = 1;
     this.exp = 0;
     this.expToNext = 50;
-    this.gold = 100;
+    // Increased starting gold for testing purposes
+    this.gold = 999999;
     this.statPoints = 10;
     this.skillPoints = 0;
     // Náklady na zlepšení statistik (zvyšují se postupně)
