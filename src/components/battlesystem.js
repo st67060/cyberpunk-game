@@ -119,7 +119,10 @@ export class BattleSystem {
   }
 
   static calculateDamage(atk, def) {
-    return atk * 10;
+    const base = atk * 10;
+    const reduction = Math.min(def * 0.005, 0.8);
+    const dmg = Math.round(base * (1 - reduction));
+    return Math.max(1, dmg);
   }
  static delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));

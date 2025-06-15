@@ -396,11 +396,11 @@ export class Game {
         },
         {
           key: 'def',
-          label: `DEF: ${char.stats.def} \u223c ${(char.stats.def * 0.5).toFixed(1)}% dodge`
+          label: `DEF: ${char.stats.def} \u223c ${(char.stats.def * 0.5).toFixed(1)}% dodge, ${Math.min(char.stats.def * 0.5, 80).toFixed(1)}% block`
         },
         {
           key: 'spd',
-          label: `SPD: ${char.stats.spd} \u223c ${(char.stats.spd * 0.5).toFixed(1)}% crit`
+          label: `SPD: ${char.stats.spd} \u223c x${(1 + char.stats.spd * 0.01).toFixed(2)} rewards`
         }
       ];
       let y = statHeader.y + 10;
