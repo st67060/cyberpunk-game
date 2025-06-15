@@ -11,6 +11,9 @@ export class BattleSystem {
     BattleSystem.turn = 'player';
     BattleSystem.awaitingChoice = true;
     game.echoLoopActive = false;
+    game.trojanSpikeMult = 0.5;
+    game.statHijackTurns = 0;
+    game.statHijackAmount = 0;
     if (game.character && Array.isArray(game.character.abilities)) {
       game.character.abilities.forEach(ab => { ab.cooldownRemaining = 0; });
     }
@@ -104,6 +107,14 @@ export class BattleSystem {
       game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, 0x00e0ff, 24);
       game.enemyFlashTimer = 0.6;
       game.glitchPulseTurns -= 1;
+    }
+    if (game.statHijackTurns > 0) {
+      game.statHijackTurns -= 1;
+      if (game.statHijackTurns === 0 && game.statHijackAmount) {
+        game.character.stats.atk = Math.max(1, game.character.stats.atk - game.statHijackAmount);
+        game.enemy.atk += game.statHijackAmount;
+        game.statHijackAmount = 0;
+      }
     }
   }
 

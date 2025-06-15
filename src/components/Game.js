@@ -96,6 +96,9 @@ export class Game {
     this.glitchPulseTurns = 0;
     this.glitchPulseDamage = 0;
     this.echoLoopActive = false;
+    this.trojanSpikeMult = 0.5;
+    this.statHijackTurns = 0;
+    this.statHijackAmount = 0;
     this.abilityButtons = null;
     this.battleStarted = false;
     this.battleResult = null;
@@ -932,7 +935,8 @@ export class Game {
     this.stage.addChild(this.shopScrollMask, this.shopItemsContainer);
     // Seznam položek k zobrazení (podle zvolené záložky)
     if (this.shopType === 'ability') {
-      this.shopItemsCache.ability = ABILITIES[this.character.cls.name];
+      this.shopItemsCache.ability = [...ABILITIES[this.character.cls.name]]
+        .sort((a, b) => (a.cost || 0) - (b.cost || 0));
     }
     const itemsToShow = this.shopItemsCache[this.shopType];
     let y = 0;
@@ -1136,6 +1140,9 @@ export class Game {
     this.glitchPulseTurns = 0;
     this.glitchPulseDamage = 0;
     this.echoLoopActive = false;
+    this.trojanSpikeMult = 0.5;
+    this.statHijackTurns = 0;
+    this.statHijackAmount = 0;
     this.battleStarted = false;
   }
 

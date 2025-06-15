@@ -64,6 +64,43 @@ export const ABILITIES = {
           game.playerFlashTimer = 0.6;
         }
       }
+    },
+    {
+      name: 'Stat Hijack',
+      cost: 350,
+      cooldown: 4,
+      description: 'Ukradne 20% ATK nepřítele na 3 kola.',
+      execute(game) {
+        const char = game.character;
+        const enemy = game.enemy;
+        const amount = Math.round(enemy.atk * 0.2);
+        enemy.atk = Math.max(1, enemy.atk - amount);
+        char.stats.atk += amount;
+        game.statHijackAmount = (game.statHijackAmount || 0) + amount;
+        game.statHijackTurns = 3;
+        game.spawnFloatingText(`+${amount} ATK`, game.playerAvatarX, game.playerAvatarY - 160, 0x00e0ff, 32);
+      }
+    },
+    {
+      name: 'Trojan Spike',
+      cost: 200,
+      cooldown: 1,
+      damage: 'ATK x0.5',
+      description: 'Poškození 50% ATK, každým použitím se násobí 1.5×.',
+      getDamage(game) {
+        const mult = game.trojanSpikeMult || 0.5;
+        return Math.round(game.character.stats.atk * mult);
+      },
+      execute(game) {
+        const char = game.character;
+        const enemy = game.enemy;
+        const mult = game.trojanSpikeMult || 0.5;
+        const dmg = Math.round(char.stats.atk * mult);
+        enemy.hp = Math.max(0, enemy.hp - dmg);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0x00e0ff, 36);
+        game.enemyFlashTimer = 0.6;
+        game.trojanSpikeMult = mult * 1.5;
+      }
     }
   ],
   'Street Samurai': [
