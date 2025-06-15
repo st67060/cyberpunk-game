@@ -18,6 +18,7 @@ import { ARMOR_ITEMS } from '../data/armorItems.js';
 import { ITEM_ASSETS } from '../data/itemAssets.js';
 import { ENEMY_ASSETS } from '../data/enemyAssets.js';
 import { BOSS_ENEMIES } from '../data/bossEnemies.js';
+import { ABILITY_ASSETS } from '../data/abilityAssets.js';
 
 const CLASS_AVATAR_SIZE = 150;
 
@@ -114,6 +115,7 @@ export class Game {
     assets.push('/assets/background.png');
     Object.values(ITEM_ASSETS).forEach(url => assets.push(url));
     Object.values(ENEMY_ASSETS).forEach(url => assets.push(url));
+    Object.values(ABILITY_ASSETS).forEach(url => assets.push(url));
     BOSS_ENEMIES.forEach(boss => { if (boss.texture) assets.push(boss.texture); });
     // Přidání obrázků rámečků pro postavy v souboji
     assets.push('/assets/avatar background.jpg');
@@ -819,13 +821,23 @@ export class Game {
     overlay.addChild(bg);
 
     const startX = this.app.screen.width / 2 - 330;
-    const startY = this.app.screen.height / 2 - 70;
+    const startY = this.app.screen.height / 2 - 90;
     abilities.forEach((ab, idx) => {
-      const card = new Button(ab.name, startX + idx * 220, startY, 200, 120, 0x00e0ff);
+      const card = new Button(ab.name, startX + idx * 220, startY, 200, 160, 0x00e0ff);
       // reposition title
       card.t.style.fontSize = 20;
       card.t.anchor.set(0.5, 0);
-      card.t.y = 8;
+      card.t.y = 60;
+
+      if (ABILITY_ASSETS[ab.name]) {
+        const icon = Sprite.from(ABILITY_ASSETS[ab.name]);
+        icon.width = 48;
+        icon.height = 48;
+        icon.anchor.set(0.5, 0);
+        icon.x = card.w / 2;
+        icon.y = 6;
+        card.addChild(icon);
+      }
 
       const desc = new Text(ab.description, {
         fontFamily: 'monospace',
@@ -837,7 +849,7 @@ export class Game {
       });
       desc.anchor.set(0.5, 0);
       desc.x = card.w / 2;
-      desc.y = 36;
+      desc.y = 92;
       card.addChild(desc);
 
       if (typeof ab.getDamage === 'function') {
