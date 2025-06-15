@@ -840,7 +840,16 @@ export class Game {
       desc.y = 36;
       card.addChild(desc);
 
-      if (ab.damage) {
+      if (typeof ab.getDamage === 'function') {
+        const approx = ab.getDamage(this);
+        const dmgText = new Text(`DMG: ~${approx}`, {
+          fontFamily: 'monospace', fontSize: 14, fill: 0xffe000
+        });
+        dmgText.anchor.set(0.5, 0);
+        dmgText.x = card.w / 2;
+        dmgText.y = card.h - 24;
+        card.addChild(dmgText);
+      } else if (ab.damage) {
         const dmgText = new Text(`DMG: ${ab.damage}`, {
           fontFamily: 'monospace', fontSize: 14, fill: 0xffe000
         });
