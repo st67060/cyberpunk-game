@@ -6,7 +6,7 @@ export const CLASSES = [
     atk: 12,
     def: 4,
     spd: 11,
-    texture: '/assets/netrunner.png',
+    texture: '/assets/netrunner_avatar.png',
     desc: 'Expert hacker who manipulates the digital world.'
   },
   {
@@ -16,7 +16,7 @@ export const CLASSES = [
     atk: 16,
     def: 6,
     spd: 5,
-    texture: '/assets/samurai.png',
+    texture: '/assets/street_samurai_avatar.png',
     desc: 'Cybernetic warrior specializing in close combat.'
   },
   {
@@ -26,7 +26,7 @@ export const CLASSES = [
     atk: 10,
     def: 12,
     spd: 5,
-    texture: '/assets/techie.png',
+    texture: '/assets/techie_avatar.png',
     desc: 'Inventor and engineer using gadgets to survive.'
   }
 ];
