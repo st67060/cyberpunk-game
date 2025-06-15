@@ -386,10 +386,22 @@ export class Game {
       this.stage.addChild(statHeader);
 
       const statInfo = [
-        { key: 'hp', label: `HP: ${char.hp}/${char.maxHp}` },
-        { key: 'atk', label: `ATK: ${char.stats.atk}` },
-        { key: 'def', label: `DEF: ${char.stats.def}` },
-        { key: 'spd', label: `SPD: ${char.stats.spd}` }
+        {
+          key: 'hp',
+          label: `HP: ${char.hp}/${char.maxHp}`
+        },
+        {
+          key: 'atk',
+          label: `ATK: ${char.stats.atk} \u223c ${BattleSystem.calculateDamage(char.stats.atk, 0)}dmg`
+        },
+        {
+          key: 'def',
+          label: `DEF: ${char.stats.def} \u223c ${(char.stats.def * 0.5).toFixed(1)}% dodge`
+        },
+        {
+          key: 'spd',
+          label: `SPD: ${char.stats.spd} \u223c ${(char.stats.spd * 0.5).toFixed(1)}% crit`
+        }
       ];
       let y = statHeader.y + 10;
       for (const s of statInfo) {
