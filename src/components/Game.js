@@ -96,6 +96,11 @@ export class Game {
     this.glitchPulseTurns = 0;
     this.glitchPulseDamage = 0;
     this.echoLoopActive = false;
+    this.trojanSpikeMult = 0.5;
+    this.statHijackTurns = 0;
+    this.statHijackAmount = 0;
+    this.playerStatsText = null;
+    this.enemyStatsText = null;
     this.abilityButtons = null;
     this.battleStarted = false;
     this.battleResult = null;
@@ -665,6 +670,7 @@ export class Game {
     playerStatsText.x = this.playerAvatarX;
     playerStatsText.y = this.playerAvatarY + AVATAR_SIZE / 2 + 60;
     this.battleContainer.addChild(playerStatsText);
+    this.playerStatsText = playerStatsText;
     // Rámeček pro nepřítele
     const enemyBgSprite = Sprite.from('/assets/avatar background.jpg');
     enemyBgSprite.width = AVATAR_BG_SIZE;
@@ -715,6 +721,7 @@ export class Game {
     enemyStatsText.x = this.enemyAvatarX;
     enemyStatsText.y = this.enemyAvatarY + AVATAR_SIZE / 2 + 60;
     this.battleContainer.addChild(enemyStatsText);
+    this.enemyStatsText = enemyStatsText;
     // Přidání již vytvořených floatingTexts (např. při opakovaném vykreslení)
     this.floatingTexts.forEach(text => this.battleContainer.addChild(text));
     // Kontejner pro tlačítka ve spodní části (Continue, apod.)
@@ -932,7 +939,8 @@ export class Game {
     this.stage.addChild(this.shopScrollMask, this.shopItemsContainer);
     // Seznam položek k zobrazení (podle zvolené záložky)
     if (this.shopType === 'ability') {
-      this.shopItemsCache.ability = ABILITIES[this.character.cls.name];
+      this.shopItemsCache.ability = [...ABILITIES[this.character.cls.name]]
+        .sort((a, b) => (a.cost || 0) - (b.cost || 0));
     }
     const itemsToShow = this.shopItemsCache[this.shopType];
     let y = 0;
@@ -1136,6 +1144,27 @@ export class Game {
     this.glitchPulseTurns = 0;
     this.glitchPulseDamage = 0;
     this.echoLoopActive = false;
+    this.trojanSpikeMult = 0.5;
+    this.statHijackTurns = 0;
+    this.statHijackAmount = 0;
+    if (this.playerStatsText) {
+      if (this.battleContainer) {
+        this.battleContainer.removeChild(this.playerStatsText);
+      } else {
+        this.stage.removeChild(this.playerStatsText);
+      }
+      this.playerStatsText.destroy();
+      this.playerStatsText = null;
+    }
+    if (this.enemyStatsText) {
+      if (this.battleContainer) {
+        this.battleContainer.removeChild(this.enemyStatsText);
+      } else {
+        this.stage.removeChild(this.enemyStatsText);
+      }
+      this.enemyStatsText.destroy();
+      this.enemyStatsText = null;
+    }
     this.battleStarted = false;
   }
 
@@ -1225,6 +1254,12 @@ export class Game {
       if (this.enemyHpBar) this.enemyHpBar.updateBar(this.enemy.hp, this.enemy.maxHp);
       if (this.playerEnergyBar) this.playerEnergyBar.updateBar(this.playerEnergy, this.energyMax);
       if (this.enemyEnergyBar) this.enemyEnergyBar.updateBar(this.enemyEnergy, this.energyMax);
+      if (this.playerStatsText) {
+        this.playerStatsText.text = `ATK: ${char.stats.atk} | DEF: ${char.stats.def} | SPD: ${char.stats.spd}`;
+      }
+      if (this.enemyStatsText) {
+        this.enemyStatsText.text = `ATK: ${enemy.atk} | DEF: ${enemy.def} | SPD: ${enemy.spd}`;
+      }
       // Flash efekt hráče při zásahu (blikne červeně krátce)
       if (this.playerFlashTimer > 0) {
         this.playerFlashTimer -= delta / 60;
