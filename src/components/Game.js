@@ -136,9 +136,10 @@ export class Game {
     Object.values(ENEMY_ASSETS).forEach(url => assets.push(url));
     Object.values(ABILITY_ASSETS).forEach(url => assets.push(url));
     BOSS_ENEMIES.forEach(boss => { if (boss.texture) assets.push(boss.texture); });
-    // Přidání obrázků rámečků pro postavy v souboji
+    // Přidání obrázků rámečků pro postavy v souboji a ikon schopností
     assets.push('/assets/frame.png');
     assets.push('/assets/frame.png');
+    assets.push('/assets/ability_frame.png');
     assets.push('/assets/Logo.png');
     // Attack effect assets were removed; effects are drawn via PIXI Graphics
     // Načtení všech assetů pomocí Pixi Assets API
