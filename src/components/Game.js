@@ -3,7 +3,7 @@ import { GlowFilter } from '@pixi/filter-glow';
 import { BloomFilter } from '@pixi/filter-bloom';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { CRTFilter } from '@pixi/filter-crt';
-import { GlitchFilter } from '@pixi/filter-glitch';
+import { GlitchFilter } from 'pixi-filters';
 
 import { Button } from './Button.js';
 import { StatBar } from './StatBar.js';
