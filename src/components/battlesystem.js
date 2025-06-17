@@ -97,20 +97,31 @@ export class BattleSystem {
         game.droneDisabledTurns -= 1;
         return;
       }
-      let dmg = game.droneDamage;
-      if (game.overclockTurns > 0) {
-        dmg = Math.round(dmg * 3);
-        game.overclockTurns -= 1;
+      let attacks = game.holoDecoyActive ? 2 : 1;
+      let i = 0;
+      while (i < attacks) {
+        let dmg = game.droneDamage;
+        if (game.overclockTurns > 0) {
+          dmg = Math.round(dmg * 3);
+          game.overclockTurns -= 1;
+        }
+        let crit = false;
+        if (game.droneCritChance && Math.random() < game.droneCritChance) {
+          dmg *= 2;
+          crit = true;
+          game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY - 140, 0xff0000, 28);
+        }
+        game.enemy.hp = Math.max(0, game.enemy.hp - dmg);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, crit ? 0xff0000 : 0x00ff8a, 24);
+        await BattleSystem.spawnDroneAttackEffect(game);
+        if (game.criticalLoopActive && crit && !game.criticalLoopUsed) {
+          attacks += 1;
+          game.criticalLoopUsed = true;
+        }
+        i++;
       }
-      let crit = false;
-      if (game.droneCritChance && Math.random() < game.droneCritChance) {
-        dmg *= 2;
-        crit = true;
-        game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY - 140, 0xff0000, 28);
-      }
-      game.enemy.hp = Math.max(0, game.enemy.hp - dmg);
-      game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, crit ? 0xff0000 : 0x00ff8a, 24);
-      await BattleSystem.spawnDroneAttackEffect(game);
+      game.criticalLoopActive = false;
+      game.criticalLoopUsed = false;
     }
   }
 
@@ -138,6 +149,11 @@ export class BattleSystem {
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, 0x00ff8a, 24);
         game.enemyFlashTimer = 0.6;
       }
+    }
+    if (game.autoMedkitActive) {
+      const heal = Math.round(game.character.maxHp * 0.01);
+      game.character.hp = Math.min(game.character.maxHp, game.character.hp + heal);
+      game.spawnFloatingText(`+${heal}`, game.playerAvatarX, game.playerAvatarY - 120, 0x00ff8a, 24);
     }
   }
 
@@ -246,6 +262,10 @@ export class BattleSystem {
     if (crit) {
       dmg *= 2;
       game.spawnFloatingText('CRIT!', game.playerAvatarX, game.playerAvatarY - 160, 0xff0000, 36);
+    }
+    if (game.guardModeTurns > 0) {
+      dmg = Math.round(dmg * 0.5);
+      game.guardModeTurns -= 1;
     }
     char.hp = Math.max(0, char.hp - dmg);
     game.spawnFloatingText(`-${dmg}`, game.playerAvatarX, game.playerAvatarY - 140, crit ? 0xff0000 : 0xffe000, 36);

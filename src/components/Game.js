@@ -95,6 +95,11 @@ export class Game {
     this.droneDisabledTurns = 0;
     this.omegaStrikeDelay = 0;
     this.droneCritChance = 0;
+    this.autoMedkitActive = false;
+    this.guardModeTurns = 0;
+    this.holoDecoyActive = false;
+    this.criticalLoopActive = false;
+    this.criticalLoopUsed = false;
     this.glitchPulseTurns = 0;
     this.glitchPulseDamage = 0;
     this.echoLoopActive = false;
@@ -1289,6 +1294,11 @@ export class Game {
     this.overclockTurns = 0;
     this.droneDisabledTurns = 0;
     this.omegaStrikeDelay = 0;
+    this.autoMedkitActive = false;
+    this.guardModeTurns = 0;
+    this.holoDecoyActive = false;
+    this.criticalLoopActive = false;
+    this.criticalLoopUsed = false;
     this.glitchPulseTurns = 0;
     this.glitchPulseDamage = 0;
     this.echoLoopActive = false;

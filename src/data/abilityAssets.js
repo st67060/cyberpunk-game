@@ -11,5 +11,10 @@ export const ABILITY_ASSETS = {
   'Reinforced Core': '/assets/reinforced_core.png',
   'Omega Drone Strike': '/assets/omega_drone_strike.png',
   'Smart Targeting': '/assets/smart_targeting.png',
-  'Self-destruction': '/assets/self_desctruction.png'
+  'Self-destruction': '/assets/self_desctruction.png',
+  'Auto-Medkit': '/assets/auto_medkit.png',
+  'Critical Loop': '/assets/Critical_loop.png',
+  'Guard Mode': '/assets/Guard_mode.png',
+  'Nanite Fortification': '/assets/Nanite_Fortification .png',
+  'Holo Decoy': '/assets/holo_decoy.png'
 };
