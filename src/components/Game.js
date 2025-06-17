@@ -73,6 +73,10 @@ export class Game {
     this.glitchTimer = 0;
     this.nextGlitchIn = 0;
     this.logoSprite = null;
+    // Container and array for background drones
+    this.bgEntities = new Container();
+    this.bgEntities.zIndex = 1;
+    this.drones = [];
     this.comboCount = 0;
     this.comboTimer = 0;
     this.comboTimerMax = 2.0;
@@ -132,6 +136,7 @@ export class Game {
     assets.push('/assets/frame.png');
     assets.push('/assets/frame.png');
     assets.push('/assets/Logo.png');
+    assets.push('/assets/overclock_drone.png');
     // Attack effect assets were removed; effects are drawn via PIXI Graphics
     // Načtení všech assetů pomocí Pixi Assets API
     await Assets.load(assets);
@@ -158,11 +163,33 @@ export class Game {
     this.logoSprite.x = 10;
     this.logoSprite.y = 10;
     this.logoSprite.zIndex = 10;
+
+    // Create flying drones for background movement
+    for (let i = 0; i < 3; i++) {
+      const drone = Sprite.from('/assets/overclock_drone.png');
+      drone.anchor.set(0.5);
+      drone.scale.set(0.5);
+      this.resetDrone(drone, true);
+      this.bgEntities.addChild(drone);
+      this.drones.push(drone);
+    }
   }
 
   async startBattle() {
     BattleSystem.init(this);
     await this.createBattleUI();
+  }
+
+  resetDrone(drone, randomX = false) {
+    const w = this.app.screen.width;
+    const h = this.app.screen.height;
+    drone.y = Math.random() * (h - 100) + 50;
+    if (randomX) {
+      drone.x = Math.random() * w;
+    } else {
+      drone.x = -50;
+    }
+    drone.speed = 1 + Math.random();
   }
 
   spawnFloatingText(text, x, y, color = 0xffffff, fontSize = 24, offsetY = 0) {
@@ -209,6 +236,7 @@ export class Game {
       return;
     }
     this.stage.addChild(this.backgroundSprite);
+    this.stage.addChild(this.bgEntities);
     if (this.logoSprite) {
       this.stage.addChild(this.logoSprite);
     }
@@ -1368,6 +1396,14 @@ export class Game {
           this.glitchFilter.enabled = true;
           this.glitchTimer = 0.15;
         }
+      }
+    }
+
+    // Move background drones across the screen
+    for (const drone of this.drones) {
+      drone.x += drone.speed * delta;
+      if (drone.x > this.app.screen.width + 50) {
+        this.resetDrone(drone);
       }
     }
     // Aktualizace animace všech tlačítek (Button.updateAnimation)
