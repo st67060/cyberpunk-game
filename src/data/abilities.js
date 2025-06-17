@@ -201,6 +201,57 @@ export const ABILITIES = {
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0xff2e2e, 36);
         game.enemyFlashTimer = 0.6;
       }
+    },
+    {
+      name: 'Auto-Medkit',
+      cost: 0,
+      cooldown: 8,
+      description: 'Heal 1% of max HP each turn until battle ends.',
+      execute(game) {
+        game.autoMedkitActive = true;
+        game.spawnFloatingText('Auto-Medkit', game.playerAvatarX, game.playerAvatarY - 160, 0x00ff8a, 32);
+      }
+    },
+    {
+      name: 'Critical Loop',
+      cost: 0,
+      cooldown: 1,
+      description: 'If the drone critically hits this turn it attacks again.',
+      execute(game) {
+        game.criticalLoopActive = true;
+        game.spawnFloatingText('Critical Loop', game.playerAvatarX, game.playerAvatarY - 160, 0x00ff8a, 32);
+      }
+    },
+    {
+      name: 'Guard Mode',
+      cost: 0,
+      cooldown: 5,
+      description: 'Take only 50% damage for the next 2 enemy turns.',
+      execute(game) {
+        game.guardModeTurns = 2;
+        game.spawnFloatingText('Guard Mode', game.playerAvatarX, game.playerAvatarY - 160, 0x00ff8a, 32);
+      }
+    },
+    {
+      name: 'Nanite Fortification',
+      cost: 0,
+      cooldown: 0,
+      description: 'Instantly heal 20% of max HP.',
+      execute(game) {
+        const heal = Math.round(game.character.maxHp * 0.2);
+        game.character.hp = Math.min(game.character.maxHp, game.character.hp + heal);
+        game.spawnFloatingText(`+${heal}`, game.playerAvatarX, game.playerAvatarY - 160, 0x00ff8a, 32);
+      }
+    },
+    {
+      name: 'Holo Decoy',
+      cost: 0,
+      cooldown: 50,
+      description: 'Creates a drone copy so it attacks twice each round.',
+      execute(game) {
+        game.holoDecoyActive = true;
+        game.spawnFloatingText('Holo Decoy', game.playerAvatarX, game.playerAvatarY - 160, 0x00ff8a, 32);
+      }
     }
   ]
 };
