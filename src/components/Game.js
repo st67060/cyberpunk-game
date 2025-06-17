@@ -3,7 +3,6 @@ import { GlowFilter } from '@pixi/filter-glow';
 import { BloomFilter } from '@pixi/filter-bloom';
 import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import { CRTFilter } from '@pixi/filter-crt';
-import { GlitchFilter } from 'pixi-filters';
 
 import { Button } from './Button.js';
 import { StatBar } from './StatBar.js';
@@ -69,14 +68,8 @@ export class Game {
     this.bossesDefeated = 0;
     this.currentBossIndex = 0;
     this.bgDistortFilter = null;
-    this.glitchFilter = null;
-    this.glitchTimer = 0;
-    this.nextGlitchIn = 0;
     this.logoSprite = null;
-    // Container and array for background drones
-    this.bgEntities = new Container();
-    this.bgEntities.zIndex = 1;
-    this.drones = [];
+    // Background drone container removed
     this.comboCount = 0;
     this.comboTimer = 0;
     this.comboTimerMax = 2.0;
@@ -136,7 +129,6 @@ export class Game {
     assets.push('/assets/frame.png');
     assets.push('/assets/frame.png');
     assets.push('/assets/Logo.png');
-    assets.push('/assets/overclock_drone.png');
     // Attack effect assets were removed; effects are drawn via PIXI Graphics
     // Načtení všech assetů pomocí Pixi Assets API
     await Assets.load(assets);
@@ -152,10 +144,7 @@ export class Game {
       seed: Math.random()
     });
     this.bgDistortFilter.time = 0;
-    this.glitchFilter = new GlitchFilter();
-    this.glitchFilter.enabled = false;
-    this.nextGlitchIn = 3 + Math.random() * 5;
-    this.backgroundSprite.filters = [this.bgDistortFilter, this.glitchFilter];
+    this.backgroundSprite.filters = [this.bgDistortFilter];
 
     this.logoSprite = Sprite.from('/assets/Logo.png');
     this.logoSprite.width = 120;
@@ -164,15 +153,7 @@ export class Game {
     this.logoSprite.y = 10;
     this.logoSprite.zIndex = 10;
 
-    // Create flying drones for background movement
-    for (let i = 0; i < 3; i++) {
-      const drone = Sprite.from('/assets/overclock_drone.png');
-      drone.anchor.set(0.5);
-      drone.scale.set(0.5);
-      this.resetDrone(drone, true);
-      this.bgEntities.addChild(drone);
-      this.drones.push(drone);
-    }
+    // Background drones removed
   }
 
   async startBattle() {
@@ -180,17 +161,7 @@ export class Game {
     await this.createBattleUI();
   }
 
-  resetDrone(drone, randomX = false) {
-    const w = this.app.screen.width;
-    const h = this.app.screen.height;
-    drone.y = Math.random() * (h - 100) + 50;
-    if (randomX) {
-      drone.x = Math.random() * w;
-    } else {
-      drone.x = -50;
-    }
-    drone.speed = 1 + Math.random();
-  }
+
 
   spawnFloatingText(text, x, y, color = 0xffffff, fontSize = 24, offsetY = 0) {
     // Vytvoření poletujícího textu (např. poškození nebo zprávy) na scéně
@@ -236,7 +207,6 @@ export class Game {
       return;
     }
     this.stage.addChild(this.backgroundSprite);
-    this.stage.addChild(this.bgEntities);
     if (this.logoSprite) {
       this.stage.addChild(this.logoSprite);
     }
@@ -1380,32 +1350,7 @@ export class Game {
     if (this.bgDistortFilter) {
       this.bgDistortFilter.time += 0.03 * delta;
     }
-    if (this.glitchFilter) {
-      if (this.glitchTimer > 0) {
-        this.glitchTimer -= delta / 60;
-        if (this.glitchTimer <= 0) {
-          this.glitchFilter.enabled = false;
-          this.nextGlitchIn = 3 + Math.random() * 5;
-        }
-      } else {
-        this.nextGlitchIn -= delta / 60;
-        if (this.nextGlitchIn <= 0) {
-          // Randomize glitch seed each time the effect triggers
-          this.glitchFilter.seed = Math.random();
-          this.glitchFilter.refresh();
-          this.glitchFilter.enabled = true;
-          this.glitchTimer = 0.15;
-        }
-      }
-    }
-
-    // Move background drones across the screen
-    for (const drone of this.drones) {
-      drone.x += drone.speed * delta;
-      if (drone.x > this.app.screen.width + 50) {
-        this.resetDrone(drone);
-      }
-    }
+    // No glitch animation or background drones
     // Aktualizace animace všech tlačítek (Button.updateAnimation)
     this.stage.children.forEach(child => {
       if (child instanceof Button) {
