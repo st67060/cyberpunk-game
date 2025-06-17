@@ -91,6 +91,10 @@ export class Game {
     this.energyMax = 100;
     this.energyThreshold = 50;
     this.droneDamage = 5;
+    this.overclockTurns = 0;
+    this.droneDisabledTurns = 0;
+    this.omegaStrikeDelay = 0;
+    this.droneCritChance = 0;
     this.glitchPulseTurns = 0;
     this.glitchPulseDamage = 0;
     this.echoLoopActive = false;
@@ -1282,6 +1286,9 @@ export class Game {
     this.playerEnergy = 0;
     this.enemyEnergy = 0;
     this.droneDamage = 5;
+    this.overclockTurns = 0;
+    this.droneDisabledTurns = 0;
+    this.omegaStrikeDelay = 0;
     this.glitchPulseTurns = 0;
     this.glitchPulseDamage = 0;
     this.echoLoopActive = false;
