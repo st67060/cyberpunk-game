@@ -109,6 +109,8 @@ export class Game {
     this.playerStatsText = null;
     this.enemyStatsText = null;
     this.abilityButtons = null;
+    this.abilityIconContainer = null;
+    this.abilityIcons = [];
     this.battleStarted = false;
     this.battleResult = null;
     // Nastavení hudby na pozadí
@@ -871,6 +873,7 @@ export class Game {
     this.enemyStatsText = enemyStatsText;
     // Přidání již vytvořených floatingTexts (např. při opakovaném vykreslení)
     this.floatingTexts.forEach(text => this.battleContainer.addChild(text));
+    this.renderAbilityIcons();
     // Kontejner pro tlačítka ve spodní části (Continue, apod.)
     const buttonContainer = new Container();
     buttonContainer.x = this.app.screen.width / 2;
@@ -1056,6 +1059,65 @@ export class Game {
     });
     this.battleContainer.addChild(overlay);
     this.abilityButtons = overlay;
+  }
+
+  renderAbilityIcons() {
+    if (!this.battleContainer) return;
+    if (this.abilityIconContainer) {
+      this.battleContainer.removeChild(this.abilityIconContainer);
+      this.abilityIconContainer.destroy({ children: true });
+      this.abilityIconContainer = null;
+      this.abilityIcons = [];
+    }
+    const container = new Container();
+    container.x = 20;
+    container.y = 100;
+    container.zIndex = 2;
+    const size = 72;
+    const spacing = 10;
+    (this.character.abilities || []).forEach((ab, idx) => {
+      const abContainer = new Container();
+      abContainer.x = 0;
+      abContainer.y = idx * (size + spacing);
+      const frame = Sprite.from('/assets/ability_frame.png');
+      frame.width = size;
+      frame.height = size;
+      frame.anchor.set(0.5);
+      frame.x = size / 2;
+      frame.y = size / 2;
+      abContainer.addChild(frame);
+      if (ABILITY_ASSETS[ab.name]) {
+        const icon = Sprite.from(ABILITY_ASSETS[ab.name]);
+        icon.width = size * 0.8;
+        icon.height = size * 0.8;
+        icon.anchor.set(0.5);
+        icon.x = size / 2;
+        icon.y = size / 2;
+        abContainer.addChild(icon);
+        this.abilityIcons.push({ ability: ab, icon });
+      } else {
+        this.abilityIcons.push({ ability: ab, icon: null });
+      }
+      const cdText = new Text('CD', { fontFamily: 'monospace', fontSize: 14, fill: 0xffffff });
+      cdText.anchor.set(0.5);
+      cdText.x = size * 0.6;
+      cdText.y = size * 0.75;
+      abContainer.addChild(cdText);
+      this.abilityIcons[this.abilityIcons.length - 1].cd = cdText;
+      container.addChild(abContainer);
+    });
+    this.abilityIconContainer = container;
+    this.battleContainer.addChild(container);
+    this.updateAbilityIcons();
+  }
+
+  updateAbilityIcons() {
+    if (!this.abilityIcons) return;
+    this.abilityIcons.forEach(({ ability, icon, cd }) => {
+      const onCd = ability.cooldownRemaining && ability.cooldownRemaining > 0;
+      if (icon) icon.tint = onCd ? 0x777777 : 0xffffff;
+      if (cd) cd.visible = onCd;
+    });
   }
 
   createShopUI() {
@@ -1288,6 +1350,12 @@ export class Game {
       this.abilityButtons.destroy({ children: true });
       this.abilityButtons = null;
     }
+    if (this.abilityIconContainer) {
+      this.stage.removeChild(this.abilityIconContainer);
+      this.abilityIconContainer.destroy({ children: true });
+      this.abilityIconContainer = null;
+      this.abilityIcons = [];
+    }
     this.playerEnergy = 0;
     this.enemyEnergy = 0;
     this.droneDamage = 5;
@@ -1395,6 +1463,7 @@ export class Game {
       if (this.enemyHpBar) this.enemyHpBar.updateBar(this.enemy.hp, this.enemy.maxHp);
       if (this.playerEnergyBar) this.playerEnergyBar.updateBar(this.playerEnergy, this.energyMax);
       if (this.enemyEnergyBar) this.enemyEnergyBar.updateBar(this.enemyEnergy, this.energyMax);
+      this.updateAbilityIcons();
       if (this.playerStatsText) {
         this.playerStatsText.text = `ATK: ${char.stats.atk} | DEF: ${char.stats.def} | SPD: ${char.stats.spd}`;
       }
