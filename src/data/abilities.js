@@ -138,6 +138,69 @@ export const ABILITIES = {
         game.spawnFloatingText('DRONE +50%', game.playerAvatarX, game.playerAvatarY - 160, 0x00ff8a, 32);
         game.enemyFlashTimer = 0.6; // extend flash duration
       }
+    },
+    {
+      name: 'Overclock Drone',
+      cost: 0,
+      cooldown: 1,
+      description: 'Greatly increases drone damage for 1 turn.',
+      execute(game) {
+        game.overclockTurns = 1;
+        game.spawnFloatingText('Overclocked', game.playerAvatarX, game.playerAvatarY - 160, 0x00ff8a, 32);
+      }
+    },
+    {
+      name: 'Reinforced Core',
+      cost: 0,
+      cooldown: 5,
+      description: 'Permanently increases max HP by 10%.',
+      execute(game) {
+        const char = game.character;
+        const prev = char.maxHp;
+        char.baseStats.hp = Math.round(char.baseStats.hp * 1.1);
+        char.updateStats();
+        const diff = char.maxHp - prev;
+        char.hp = Math.min(char.maxHp, char.hp + diff);
+        game.spawnFloatingText('+HP', game.playerAvatarX, game.playerAvatarY - 160, 0x00ff8a, 32);
+      }
+    },
+    {
+      name: 'Omega Drone Strike',
+      cost: 0,
+      cooldown: 2,
+      description: 'After 2 turns the drone deals massive damage.',
+      execute(game) {
+        game.omegaStrikeDelay = 2;
+        game.spawnFloatingText('Omega Armed', game.playerAvatarX, game.playerAvatarY - 160, 0x00ff8a, 32);
+      }
+    },
+    {
+      name: 'Smart Targeting',
+      cost: 0,
+      cooldown: 2,
+      description: 'Permanently increases drone crit chance by 15%.',
+      execute(game) {
+        game.droneCritChance = (game.droneCritChance || 0) + 0.15;
+        game.spawnFloatingText('CRIT +15%', game.playerAvatarX, game.playerAvatarY - 160, 0x00ff8a, 32);
+      }
+    },
+    {
+      name: 'Self-destruction',
+      cost: 0,
+      cooldown: 4,
+      damage: 'ATK x25',
+      description: 'Massive damage but drone disabled for 2 turns.',
+      getDamage(game) {
+        return game.character.stats.atk * 25;
+      },
+      execute(game) {
+        const { character: char, enemy } = game;
+        let dmg = char.stats.atk * 25;
+        enemy.hp = Math.max(0, enemy.hp - dmg);
+        game.droneDisabledTurns = 2;
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0xff2e2e, 36);
+        game.enemyFlashTimer = 0.6;
+      }
     }
   ]
 };

@@ -93,9 +93,23 @@ export class BattleSystem {
 
   static async applyDrone(game) {
     if (game.character.cls.name === 'Techie' && game.droneDamage > 0) {
-      const dmg = game.droneDamage;
+      if (game.droneDisabledTurns > 0) {
+        game.droneDisabledTurns -= 1;
+        return;
+      }
+      let dmg = game.droneDamage;
+      if (game.overclockTurns > 0) {
+        dmg = Math.round(dmg * 3);
+        game.overclockTurns -= 1;
+      }
+      let crit = false;
+      if (game.droneCritChance && Math.random() < game.droneCritChance) {
+        dmg *= 2;
+        crit = true;
+        game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY - 140, 0xff0000, 28);
+      }
       game.enemy.hp = Math.max(0, game.enemy.hp - dmg);
-      game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, 0x00ff8a, 24);
+      game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, crit ? 0xff0000 : 0x00ff8a, 24);
       await BattleSystem.spawnDroneAttackEffect(game);
     }
   }
@@ -114,6 +128,15 @@ export class BattleSystem {
         game.character.stats.atk = Math.max(1, game.character.stats.atk - game.statHijackAmount);
         game.enemy.atk += game.statHijackAmount;
         game.statHijackAmount = 0;
+      }
+    }
+    if (game.omegaStrikeDelay > 0) {
+      game.omegaStrikeDelay -= 1;
+      if (game.omegaStrikeDelay === 0) {
+        const dmg = Math.round(game.character.stats.atk * 15);
+        game.enemy.hp = Math.max(0, game.enemy.hp - dmg);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, 0x00ff8a, 24);
+        game.enemyFlashTimer = 0.6;
       }
     }
   }
