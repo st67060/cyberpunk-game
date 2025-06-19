@@ -113,6 +113,7 @@ export class Game {
     this.abilityIcons = [];
     this.abilityItemsContainer = null;
     this.abilityScrollMask = null;
+    this.abilityScrollPos = 0;
     this.prevState = null;
     this.battleStarted = false;
     this.battleResult = null;
@@ -353,6 +354,7 @@ export class Game {
       abilitiesBtn.on('pointerdown', () => {
         this.prevState = this.state;
         this.state = 'abilities';
+        this.abilityScrollPos = 0;
         this.initUI();
       });
       this.stage.addChild(abilitiesBtn);
@@ -586,6 +588,7 @@ export class Game {
       abilitiesBtn.on('pointerdown', () => {
         this.prevState = this.state;
         this.state = 'abilities';
+        this.abilityScrollPos = 0;
         this.initUI();
       });
       this.stage.addChild(abilitiesBtn);
@@ -726,7 +729,10 @@ export class Game {
           if (!owned) {
             actionBtn.on('pointerdown', () => {
               const success = this.character.buyAbility(ab);
-              if (success) this.initUI();
+              if (success) {
+                this.abilityScrollPos = this.abilityItemsContainer.y;
+                this.initUI();
+              }
             });
           } else if (!isBasic) {
             actionBtn.on('pointerdown', () => {
@@ -738,6 +744,7 @@ export class Game {
                 if (this.character.loadout.length >= 6) return;
                 this.character.loadout.push(abilityObj);
               }
+              this.abilityScrollPos = this.abilityItemsContainer.y;
               this.initUI();
             });
           } else {
@@ -746,6 +753,16 @@ export class Game {
           }
           this.abilityItemsContainer.addChild(actionBtn);
         });
+
+        {
+          const rows = Math.ceil(allAbilities.length / 2);
+          const totalItemsHeight = rows * (boxH + 10);
+          const maxScrollY = listH - totalItemsHeight;
+          this.abilityItemsContainer.y = Math.max(
+            maxScrollY,
+            Math.min(0, this.abilityScrollPos)
+          );
+        }
 
         this.app.view.onwheel = (event) => {
           const scrollAmount = event.deltaY * 0.5;
@@ -756,6 +773,7 @@ export class Game {
           newY = Math.min(0, newY);
           newY = Math.max(maxScrollY, newY);
           this.abilityItemsContainer.y = newY;
+          this.abilityScrollPos = newY;
           event.preventDefault();
         };
 
@@ -763,6 +781,7 @@ export class Game {
         backBtn.on('pointerdown', () => {
           this.state = this.prevState || 'profile';
           this.prevState = null;
+          this.abilityScrollPos = 0;
           this.initUI();
         });
         this.stage.addChild(backBtn);
