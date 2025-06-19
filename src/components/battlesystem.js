@@ -25,7 +25,7 @@ export class BattleSystem {
   }
 
   static generateAbilities(game) {
-    const known = game.character.abilities || [];
+    const known = game.character.loadout || [];
     BattleSystem.currentAbilities = [];
     const basic = known[0];
     if (basic) BattleSystem.currentAbilities.push(basic);
