@@ -55,10 +55,13 @@ export class Character {
 
     // Learned abilities - start with the class basic ability
     this.abilities = [];
+    this.loadout = [];
     const startingAbility = (ABILITIES[this.cls.name] || [])[0];
     if (startingAbility) {
       // clone the ability to avoid mutating templates
-      this.abilities.push({ ...startingAbility, cooldownRemaining: 0 });
+      const ab = { ...startingAbility, cooldownRemaining: 0 };
+      this.abilities.push(ab);
+      this.loadout.push(ab);
     }
   }
 
@@ -118,7 +121,11 @@ export class Character {
     if (this.gold >= cost) {
       this.gold -= cost;
       // clone to track individual cooldown
-      this.abilities.push({ ...ability, cooldownRemaining: 0 });
+      const ab = { ...ability, cooldownRemaining: 0 };
+      this.abilities.push(ab);
+      if (this.loadout.length < 6) {
+        this.loadout.push(ab);
+      }
       return true;
     }
     return false;

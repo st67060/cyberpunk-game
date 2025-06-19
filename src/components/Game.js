@@ -111,6 +111,7 @@ export class Game {
     this.abilityButtons = null;
     this.abilityIconContainer = null;
     this.abilityIcons = [];
+    this.prevState = null;
     this.battleStarted = false;
     this.battleResult = null;
     // Nastavení hudby na pozadí
@@ -344,6 +345,14 @@ export class Game {
         this.initUI();
       });
       this.stage.addChild(settingsBtn);
+
+      const abilitiesBtn = new Button('Abilities', this.app.screen.width / 2 - 85, 530, 170, 50, 0x00e0ff);
+      abilitiesBtn.on('pointerdown', () => {
+        this.prevState = this.state;
+        this.state = 'abilities';
+        this.initUI();
+      });
+      this.stage.addChild(abilitiesBtn);
       // (Případně další prvky hlavního menu by byly zde)
     } else if (this.state === 'profile') {
       // Screen with detailed player information, avatar and stat upgrades
@@ -548,6 +557,7 @@ export class Game {
 
       const abilitiesBtn = new Button('Abilities', this.app.screen.width / 2 - 85, skillsBtn.y + 60, 170, 50, 0x00e0ff);
       abilitiesBtn.on('pointerdown', () => {
+        this.prevState = this.state;
         this.state = 'abilities';
         this.initUI();
       });
@@ -602,30 +612,53 @@ export class Game {
         title.x = this.app.screen.width / 2;
         title.y = 60;
         this.stage.addChild(title);
+        const info = new Text('Select up to 6 abilities. Basic ability is always active.', {
+          fontFamily: 'Bangers, monospace',
+          fontSize: 20,
+          fill: 0xffffff,
+          stroke: 0x000000,
+          strokeThickness: 4
+        });
+        info.anchor.set(0.5);
+        info.x = this.app.screen.width / 2;
+        info.y = 100;
+        this.stage.addChild(info);
 
-        let y = 120;
+        let y = 140;
         const allAbilities = ABILITIES[this.character.cls.name] || [];
-        for (const ab of allAbilities) {
+        allAbilities.forEach((ab, idx) => {
           const owned = this.character.abilities.some(a => a.name === ab.name);
-          const label = owned ? ab.name : `${ab.name} (Locked)`;
-          const color = owned ? 0xffffff : 0x777777;
-          const abText = new Text(label, {
-            fontFamily: 'Bangers, monospace',
-            fontSize: 24,
-            fill: color,
-            stroke: 0x000000,
-            strokeThickness: 4
-          });
-          abText.anchor.set(0.5);
-          abText.x = this.app.screen.width / 2;
-          abText.y = y;
-          this.stage.addChild(abText);
+          const abilityObj = this.character.abilities.find(a => a.name === ab.name);
+          const inLoadout = abilityObj && this.character.loadout.includes(abilityObj);
+          const isBasic = idx === 0;
+          const label = isBasic ? `${ab.name} (Basic)` : ab.name;
+          const color = owned ? (inLoadout ? 0x00ff8a : 0x2e3c43) : 0x555555;
+          const btn = new Button(label, this.app.screen.width / 2 - 120, y, 240, 40, color);
+          if (owned) {
+            btn.on('pointerdown', () => {
+              if (isBasic) return;
+              if (!abilityObj) return;
+              const idxLoad = this.character.loadout.indexOf(abilityObj);
+              if (idxLoad >= 0) {
+                this.character.loadout.splice(idxLoad, 1);
+              } else {
+                if (this.character.loadout.length >= 6) return;
+                this.character.loadout.push(abilityObj);
+              }
+              this.initUI();
+            });
+          } else {
+            btn.interactive = false;
+            btn.eventMode = 'none';
+          }
+          this.stage.addChild(btn);
           y += 50;
-        }
+        });
 
         const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
         backBtn.on('pointerdown', () => {
-          this.state = 'profile';
+          this.state = this.prevState || 'profile';
+          this.prevState = null;
           this.initUI();
         });
         this.stage.addChild(backBtn);
@@ -1073,12 +1106,12 @@ export class Game {
     }
     const container = new Container();
     container.x = 20;
-    container.y = 100;
+    container.y = 20;
     container.zIndex = 2;
     const size = 112; // frame size
     const spacing = 2; // reduced distance between frames
     const maxRows = 6; // keep at most six per column
-    (this.character.abilities || []).forEach((ab, idx) => {
+    (this.character.loadout || []).forEach((ab, idx) => {
       const abContainer = new Container();
       const column = Math.floor(idx / maxRows);
       const row = idx % maxRows;
