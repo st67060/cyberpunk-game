@@ -161,7 +161,8 @@ export class Game {
     this.logoSprite = Sprite.from('/assets/Logo.png');
     this.logoSprite.width = 120;
     this.logoSprite.height = 120;
-    this.logoSprite.x = 10;
+    // place the logo in the top right corner
+    this.logoSprite.x = this.app.screen.width - this.logoSprite.width - 10;
     this.logoSprite.y = 10;
     this.logoSprite.zIndex = 10;
 
@@ -1074,12 +1075,15 @@ export class Game {
     container.x = 20;
     container.y = 100;
     container.zIndex = 2;
-    const size = 112; // enlarge ability frames by 20%
+    const size = 112; // frame size
     const spacing = 2; // reduced distance between frames
+    const maxRows = 6; // keep at most six per column
     (this.character.abilities || []).forEach((ab, idx) => {
       const abContainer = new Container();
-      abContainer.x = 0;
-      abContainer.y = idx * (size + spacing);
+      const column = Math.floor(idx / maxRows);
+      const row = idx % maxRows;
+      abContainer.x = column * (size + spacing);
+      abContainer.y = row * (size + spacing);
       const frame = Sprite.from('/assets/ability_frame.png');
       frame.width = size;
       frame.height = size;
@@ -1089,6 +1093,7 @@ export class Game {
       abContainer.addChild(frame);
       if (ABILITY_ASSETS[ab.name]) {
         const icon = Sprite.from(ABILITY_ASSETS[ab.name]);
+        // icon is 20% smaller than its frame
         icon.width = size * 0.8;
         icon.height = size * 0.8;
         icon.anchor.set(0.5);
