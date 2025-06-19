@@ -1074,7 +1074,7 @@ export class Game {
     container.x = 20;
     container.y = 100;
     container.zIndex = 2;
-    const size = 94; // enlarge ability frames by 20%
+    const size = 112; // enlarge ability frames by 20%
     const spacing = 2; // reduced distance between frames
     (this.character.abilities || []).forEach((ab, idx) => {
       const abContainer = new Container();
