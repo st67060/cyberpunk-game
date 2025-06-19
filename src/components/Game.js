@@ -77,6 +77,7 @@ export class Game {
     this.shopScrollMask = null;
     this.shopScrollStartY = 0;
     this.shopScrollStartMouseY = 0;
+    this.shopScrollPos = 0;
     this.isScrollingShop = false;
     this.playerAttacksWithoutDamage = 0;
     this.scrapEffects = [];
@@ -336,6 +337,7 @@ export class Game {
       const shopBtn = new Button('Market', this.app.screen.width / 2 - 85, 390, 170, 50, 0x00e0ff);
       shopBtn.on('pointerdown', () => {
         this.state = 'shop';
+        this.shopScrollPos = 0;
         this.initUI();
       });
       this.stage.addChild(shopBtn);
@@ -591,6 +593,7 @@ export class Game {
       const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
       backBtn.on('pointerdown', () => {
         this.state = 'mainmenu';
+        this.shopScrollPos = 0;
         this.initUI();
       });
         this.stage.addChild(backBtn);
@@ -820,6 +823,7 @@ export class Game {
       const shopBtn = new Button('Market', this.app.screen.width / 2 - 55, 460, 110, 50, 0x00e0ff);
       shopBtn.on('pointerdown', () => {
         this.state = 'shop';
+        this.shopScrollPos = 0;
         this.initUI();
       });
       this.stage.addChild(shopBtn);
@@ -1287,8 +1291,16 @@ export class Game {
     // Tlačítka pro přepínání kategorií
     const weaponsTab = new Button('Weapons', startX, 60, 120, 40, 0x00e0ff);
     const armorsTab = new Button('Armors', startX + 130, 60, 120, 40, 0x00e0ff);
-    weaponsTab.on('pointerdown', () => { this.shopType = 'weapon'; this.initUI(); });
-    armorsTab.on('pointerdown', () => { this.shopType = 'armor'; this.initUI(); });
+    weaponsTab.on('pointerdown', () => {
+      this.shopType = 'weapon';
+      this.shopScrollPos = 0;
+      this.initUI();
+    });
+    armorsTab.on('pointerdown', () => {
+      this.shopType = 'armor';
+      this.shopScrollPos = 0;
+      this.initUI();
+    });
     this.stage.addChild(weaponsTab, armorsTab);
     // Vykreslení seznamu položek obchodu
     this.shopItemsContainer = new Container();
@@ -1360,6 +1372,7 @@ export class Game {
           // Pokus o koupi předmětu
           const success = this.character.buyItem(itemTemplate, this.shopType === 'weapon' ? 'weapon' : 'armor');
           if (success) {
+            this.shopScrollPos = this.shopItemsContainer.y;
             this.initUI(); // obnovit UI (aktualizuje inventář hráče a zlato)
           }
         });
@@ -1370,6 +1383,9 @@ export class Game {
       this.shopItemsContainer.addChild(buyBtn);
       y += 100; // posun pro další položku
     }
+    const totalItemsHeight = itemsToShow.length * 100;
+    const maxScrollY = shopMaskH - totalItemsHeight;
+    this.shopItemsContainer.y = Math.max(maxScrollY, Math.min(0, this.shopScrollPos));
     // Posuv myšovým kolečkem v obchodě
     this.app.view.onwheel = (event) => {
       const scrollAmount = event.deltaY * 0.5;
@@ -1385,6 +1401,7 @@ export class Game {
       const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
       backBtn.on('pointerdown', () => {
         this.state = 'mainmenu';
+        this.shopScrollPos = 0;
         this.initUI();
       });
       this.stage.addChild(backBtn);
