@@ -366,10 +366,13 @@ export class Game {
       const panelY = 90;
       const infoPanel = new Graphics();
       infoPanel.lineStyle(4, 0xff00ff, 0.8);
-      infoPanel.beginFill(0x000000, 0.7);
+      infoPanel.beginFill(0xffffff, 0.15);
       infoPanel.drawRoundedRect(panelX, panelY, panelWidth, panelHeight, 16);
       infoPanel.endFill();
-      infoPanel.filters = [new GlowFilter({ distance: 12, outerStrength: 2, innerStrength: 0, color: 0xff00ff })];
+      infoPanel.filters = [
+        new GlowFilter({ distance: 12, outerStrength: 2, innerStrength: 0, color: 0xff00ff }),
+        new BlurFilter(8)
+      ];
       this.stage.addChild(infoPanel);
 
       const title = new Text('Player Profile', {
@@ -390,11 +393,22 @@ export class Game {
       avatar.height = 320;
       avatar.x = panelX + 20;
       avatar.y = panelY + 20;
-      avatar.filters = [char.glowFilter];
+      avatar.filters = [
+        char.glowFilter,
+        new GlowFilter({ distance: 6, outerStrength: 3, innerStrength: 0, color: 0xffffff })
+      ];
       this.stage.addChild(avatar);
 
       const infoX = avatar.x + avatar.width + 40;
-      let infoY = avatar.y + 10;
+      let infoY = avatar.y + 20;
+
+      const headerWidth = this.app.screen.width - infoX - 20;
+      const headerBg = new Graphics();
+      headerBg.beginFill(0x2e3c43, 0.5);
+      headerBg.drawRoundedRect(infoX - 10, avatar.y + 10, headerWidth, 110, 8);
+      headerBg.endFill();
+      headerBg.filters = [new GlowFilter({ distance: 6, outerStrength: 1.5, innerStrength: 0, color: 0xff00ff })];
+      this.stage.addChild(headerBg);
 
       const classText = new Text(`Class: ${char.cls.name}`, {
         fontFamily: 'Bangers, monospace',
@@ -424,7 +438,28 @@ export class Game {
 
       const levelBar = new StatBar('EXP', char.exp, char.expToNext, infoX, levelText.y + 10, 200, 16, 0x00e0ff);
       this.stage.addChild(levelBar);
+
+      const goldText = new Text(`Gold: ${char.gold}`, {
+        fontFamily: 'Bangers, monospace',
+        fontSize: 26,
+        fill: 0xffe000,
+        stroke: 0x000000,
+        strokeThickness: 4
+      });
+      goldText.anchor.set(0, 0.5);
+      goldText.y = classText.y;
+      goldText.x = infoX + headerWidth - goldText.width - 20;
+      this.stage.addChild(goldText);
+
       infoY = levelBar.y + 40;
+
+      const statsWidth = headerWidth;
+      const statsBg = new Graphics();
+      statsBg.beginFill(0x2e3c43, 0.4);
+      statsBg.drawRoundedRect(infoX - 10, infoY - 20, statsWidth, 240, 8);
+      statsBg.endFill();
+      statsBg.filters = [new GlowFilter({ distance: 6, outerStrength: 1, innerStrength: 0, color: 0x00e0ff })];
+      this.stage.addChild(statsBg);
 
       const statHeader = new Text(`Stat Points: ${char.statPoints}`, {
         fontFamily: 'Bangers, monospace',
@@ -493,17 +528,6 @@ export class Game {
         y += 50;
       }
 
-      const goldText = new Text(`Gold: ${char.gold}`, {
-        fontFamily: 'Bangers, monospace',
-        fontSize: 26,
-        fill: 0xffe000,
-        stroke: 0x000000,
-        strokeThickness: 4
-      });
-      goldText.anchor.set(0, 0.5);
-      goldText.x = infoX;
-      goldText.y = y + 10;
-      this.stage.addChild(goldText);
 
       const weaponText = new Text(`Weapon: ${char.weapon.name}`, {
         fontFamily: 'Bangers, monospace',
