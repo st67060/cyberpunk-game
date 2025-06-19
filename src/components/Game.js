@@ -62,8 +62,7 @@ export class Game {
     // Cache nabídek obchodu (předměty k prodeji podle typu)
     this.shopItemsCache = {
       weapon: WEAPON_ITEMS,
-      armor: ARMOR_ITEMS,
-      ability: []
+      armor: ARMOR_ITEMS
     };
     this.bossesDefeated = 0;
     this.currentBossIndex = 0;
@@ -111,6 +110,8 @@ export class Game {
     this.abilityButtons = null;
     this.abilityIconContainer = null;
     this.abilityIcons = [];
+    this.abilityItemsContainer = null;
+    this.abilityScrollMask = null;
     this.prevState = null;
     this.battleStarted = false;
     this.battleResult = null;
@@ -612,6 +613,7 @@ export class Game {
         title.x = this.app.screen.width / 2;
         title.y = 60;
         this.stage.addChild(title);
+
         const info = new Text('Select up to 6 abilities. Basic ability is always active.', {
           fontFamily: 'Bangers, monospace',
           fontSize: 20,
@@ -624,19 +626,83 @@ export class Game {
         info.y = 100;
         this.stage.addChild(info);
 
-        let y = 140;
+        const listY = 140;
+        const listH = 420;
+        const marginX = 60;
+        const columnSpacing = 20;
+        const columnWidth = (this.app.screen.width - marginX * 2 - columnSpacing) / 2;
+        const boxH = 100;
+        this.abilityItemsContainer = new Container();
+        this.abilityScrollMask = new Graphics();
+        this.abilityScrollMask.beginFill(0xff0000);
+        this.abilityScrollMask.drawRect(marginX, listY, this.app.screen.width - marginX * 2, listH);
+        this.abilityScrollMask.endFill();
+        this.abilityItemsContainer.mask = this.abilityScrollMask;
+        this.stage.addChild(this.abilityScrollMask, this.abilityItemsContainer);
+
         const allAbilities = ABILITIES[this.character.cls.name] || [];
         allAbilities.forEach((ab, idx) => {
+          const row = Math.floor(idx / 2);
+          const col = idx % 2;
+          const x = marginX + col * (columnWidth + columnSpacing);
+          const y = listY + row * (boxH + 10);
+
           const owned = this.character.abilities.some(a => a.name === ab.name);
           const abilityObj = this.character.abilities.find(a => a.name === ab.name);
           const inLoadout = abilityObj && this.character.loadout.includes(abilityObj);
           const isBasic = idx === 0;
-          const label = isBasic ? `${ab.name} (Basic)` : ab.name;
-          const color = owned ? (inLoadout ? 0x00ff8a : 0x2e3c43) : 0x555555;
-          const btn = new Button(label, this.app.screen.width / 2 - 120, y, 240, 40, color);
-          if (owned) {
-            btn.on('pointerdown', () => {
-              if (isBasic) return;
+
+          const box = new Graphics();
+          box.beginFill(0x2e3c43);
+          box.drawRoundedRect(x, y, columnWidth, boxH, 12);
+          box.endFill();
+          this.abilityItemsContainer.addChild(box);
+
+          if (ABILITY_ASSETS[ab.name]) {
+            const icon = Sprite.from(ABILITY_ASSETS[ab.name]);
+            icon.width = 64;
+            icon.height = 64;
+            icon.x = x + 8;
+            icon.y = y + 8;
+            icon.filters = [new GlowFilter({ distance: 6, outerStrength: 1.5, innerStrength: 0, color: 0xffa500 })];
+            this.abilityItemsContainer.addChild(icon);
+          }
+
+          const nameText = new Text(isBasic ? `${ab.name} (Basic)` : ab.name, { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
+          nameText.x = x + 80;
+          nameText.y = y + 8;
+          this.abilityItemsContainer.addChild(nameText);
+
+          const desc = new Text(ab.description, { fontFamily: 'monospace', fontSize: 14, fill: 0x00ff8a, wordWrap: true, wordWrapWidth: columnWidth - 90 });
+          desc.x = x + 80;
+          desc.y = y + 32;
+          this.abilityItemsContainer.addChild(desc);
+
+          if (ab.cooldown !== undefined && ab.cooldown > 0) {
+            const cdText = new Text(`CD: ${ab.cooldown}`, { fontFamily: 'monospace', fontSize: 14, fill: 0xffe000 });
+            cdText.x = x + columnWidth - 50;
+            cdText.y = y + 8;
+            this.abilityItemsContainer.addChild(cdText);
+          }
+
+          if (!owned) {
+            const priceText = new Text(`${ab.cost || 0} G`, { fontFamily: 'monospace', fontSize: 14, fill: 0xffe000 });
+            priceText.x = x + columnWidth - 120;
+            priceText.y = y + boxH - 28;
+            this.abilityItemsContainer.addChild(priceText);
+          }
+
+          const btnLabel = !owned ? 'Buy' : (isBasic ? 'Basic' : (inLoadout ? 'Remove' : 'Equip'));
+          const btnColor = !owned ? 0x00ff8a : (inLoadout ? 0xff2e2e : 0x00ff8a);
+          const actionBtn = new Button(btnLabel, x + columnWidth - 70, y + boxH - 34, 60, 28, btnColor);
+
+          if (!owned) {
+            actionBtn.on('pointerdown', () => {
+              const success = this.character.buyAbility(ab);
+              if (success) this.initUI();
+            });
+          } else if (!isBasic) {
+            actionBtn.on('pointerdown', () => {
               if (!abilityObj) return;
               const idxLoad = this.character.loadout.indexOf(abilityObj);
               if (idxLoad >= 0) {
@@ -648,12 +714,23 @@ export class Game {
               this.initUI();
             });
           } else {
-            btn.interactive = false;
-            btn.eventMode = 'none';
+            actionBtn.interactive = false;
+            actionBtn.eventMode = 'none';
           }
-          this.stage.addChild(btn);
-          y += 50;
+          this.abilityItemsContainer.addChild(actionBtn);
         });
+
+        this.app.view.onwheel = (event) => {
+          const scrollAmount = event.deltaY * 0.5;
+          let newY = this.abilityItemsContainer.y - scrollAmount;
+          const rows = Math.ceil(allAbilities.length / 2);
+          const totalItemsHeight = rows * (boxH + 10);
+          const maxScrollY = listH - totalItemsHeight;
+          newY = Math.min(0, newY);
+          newY = Math.max(maxScrollY, newY);
+          this.abilityItemsContainer.y = newY;
+          event.preventDefault();
+        };
 
         const backBtn = new Button('Back', 20, this.app.screen.height - 60, 100, 40, 0x222c33);
         backBtn.on('pointerdown', () => {
@@ -1186,11 +1263,9 @@ export class Game {
     // Tlačítka pro přepínání kategorií
     const weaponsTab = new Button('Weapons', startX, 60, 120, 40, 0x00e0ff);
     const armorsTab = new Button('Armors', startX + 130, 60, 120, 40, 0x00e0ff);
-    const abilitiesTab = new Button('Abilities', startX + 260, 60, 120, 40, 0x00e0ff);
     weaponsTab.on('pointerdown', () => { this.shopType = 'weapon'; this.initUI(); });
     armorsTab.on('pointerdown', () => { this.shopType = 'armor'; this.initUI(); });
-    abilitiesTab.on('pointerdown', () => { this.shopType = 'ability'; this.initUI(); });
-    this.stage.addChild(weaponsTab, armorsTab, abilitiesTab);
+    this.stage.addChild(weaponsTab, armorsTab);
     // Vykreslení seznamu položek obchodu
     this.shopItemsContainer = new Container();
     const shopMaskY = 120;
@@ -1203,10 +1278,6 @@ export class Game {
     this.shopItemsContainer.mask = this.shopScrollMask;
     this.stage.addChild(this.shopScrollMask, this.shopItemsContainer);
     // Seznam položek k zobrazení (podle zvolené záložky)
-    if (this.shopType === 'ability') {
-      this.shopItemsCache.ability = [...ABILITIES[this.character.cls.name]]
-        .sort((a, b) => (a.cost || 0) - (b.cost || 0));
-    }
     const itemsToShow = this.shopItemsCache[this.shopType];
     let y = 0;
     for (const itemTemplate of itemsToShow) {
@@ -1217,7 +1288,7 @@ export class Game {
       itemBox.endFill();
       this.shopItemsContainer.addChild(itemBox);
       // Obrázek položky (pokud existuje v assetech)
-      if (this.shopType !== 'ability' && ITEM_ASSETS[itemTemplate.name]) {
+      if (ITEM_ASSETS[itemTemplate.name]) {
         const itemSprite = Sprite.from(ITEM_ASSETS[itemTemplate.name]);
         itemSprite.width = 72;
         itemSprite.height = 72;
@@ -1225,32 +1296,13 @@ export class Game {
         itemSprite.y = y + shopMaskY + 4;
         itemSprite.filters = [new GlowFilter({ distance: 8, outerStrength: 1.5, innerStrength: 0, color: 0xffa500 })];
         this.shopItemsContainer.addChild(itemSprite);
-      } else if (this.shopType === 'ability' && ABILITY_ASSETS[itemTemplate.name]) {
-        const icon = Sprite.from(ABILITY_ASSETS[itemTemplate.name]);
-        icon.width = 72;
-        icon.height = 72;
-        icon.x = startX + 12;
-        icon.y = y + shopMaskY + 4;
-        icon.filters = [new GlowFilter({ distance: 8, outerStrength: 1.5, innerStrength: 0, color: 0xffa500 })];
-        this.shopItemsContainer.addChild(icon);
       }
       // Název položky
       const itemNameText = new Text(itemTemplate.name, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
       itemNameText.x = startX + 80;
       itemNameText.y = y + shopMaskY + 10;
       this.shopItemsContainer.addChild(itemNameText);
-      if (this.shopType === 'ability') {
-        const desc = new Text(itemTemplate.description, { fontFamily: 'monospace', fontSize: 16, fill: 0x00ff8a, wordWrap: true, wordWrapWidth: shopWidth - 200 });
-        desc.x = startX + 80;
-        desc.y = y + shopMaskY + 36;
-        this.shopItemsContainer.addChild(desc);
-        if (itemTemplate.cooldown !== undefined && itemTemplate.cooldown > 0) {
-          const cd = new Text(`CD: ${itemTemplate.cooldown}`, { fontFamily: 'monospace', fontSize: 14, fill: 0xffe000 });
-          cd.x = startX + shopWidth - 220;
-          cd.y = y + shopMaskY + 10;
-          this.shopItemsContainer.addChild(cd);
-        }
-      } else {
+      {
         const statValue = this.shopType === 'weapon'
           ? this.character.getWeaponStat(itemTemplate, this.character.level)
           : this.character.getArmorStat(itemTemplate, this.character.level);
@@ -1261,7 +1313,7 @@ export class Game {
         this.shopItemsContainer.addChild(statText);
       }
       // Cena
-      const priceVal = this.shopType === 'ability' ? itemTemplate.cost : itemTemplate.baseCost;
+      const priceVal = itemTemplate.baseCost;
       const priceText = new Text(`${priceVal} G`, { fontFamily: 'monospace', fontSize: 18, fill: 0xffe000 });
       priceText.x = startX + shopWidth - 140;
       priceText.y = y + shopMaskY + 20;
@@ -1272,8 +1324,6 @@ export class Game {
         owned = this.character.inventory.weapons.some(i => i.name === itemTemplate.name);
       } else if (this.shopType === 'armor') {
         owned = this.character.inventory.armors.some(i => i.name === itemTemplate.name);
-      } else {
-        owned = this.character.abilities.some(a => a.name === itemTemplate.name);
       }
 
       // Tlačítko nákupu nebo informace o vlastnictví
@@ -1284,12 +1334,7 @@ export class Game {
       if (!owned) {
         buyBtn.on('pointerdown', () => {
           // Pokus o koupi předmětu
-          let success = false;
-          if (this.shopType === 'ability') {
-            success = this.character.buyAbility(itemTemplate);
-          } else {
-            success = this.character.buyItem(itemTemplate, this.shopType === 'weapon' ? 'weapon' : 'armor');
-          }
+          const success = this.character.buyItem(itemTemplate, this.shopType === 'weapon' ? 'weapon' : 'armor');
           if (success) {
             this.initUI(); // obnovit UI (aktualizuje inventář hráče a zlato)
           }
@@ -1408,6 +1453,16 @@ export class Game {
       this.abilityIconContainer.destroy({ children: true });
       this.abilityIconContainer = null;
       this.abilityIcons = [];
+    }
+    if (this.abilityItemsContainer) {
+      this.stage.removeChild(this.abilityItemsContainer);
+      this.abilityItemsContainer.destroy({ children: true });
+      this.abilityItemsContainer = null;
+    }
+    if (this.abilityScrollMask) {
+      this.stage.removeChild(this.abilityScrollMask);
+      this.abilityScrollMask.destroy();
+      this.abilityScrollMask = null;
     }
     this.playerEnergy = 0;
     this.enemyEnergy = 0;
