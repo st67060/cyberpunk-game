@@ -1074,8 +1074,8 @@ export class Game {
     container.x = 20;
     container.y = 100;
     container.zIndex = 2;
-    const size = 72;
-    const spacing = 10;
+    const size = 72 * 1.2; // enlarge ability frames by 20%
+    const spacing = 6; // reduced distance between frames
     (this.character.abilities || []).forEach((ab, idx) => {
       const abContainer = new Container();
       abContainer.x = 0;
@@ -1099,12 +1099,22 @@ export class Game {
       } else {
         this.abilityIcons.push({ ability: ab, icon: null });
       }
-      const cdText = new Text('CD', { fontFamily: 'monospace', fontSize: 14, fill: 0xffffff });
-      cdText.anchor.set(0.5);
-      cdText.x = size * 0.6;
-      cdText.y = size * 0.75;
-      abContainer.addChild(cdText);
-      this.abilityIcons[this.abilityIcons.length - 1].cd = cdText;
+      const cdLabel = new Text('CD', { fontFamily: 'monospace', fontSize: 14, fill: 0xffffff });
+      cdLabel.anchor.set(0.5);
+      cdLabel.x = size * 0.75; // moved further right
+      cdLabel.y = size * 0.65;
+      abContainer.addChild(cdLabel);
+
+      const cdValue = new Text(String(ab.cooldownRemaining || 0), {
+        fontFamily: 'monospace', fontSize: 14, fill: 0xffffff
+      });
+      cdValue.anchor.set(0.5);
+      cdValue.x = size * 0.75;
+      cdValue.y = size * 0.85;
+      abContainer.addChild(cdValue);
+
+      this.abilityIcons[this.abilityIcons.length - 1].cd = cdLabel;
+      this.abilityIcons[this.abilityIcons.length - 1].cdValue = cdValue;
       container.addChild(abContainer);
     });
     this.abilityIconContainer = container;
@@ -1114,10 +1124,14 @@ export class Game {
 
   updateAbilityIcons() {
     if (!this.abilityIcons) return;
-    this.abilityIcons.forEach(({ ability, icon, cd }) => {
+    this.abilityIcons.forEach(({ ability, icon, cd, cdValue }) => {
       const onCd = ability.cooldownRemaining && ability.cooldownRemaining > 0;
       if (icon) icon.tint = onCd ? 0x777777 : 0xffffff;
       if (cd) cd.visible = onCd;
+      if (cdValue) {
+        cdValue.visible = onCd;
+        cdValue.text = String(ability.cooldownRemaining || 0);
+      }
     });
   }
 
