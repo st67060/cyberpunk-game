@@ -143,20 +143,15 @@ export class Game {
     assets.push('/assets/frame.png');
     assets.push('/assets/ability_frame.png');
     assets.push('/assets/Logo.png');
-    // Attack spritesheets
-    assets.push('/assets/spritesheet/cyber_attack_spritesheet.png');
-    assets.push('/assets/spritesheet/slash_attack_spritesheet.png');
-    assets.push('/assets/spritesheet/drone_attack_spritesheet.png');
-    assets.push('/assets/spritesheet/enemy_attack_spritesheet.png');
     // Načtení všech assetů pomocí Pixi Assets API
     await Assets.load(assets);
 
-    // Initialize attack animations
+    // Initialize attack animations using PIXI graphics
     this.attacks = {
-      'Netrunner': new Attack('/assets/spritesheet/cyber_attack_spritesheet.png'),
-      'Street Samurai': new Attack('/assets/spritesheet/slash_attack_spritesheet.png'),
-      'Techie': new Attack('/assets/spritesheet/drone_attack_spritesheet.png'),
-      'Enemy': new Attack('/assets/spritesheet/enemy_attack_spritesheet.png')
+      'Netrunner': new Attack(0x00e0ff, 25),
+      'Street Samurai': new Attack(0xff0000, 30),
+      'Techie': new Attack(0xffa500, 20),
+      'Enemy': new Attack(0xffffff, 30)
     };
     // Vytvoření sprite pro pozadí hry a aplikace CRT filtru (zkreslení obrazu)
     this.backgroundSprite = Sprite.from('/assets/background.png');
@@ -1710,7 +1705,7 @@ export class Game {
         this.playerWeaponSprite.destroy();
         this.playerWeaponSprite = null;
       }
-      // Attack effects handled by AnimatedSprite and removed automatically
+      // Attack effects are updated by the PIXI ticker and removed automatically
       if (this.attackZone) {
         this.attackZoneLife += delta / 60;
         this.attackZone.alpha = 1 - this.attackZoneLife * 2;
