@@ -33,7 +33,10 @@ export class Attack {
     let traveled = 0;
 
     const update = (delta) => {
-      traveled += this.speed * delta;
+      // PIXI's ticker may provide delta in milliseconds or frame units.
+      // Normalize to frame units so projectile speed is consistent.
+      const d = delta > 10 ? delta / 16.6667 : delta;
+      traveled += this.speed * d;
       const t = Math.min(1, traveled / dist);
       obj.x = startX + dx * t;
       obj.y = startY + dy * t;
