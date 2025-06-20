@@ -138,6 +138,11 @@ export class Game {
     Object.values(ENEMY_ASSETS).forEach(url => assets.push(url));
     Object.values(ABILITY_ASSETS).forEach(url => assets.push(url));
     BOSS_ENEMIES.forEach(boss => { if (boss.texture) assets.push(boss.texture); });
+    // Ammo textures for attack effects
+    assets.push('/assets/ammo/cyber_attack_ammo.png');
+    assets.push('/assets/ammo/samurai_attack_ammo.png');
+    assets.push('/assets/ammo/drone_attack_ammo.png');
+    assets.push('/assets/ammo/enemy_attack_ammo.png');
     // Přidání obrázků rámečků pro postavy v souboji a ikon schopností
     assets.push('/assets/frame.png');
     assets.push('/assets/frame.png');
@@ -146,12 +151,12 @@ export class Game {
     // Načtení všech assetů pomocí Pixi Assets API
     await Assets.load(assets);
 
-    // Initialize attack animations using PIXI graphics
+    // Initialize attack animations using projectile sprites
     this.attacks = {
-      'Netrunner': new Attack(0x00e0ff, 25),
-      'Street Samurai': new Attack(0xff0000, 30),
-      'Techie': new Attack(0xffa500, 20),
-      'Enemy': new Attack(0xffffff, 30)
+      'Netrunner': new Attack({ texture: '/assets/ammo/cyber_attack_ammo.png', speed: 15 }),
+      'Street Samurai': new Attack({ texture: '/assets/ammo/samurai_attack_ammo.png', speed: 15 }),
+      'Techie': new Attack({ texture: '/assets/ammo/drone_attack_ammo.png', speed: 15 }),
+      'Enemy': new Attack({ texture: '/assets/ammo/enemy_attack_ammo.png', speed: 15 })
     };
     // Vytvoření sprite pro pozadí hry a aplikace CRT filtru (zkreslení obrazu)
     this.backgroundSprite = Sprite.from('/assets/background.png');
