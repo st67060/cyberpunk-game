@@ -181,17 +181,7 @@ export class BattleSystem {
         );
         game.attackEffect = sprite;
       }
-      const zone = new Graphics();
-      zone.beginFill(0xff0000, 0.2);
-      zone.drawCircle(0, 0, 60);
-      zone.endFill();
-      zone.x = game.enemyShape.x;
-      zone.y = game.enemyShape.y;
-      zone.zIndex = 6;
-      game.battleContainer.addChild(zone);
-      game.attackZone = zone;
-      game.attackZoneLife = 0;
-      game.battleContainer.sortChildren();
+      // projectile animation handled by Attack class
     }
   }
 
@@ -229,17 +219,7 @@ export class BattleSystem {
         );
         game.enemyAttackEffect = sprite;
       }
-      const zone = new Graphics();
-      zone.beginFill(0xff0000, 0.2);
-      zone.drawCircle(0, 0, 60);
-      zone.endFill();
-      zone.x = game.charShape.x;
-      zone.y = game.charShape.y;
-      zone.zIndex = 6;
-      game.battleContainer.addChild(zone);
-      game.enemyAttackZone = zone;
-      game.enemyAttackZoneLife = 0;
-      game.battleContainer.sortChildren();
+      // projectile animation handled by Attack class
     }
     await BattleSystem.delay(400);
     let dmg = BattleSystem.calculateDamage(enemy.atk, char.stats.def);
