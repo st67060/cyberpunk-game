@@ -1,4 +1,4 @@
-import { Graphics, Sprite } from 'pixi.js';
+import { Graphics, Sprite, Assets, Texture } from 'pixi.js';
 
 export class Attack {
   constructor(options = {}) {
@@ -14,7 +14,8 @@ export class Attack {
   play(container, startX, startY, endX, endY, ticker) {
     let obj;
     if (this.texture) {
-      obj = Sprite.from(this.texture);
+      const tex = Assets.get(this.texture) || Texture.from(this.texture);
+      obj = new Sprite(tex);
       obj.anchor.set(0.5);
     } else {
       obj = new Graphics();
