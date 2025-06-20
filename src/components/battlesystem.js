@@ -167,62 +167,34 @@ export class BattleSystem {
   }
 
   static async spawnPlayerAttackEffect(game) {
-    if (game.charShape && game.battleContainer) {
+    if (game.charShape && game.enemyShape && game.battleContainer && game.attacks) {
       const cls = game.character.cls.name;
-      const effect = new Graphics();
-      if (cls === 'Street Samurai') {
-        effect.beginFill(0xffffff);
-        effect.drawRect(-20, -4, 40, 8);
-        effect.endFill();
-      } else if (cls === 'Netrunner') {
-        effect.beginFill(0x00ffff);
-        effect.drawCircle(0, 0, 12);
-        effect.endFill();
-      } else {
-        effect.beginFill(0xffa000);
-        effect.drawCircle(0, 0, 10);
-        effect.endFill();
+      const atk = game.attacks[cls];
+      if (atk) {
+        const sprite = atk.play(game.battleContainer, game.enemyShape.x, game.enemyShape.y);
+        game.attackEffect = sprite;
       }
-      effect.alpha = 0.85;
-      effect.blendMode = BLEND_MODES.ADD;
-      effect.x = game.charShape.x + 30;
-      effect.y = game.charShape.y;
-      effect.zIndex = 8;
-      game.battleContainer.addChild(effect);
-      game.attackEffect = effect;
-      game.attackEffectAnimProgress = 0;
+      const zone = new Graphics();
+      zone.beginFill(0xff0000, 0.2);
+      zone.drawCircle(0, 0, 60);
+      zone.endFill();
+      zone.x = game.enemyShape.x;
+      zone.y = game.enemyShape.y;
+      zone.zIndex = 6;
+      game.battleContainer.addChild(zone);
+      game.attackZone = zone;
+      game.attackZoneLife = 0;
       game.battleContainer.sortChildren();
-      if (game.enemyShape) {
-        const zone = new Graphics();
-        zone.beginFill(0xff0000, 0.2);
-        zone.drawCircle(0, 0, 60);
-        zone.endFill();
-        zone.x = game.enemyShape.x;
-        zone.y = game.enemyShape.y;
-        zone.zIndex = 6;
-        game.battleContainer.addChild(zone);
-        game.attackZone = zone;
-        game.attackZoneLife = 0;
-        game.battleContainer.sortChildren();
-      }
     }
   }
 
   static async spawnDroneAttackEffect(game) {
-    if (game.charShape && game.battleContainer) {
-      const effect = new Graphics();
-      effect.beginFill(0xffe066);
-      effect.drawCircle(0, 0, 10);
-      effect.endFill();
-      effect.alpha = 0.85;
-      effect.blendMode = BLEND_MODES.ADD;
-      effect.x = game.charShape.x + 30;
-      effect.y = game.charShape.y - 40;
-      effect.zIndex = 8;
-      game.battleContainer.addChild(effect);
-      game.droneAttackEffect = effect;
-      game.droneAttackEffectAnimProgress = 0;
-      game.battleContainer.sortChildren();
+    if (game.charShape && game.enemyShape && game.battleContainer && game.attacks) {
+      const atk = game.attacks['Techie'];
+      if (atk) {
+        const sprite = atk.play(game.battleContainer, game.enemyShape.x, game.enemyShape.y);
+        game.droneAttackEffect = sprite;
+      }
     }
   }
 
@@ -230,20 +202,12 @@ export class BattleSystem {
     const { character: char, enemy } = game;
     game.enemyAttacking = true;
     game.attackAnimProgress = 0;
-    if (game.enemyShape && game.charShape && game.battleContainer) {
-      const effect = new Graphics();
-      effect.beginFill(0xff0000);
-      effect.drawCircle(0, 0, 12);
-      effect.endFill();
-      effect.alpha = 0.85;
-      effect.blendMode = BLEND_MODES.ADD;
-      effect.x = game.enemyShape.x - 30;
-      effect.y = game.enemyShape.y;
-      effect.zIndex = 8;
-      game.battleContainer.addChild(effect);
-      game.enemyAttackEffect = effect;
-      game.enemyAttackEffectAnimProgress = 0;
-      game.battleContainer.sortChildren();
+    if (game.enemyShape && game.charShape && game.battleContainer && game.attacks) {
+      const atk = game.attacks['Enemy'];
+      if (atk) {
+        const sprite = atk.play(game.battleContainer, game.charShape.x, game.charShape.y);
+        game.enemyAttackEffect = sprite;
+      }
       const zone = new Graphics();
       zone.beginFill(0xff0000, 0.2);
       zone.drawCircle(0, 0, 60);
