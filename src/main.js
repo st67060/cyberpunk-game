@@ -32,7 +32,11 @@ import { Game } from './components/Game.js';
   resize();
 
   // Game loop
-  app.ticker.add((delta) => {
+  let lastTime = performance.now();
+  app.ticker.add(() => {
+    const now = performance.now();
+    const delta = (now - lastTime) / 16.6667; // Convert ms to 60 FPS units
+    lastTime = now;
     game.update(delta);
   });
 })();
