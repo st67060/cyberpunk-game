@@ -9,6 +9,7 @@ import { StatBar } from './StatBar.js';
 import { Character } from './Character.js';
 import { Enemy } from './Enemy.js';
 import { BattleSystem } from './battlesystem.js';
+import { Attack } from './Attack.js';
 
 import { CLASSES } from '../data/classes.js';
 import { DUNGEON_ENEMIES } from '../data/dungeonEnemies.js';
@@ -49,11 +50,8 @@ export class Game {
     this.shopIdx = 0;
     this.playerWeaponSprite = null;
     this.attackEffect = null;
-    this.attackEffectAnimProgress = 0;
     this.enemyAttackEffect = null;
-    this.enemyAttackEffectAnimProgress = 0;
     this.droneAttackEffect = null;
-    this.droneAttackEffectAnimProgress = 0;
     this.attackZone = null;
     this.attackZoneLife = 0;
     this.enemyAttackZone = null;
@@ -145,9 +143,21 @@ export class Game {
     assets.push('/assets/frame.png');
     assets.push('/assets/ability_frame.png');
     assets.push('/assets/Logo.png');
-    // Attack effect assets were removed; effects are drawn via PIXI Graphics
+    // Attack spritesheets
+    assets.push('/assets/spritesheet/cyber_attack_spritesheet.png');
+    assets.push('/assets/spritesheet/slash_attack_spritesheet.png');
+    assets.push('/assets/spritesheet/drone_attack_spritesheet.png');
+    assets.push('/assets/spritesheet/enemy_attack_spritesheet.png');
     // Načtení všech assetů pomocí Pixi Assets API
     await Assets.load(assets);
+
+    // Initialize attack animations
+    this.attacks = {
+      'Netrunner': new Attack('/assets/spritesheet/cyber_attack_spritesheet.png'),
+      'Street Samurai': new Attack('/assets/spritesheet/slash_attack_spritesheet.png'),
+      'Techie': new Attack('/assets/spritesheet/drone_attack_spritesheet.png'),
+      'Enemy': new Attack('/assets/spritesheet/enemy_attack_spritesheet.png')
+    };
     // Vytvoření sprite pro pozadí hry a aplikace CRT filtru (zkreslení obrazu)
     this.backgroundSprite = Sprite.from('/assets/background.png');
     this.backgroundSprite.width = this.app.screen.width;
@@ -1442,7 +1452,6 @@ export class Game {
       this.attackEffect.destroy();
       this.attackEffect = null;
     }
-    this.attackEffectAnimProgress = 0;
     if (this.enemyAttackEffect) {
       if (this.battleContainer) {
         this.battleContainer.removeChild(this.enemyAttackEffect);
@@ -1452,7 +1461,6 @@ export class Game {
       this.enemyAttackEffect.destroy();
       this.enemyAttackEffect = null;
     }
-    this.enemyAttackEffectAnimProgress = 0;
     if (this.droneAttackEffect) {
       if (this.battleContainer) {
         this.battleContainer.removeChild(this.droneAttackEffect);
@@ -1462,7 +1470,6 @@ export class Game {
       this.droneAttackEffect.destroy();
       this.droneAttackEffect = null;
     }
-    this.droneAttackEffectAnimProgress = 0;
     if (this.attackZone) {
       if (this.battleContainer) {
         this.battleContainer.removeChild(this.attackZone);
@@ -1703,53 +1710,7 @@ export class Game {
         this.playerWeaponSprite.destroy();
         this.playerWeaponSprite = null;
       }
-      // Aktualizace efektu útoku hráče (např. letící střela nebo seknutí)
-      if (this.attackEffect) {
-        this.attackEffectAnimProgress += 0.05 * delta;
-        if (char.cls.name === 'Street Samurai') {
-          const progress = this.attackEffectAnimProgress;
-          this.attackEffect.x = this.charShape.x + 30 + progress * 80;
-          this.attackEffect.y = this.charShape.y - 10 - progress * 20;
-          this.attackEffect.alpha = 1 - progress;
-          this.attackEffect.rotation = -Math.PI / 4 + progress * Math.PI / 2;
-        } else if (char.cls.name === 'Netrunner' || char.cls.name === 'Techie') {
-          const progress = this.attackEffectAnimProgress;
-          this.attackEffect.x = this.charShape.x + 30 + (this.enemyShape.x - this.charShape.x - 30) * progress;
-          this.attackEffect.y = this.charShape.y + (this.enemyShape.y - this.charShape.y) * progress;
-        }
-        if (this.attackEffectAnimProgress >= 1) {
-          this.battleContainer.removeChild(this.attackEffect);
-          this.attackEffect.destroy();
-          this.attackEffect = null;
-          this.attackEffectAnimProgress = 0;
-        }
-      }
-      if (this.enemyAttackEffect) {
-        this.enemyAttackEffectAnimProgress += 0.05 * delta;
-        const progress = this.enemyAttackEffectAnimProgress;
-        this.enemyAttackEffect.x = this.enemyShape.x - 30 + (this.charShape.x - this.enemyShape.x + 30) * progress;
-        this.enemyAttackEffect.y = this.enemyShape.y + (this.charShape.y - this.enemyShape.y) * progress;
-        this.enemyAttackEffect.alpha = 1 - progress;
-        if (this.enemyAttackEffectAnimProgress >= 1) {
-          this.battleContainer.removeChild(this.enemyAttackEffect);
-          this.enemyAttackEffect.destroy();
-          this.enemyAttackEffect = null;
-          this.enemyAttackEffectAnimProgress = 0;
-        }
-      }
-      if (this.droneAttackEffect) {
-        this.droneAttackEffectAnimProgress += 0.05 * delta;
-        const progress = this.droneAttackEffectAnimProgress;
-        this.droneAttackEffect.x = this.charShape.x + 30 + (this.enemyShape.x - this.charShape.x - 30) * progress;
-        this.droneAttackEffect.y = this.charShape.y - 40 + (this.enemyShape.y - this.charShape.y + 40) * progress;
-        this.droneAttackEffect.alpha = 1 - progress;
-        if (this.droneAttackEffectAnimProgress >= 1) {
-          this.battleContainer.removeChild(this.droneAttackEffect);
-          this.droneAttackEffect.destroy();
-          this.droneAttackEffect = null;
-          this.droneAttackEffectAnimProgress = 0;
-        }
-      }
+      // Attack effects handled by AnimatedSprite and removed automatically
       if (this.attackZone) {
         this.attackZoneLife += delta / 60;
         this.attackZone.alpha = 1 - this.attackZoneLife * 2;
