@@ -109,10 +109,10 @@ export class BattleSystem {
         if (game.droneCritChance && Math.random() < game.droneCritChance) {
           dmg *= 2;
           crit = true;
-          game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY - 140, 0xff0000, 28);
+          game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY, 0xff0000, 28);
         }
         game.enemy.hp = Math.max(0, game.enemy.hp - dmg);
-        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, crit ? 0xff0000 : 0x00ff8a, 24);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, crit ? 0xff0000 : 0x00ff8a, 24);
         await BattleSystem.spawnDroneAttackEffect(game);
         if (game.criticalLoopActive && crit && !game.criticalLoopUsed) {
           attacks += 1;
@@ -129,7 +129,7 @@ export class BattleSystem {
     if (game.glitchPulseTurns > 0) {
       const dmg = game.glitchPulseDamage || Math.round(game.character.stats.atk * 5 + game.enemy.maxHp * 0.03);
       game.enemy.hp = Math.max(0, game.enemy.hp - dmg);
-      game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, 0x00e0ff, 24);
+      game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0x00e0ff, 24);
       game.enemyFlashTimer = 0.6;
       game.glitchPulseTurns -= 1;
     }
@@ -146,14 +146,14 @@ export class BattleSystem {
       if (game.omegaStrikeDelay === 0) {
         const dmg = Math.round(game.character.stats.atk * 15);
         game.enemy.hp = Math.max(0, game.enemy.hp - dmg);
-        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 120, 0x00ff8a, 24);
+          game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0x00ff8a, 24);
         game.enemyFlashTimer = 0.6;
       }
     }
     if (game.autoMedkitActive) {
       const heal = Math.round(game.character.maxHp * 0.01);
       game.character.hp = Math.min(game.character.maxHp, game.character.hp + heal);
-      game.spawnFloatingText(`+${heal}`, game.playerAvatarX, game.playerAvatarY - 120, 0x00ff8a, 24);
+      game.spawnFloatingText(`+${heal}`, game.playerAvatarX, game.playerAvatarY, 0x00ff8a, 24);
     }
   }
 
@@ -261,14 +261,14 @@ export class BattleSystem {
     const crit = Math.random() < enemy.spd * 0.005;
     if (crit) {
       dmg *= 2;
-      game.spawnFloatingText('CRIT!', game.playerAvatarX, game.playerAvatarY - 160, 0xff0000, 36);
+        game.spawnFloatingText('CRIT!', game.playerAvatarX, game.playerAvatarY, 0xff0000, 36);
     }
     if (game.guardModeTurns > 0) {
       dmg = Math.round(dmg * 0.5);
       game.guardModeTurns -= 1;
     }
     char.hp = Math.max(0, char.hp - dmg);
-    game.spawnFloatingText(`-${dmg}`, game.playerAvatarX, game.playerAvatarY - 140, crit ? 0xff0000 : 0xffe000, 36);
+      game.spawnFloatingText(`-${dmg}`, game.playerAvatarX, game.playerAvatarY, crit ? 0xff0000 : 0xffe000, 36);
     game.playerFlashTimer = 0.6; // extend hit flash duration
   }
 
