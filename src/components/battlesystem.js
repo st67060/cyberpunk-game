@@ -53,6 +53,7 @@ export class BattleSystem {
     await BattleSystem.delay(ENEMY_DELAY);
     await BattleSystem.enemyTurn(game);
     BattleSystem.applyStatusEffects(game);
+    BattleSystem.checkBattleEnd(game);
     if (!game.battleStarted) return;
     BattleSystem.tickCooldowns(game);
     await BattleSystem.delay(UI_DELAY);
