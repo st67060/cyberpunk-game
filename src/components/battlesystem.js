@@ -171,7 +171,7 @@ export class BattleSystem {
       const cls = game.character.cls.name;
       const atk = game.attacks[cls];
       if (atk) {
-        const sprite = atk.play(game.battleContainer, game.enemyShape.x, game.enemyShape.y);
+        const sprite = atk.play(game.battleContainer, game.enemyShape.x, game.enemyShape.y, game.app.ticker);
         game.attackEffect = sprite;
       }
       const zone = new Graphics();
@@ -192,7 +192,7 @@ export class BattleSystem {
     if (game.charShape && game.enemyShape && game.battleContainer && game.attacks) {
       const atk = game.attacks['Techie'];
       if (atk) {
-        const sprite = atk.play(game.battleContainer, game.enemyShape.x, game.enemyShape.y);
+        const sprite = atk.play(game.battleContainer, game.enemyShape.x, game.enemyShape.y, game.app.ticker);
         game.droneAttackEffect = sprite;
       }
     }
@@ -205,7 +205,7 @@ export class BattleSystem {
     if (game.enemyShape && game.charShape && game.battleContainer && game.attacks) {
       const atk = game.attacks['Enemy'];
       if (atk) {
-        const sprite = atk.play(game.battleContainer, game.charShape.x, game.charShape.y);
+        const sprite = atk.play(game.battleContainer, game.charShape.x, game.charShape.y, game.app.ticker);
         game.enemyAttackEffect = sprite;
       }
       const zone = new Graphics();

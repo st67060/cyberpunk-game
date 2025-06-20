@@ -1,33 +1,40 @@
-import { Texture, Rectangle, AnimatedSprite } from 'pixi.js';
-
+import { Graphics } from 'pixi.js';
 export class Attack {
-  constructor(sheetUrl, frameWidth = 256, frameHeight = 256, speed = 0.4) {
-    const base = Texture.from(sheetUrl).baseTexture;
-    this.frames = [];
-    const cols = Math.floor(base.width / frameWidth);
-    const rows = Math.floor(base.height / frameHeight);
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        const rect = new Rectangle(x * frameWidth, y * frameHeight, frameWidth, frameHeight);
-        this.frames.push(new Texture(base, rect));
-      }
-    }
-    this.speed = speed;
+  constructor(color = 0xffffff, radius = 30, life = 30) {
+    this.color = color;
+    this.radius = radius;
+    this.life = life;
   }
 
-  play(container, x, y) {
-    const sprite = new AnimatedSprite(this.frames);
-    sprite.anchor.set(0.5);
-    sprite.animationSpeed = this.speed;
-    sprite.loop = false;
-    sprite.x = x;
-    sprite.y = y;
-    sprite.onComplete = () => {
-      if (sprite.parent) sprite.parent.removeChild(sprite);
-      sprite.destroy();
+  play(container, x, y, ticker) {
+    const gfx = new Graphics();
+    gfx.beginFill(this.color);
+    gfx.drawCircle(0, 0, this.radius);
+    gfx.endFill();
+    gfx.x = x;
+    gfx.y = y;
+    gfx.alpha = 0.9;
+    container.addChild(gfx);
+    let life = this.life;
+    const update = (delta) => {
+      life -= delta;
+      gfx.scale.x += 0.05 * delta;
+      gfx.scale.y += 0.05 * delta;
+      gfx.alpha = life / this.life;
+      if (life <= 0) {
+        ticker.remove(update);
+        if (gfx.parent) gfx.parent.removeChild(gfx);
+        gfx.destroy();
+      }
     };
-    container.addChild(sprite);
-    sprite.play();
-    return sprite;
+    if (ticker && ticker.add) {
+      ticker.add(update);
+    } else {
+      setTimeout(() => {
+        if (gfx.parent) gfx.parent.removeChild(gfx);
+        gfx.destroy();
+      }, this.life * 16);
+    }
+    return gfx;
   }
 }
