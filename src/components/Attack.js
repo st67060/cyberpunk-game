@@ -58,6 +58,7 @@ export class Attack {
         obj.destroy();
       }, (dist / this.speed) * 16 + 100);
     }
+    obj._update = update;
     return obj;
   }
 }

@@ -1444,6 +1444,9 @@ export class Game {
     this.attackAnimProgress = 0;
     this.playerWeaponSprite = null;
     if (this.attackEffect) {
+      if (this.attackEffect._update) {
+        this.app.ticker.remove(this.attackEffect._update);
+      }
       if (this.battleContainer) {
         this.battleContainer.removeChild(this.attackEffect);
       } else {
@@ -1453,6 +1456,9 @@ export class Game {
       this.attackEffect = null;
     }
     if (this.enemyAttackEffect) {
+      if (this.enemyAttackEffect._update) {
+        this.app.ticker.remove(this.enemyAttackEffect._update);
+      }
       if (this.battleContainer) {
         this.battleContainer.removeChild(this.enemyAttackEffect);
       } else {
@@ -1462,6 +1468,9 @@ export class Game {
       this.enemyAttackEffect = null;
     }
     if (this.droneAttackEffect) {
+      if (this.droneAttackEffect._update) {
+        this.app.ticker.remove(this.droneAttackEffect._update);
+      }
       if (this.battleContainer) {
         this.battleContainer.removeChild(this.droneAttackEffect);
       } else {
