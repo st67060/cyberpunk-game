@@ -196,6 +196,7 @@ export class Game {
     floatingText.initialY = y + offsetY;
     floatingText.alpha = 1;
     floatingText.life = 0;
+    // lower life increment to keep text on screen a bit longer
     floatingText.scale.set(1);
     floatingText.zIndex = 10;
     this.floatingTexts.push(floatingText);
@@ -1777,7 +1778,8 @@ export class Game {
       // Animace všech poletujících textů (postupné stoupání a mizení)
       for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
         const text = this.floatingTexts[i];
-        text.life += 0.02 * delta;
+        // Slow down fade so damage numbers remain visible longer
+        text.life += 0.01 * delta;
         text.y = text.initialY - (text.life * 30);
         text.alpha = 1 - text.life;
         text.scale.set(1 + text.life * 0.5);
