@@ -197,7 +197,7 @@ export class Game {
     floatingText.alpha = 1;
     floatingText.life = 0;
     floatingText.scale.set(1);
-    floatingText.zIndex = 5;
+    floatingText.zIndex = 10;
     this.floatingTexts.push(floatingText);
     if (this.state === 'battle' && this.battleContainer) {
       this.battleContainer.addChild(floatingText);

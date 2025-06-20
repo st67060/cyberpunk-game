@@ -14,7 +14,7 @@ export const ABILITIES = {
         let dmg = char.stats.atk * 10;
         enemy.def = Math.max(1, enemy.def * 0.95);
         enemy.hp = Math.max(0, enemy.hp - dmg);
-        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0x00e0ff, 36);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0x00e0ff, 36);
         game.enemyFlashTimer = 0.6; // extend flash duration
       }
     },
@@ -55,12 +55,12 @@ export const ABILITIES = {
         const { character: char, enemy } = game;
         let dmg = char.stats.atk * 20;
         enemy.hp = Math.max(0, enemy.hp - dmg);
-        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0x00e0ff, 36);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0x00e0ff, 36);
         game.enemyFlashTimer = 0.6;
         if (Math.random() < 0.5) {
           const recoil = Math.round(char.maxHp * 0.1);
           char.hp = Math.max(0, char.hp - recoil);
-          game.spawnFloatingText(`-${recoil}`, game.playerAvatarX, game.playerAvatarY - 140, 0xff0000, 36);
+          game.spawnFloatingText(`-${recoil}`, game.playerAvatarX, game.playerAvatarY, 0xff0000, 36);
           game.playerFlashTimer = 0.6;
         }
       }
@@ -97,7 +97,7 @@ export const ABILITIES = {
         const mult = game.trojanSpikeMult || 0.5;
         const dmg = Math.round(char.stats.atk * mult);
         enemy.hp = Math.max(0, enemy.hp - dmg);
-        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0x00e0ff, 36);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0x00e0ff, 36);
         game.enemyFlashTimer = 0.6;
         game.trojanSpikeMult = mult * 1.5;
       }
@@ -119,10 +119,10 @@ export const ABILITIES = {
         const crit = Math.random() < 0.3;
         if (crit) {
           dmg *= 2;
-          game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY - 160, 0xff0000, 36);
+          game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY, 0xff0000, 36);
         }
         enemy.hp = Math.max(0, enemy.hp - dmg);
-        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, crit ? 0xff0000 : 0xff2e2e, 36);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, crit ? 0xff0000 : 0xff2e2e, 36);
         game.enemyFlashTimer = 0.6; // extend flash duration
       }
     }
@@ -198,7 +198,7 @@ export const ABILITIES = {
         let dmg = char.stats.atk * 25;
         enemy.hp = Math.max(0, enemy.hp - dmg);
         game.droneDisabledTurns = 2;
-        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 140, 0xff2e2e, 36);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0xff2e2e, 36);
         game.enemyFlashTimer = 0.6;
       }
     },
