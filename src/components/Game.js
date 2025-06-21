@@ -1210,6 +1210,16 @@ export class Game {
         card.addChild(cdText);
       }
 
+      if (ab.cost !== undefined) {
+        const costText = new Text(`Cost: ${ab.cost}`, {
+          fontFamily: 'monospace', fontSize: 14, fill: 0xffe000
+        });
+        costText.anchor.set(0.5, 0);
+        costText.x = card.w / 2;
+        costText.y = card.h - 60;
+        card.addChild(costText);
+      }
+
       if (typeof ab.getDamage === 'function') {
         const approx = ab.getDamage(this);
         const dmgText = new Text(`DMG: ~${approx}`, {
@@ -1236,6 +1246,13 @@ export class Game {
           BattleSystem.useAbility(this, ab);
         }
       });
+
+      const notEnough = (ab.cost || 0) > this.playerEnergy;
+      if (notEnough) {
+        card.g.tint = 0x777777;
+        card.interactive = false;
+        card.eventMode = 'none';
+      }
       overlay.addChild(card);
     });
     this.battleContainer.addChild(overlay);

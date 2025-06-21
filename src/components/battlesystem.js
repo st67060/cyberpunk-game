@@ -19,6 +19,14 @@ export class BattleSystem {
     if (game.character && Array.isArray(game.character.abilities)) {
       game.character.abilities.forEach(ab => { ab.cooldownRemaining = 0; });
     }
+    // create randomized ability queue for this battle
+    if (game.character && Array.isArray(game.character.loadout)) {
+      const extra = game.character.loadout.slice(1);
+      game.abilityQueue = extra.slice().sort(() => Math.random() - 0.5);
+    } else {
+      game.abilityQueue = [];
+    }
+    game.abilityQueueIndex = 0;
     BattleSystem.generateAbilities(game);
   }
 
@@ -33,14 +41,27 @@ export class BattleSystem {
   }
 
   static generateAbilities(game) {
-    const known = game.character.loadout || [];
+    const loadout = game.character.loadout || [];
     BattleSystem.currentAbilities = [];
-    const basic = known[0];
+    const basic = loadout[0];
     if (basic) BattleSystem.currentAbilities.push(basic);
-    const available = known.slice(1).filter(a => (a.cooldownRemaining || 0) === 0);
-    for (let i = 0; i < 2; i++) {
-      const ability = available[i] || { name: '???', description: '', execute() {} };
+
+    const queue = game.abilityQueue || [];
+    let added = 0;
+    let attempts = 0;
+    while (added < 2 && attempts < queue.length) {
+      if (queue.length === 0) break;
+      const idx = game.abilityQueueIndex % queue.length;
+      const ability = queue[idx];
+      game.abilityQueueIndex = (game.abilityQueueIndex + 1) % (queue.length || 1);
+      attempts++;
+      if (!ability) continue;
+      if ((ability.cooldownRemaining || 0) > 0) continue;
       BattleSystem.currentAbilities.push(ability);
+      added++;
+    }
+    while (BattleSystem.currentAbilities.length < 3) {
+      BattleSystem.currentAbilities.push({ name: '???', description: '', execute() {} });
     }
     if (typeof game.showAbilityOptions === 'function') {
       game.showAbilityOptions(BattleSystem.currentAbilities);
