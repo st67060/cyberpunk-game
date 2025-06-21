@@ -118,7 +118,9 @@ export const ABILITIES = {
       execute(game) {
         const { character: char, enemy } = game;
         let dmg = char.stats.atk * 10;
-        const crit = Math.random() < 0.3;
+        let critChance = 0.3;
+        if (game.perfectFocusCritBonus) critChance += game.perfectFocusCritBonus;
+        const crit = Math.random() < critChance;
         if (crit) {
           dmg *= 2;
           game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY, 0xff0000, 36);
@@ -126,6 +128,7 @@ export const ABILITIES = {
         if (game.perfectFocusReady) {
           dmg *= 2;
           game.perfectFocusReady = false;
+          game.perfectFocusCritBonus = 0;
         }
         enemy.hp = Math.max(0, enemy.hp - dmg);
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, crit ? 0xff0000 : 0xff2e2e, 36);
@@ -134,10 +137,10 @@ export const ABILITIES = {
     },
     {
       name: 'Last Stand',
-      cost: 0,
-      cooldown: 1,
+      cost: 35,
+      cooldown: 2,
       damage: 'ATK x20',
-      description: 'Deliver a powerful strike for 200% damage.',
+      description: 'Deal 200% damage but reduce your DEF by 25% for 1 turn.',
       getDamage(game) {
         return game.character.stats.atk * 20;
       },
@@ -147,16 +150,21 @@ export const ABILITIES = {
         if (game.perfectFocusReady) {
           dmg *= 2;
           game.perfectFocusReady = false;
+          game.perfectFocusCritBonus = 0;
         }
         enemy.hp = Math.max(0, enemy.hp - dmg);
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0xff2e2e, 36);
         game.enemyFlashTimer = 0.6;
+        const loss = Math.round(char.stats.def * 0.25);
+        char.stats.def = Math.max(1, char.stats.def - loss);
+        game.lastStandDefLoss = loss;
+        game.lastStandTurns = 1;
       }
     },
     {
       name: 'Unrelenting Assault',
-      cost: 0,
-      cooldown: 8,
+      cost: 75,
+      cooldown: 9,
       description: 'Gain +5% ATK each turn for the rest of the battle.',
       execute(game) {
         game.unrelentingAssaultActive = true;
@@ -165,21 +173,22 @@ export const ABILITIES = {
     },
     {
       name: 'Execution',
-      cost: 0,
-      cooldown: 1,
-      damage: 'ATK x10 (x5 if enemy <20% HP)',
+      cost: 50,
+      cooldown: 3,
+      damage: 'ATK x15 (x30 if enemy <25% HP)',
       getDamage(game) {
-        const base = game.character.stats.atk * 10;
-        if (game.enemy.hp / game.enemy.maxHp < 0.2) return base * 5;
+        const base = game.character.stats.atk * 15;
+        if (game.enemy.hp / game.enemy.maxHp < 0.25) return base * 2;
         return base;
       },
       execute(game) {
         const { character: char, enemy } = game;
-        let dmg = char.stats.atk * 10;
-        if (enemy.hp / enemy.maxHp < 0.2) dmg *= 5;
+        let dmg = char.stats.atk * 15;
+        if (enemy.hp / enemy.maxHp < 0.25) dmg *= 2;
         if (game.perfectFocusReady) {
           dmg *= 2;
           game.perfectFocusReady = false;
+          game.perfectFocusCritBonus = 0;
         }
         enemy.hp = Math.max(0, enemy.hp - dmg);
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0xff2e2e, 36);
@@ -188,9 +197,9 @@ export const ABILITIES = {
     },
     {
       name: 'Blade Flurry',
-      cost: 0,
+      cost: 35,
       cooldown: 2,
-      damage: '2 hits of ATK x7.5 (45% crit)',
+      damage: '2 hits of ATK x7.5',
       getDamage(game) {
         return Math.round(game.character.stats.atk * 7.5 * 2 * 1.45);
       },
@@ -198,7 +207,9 @@ export const ABILITIES = {
         const { character: char, enemy } = game;
         for (let i = 0; i < 2; i++) {
           let dmg = char.stats.atk * 7.5;
-          const crit = Math.random() < 0.45;
+          let critChance = 0.45;
+          if (game.perfectFocusCritBonus) critChance += game.perfectFocusCritBonus;
+          const crit = Math.random() < critChance;
           if (crit) {
             dmg *= 2;
             game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY - 30 * i, 0xff0000, 30);
@@ -206,6 +217,7 @@ export const ABILITIES = {
           if (game.perfectFocusReady) {
             dmg *= 2;
             game.perfectFocusReady = false;
+            game.perfectFocusCritBonus = 0;
           }
           enemy.hp = Math.max(0, enemy.hp - dmg);
           game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 30 * i, crit ? 0xff0000 : 0xff2e2e, 30);
@@ -215,31 +227,36 @@ export const ABILITIES = {
     },
     {
       name: 'Perfect Focus',
-      cost: 0,
+      cost: 20,
       cooldown: 3,
-      description: 'Skip your turn. Next attack deals double damage.',
+      description: 'Skip your turn. Next attack deals +100% damage and +30% crit chance.',
       execute(game) {
         game.perfectFocusReady = true;
+        game.perfectFocusCritBonus = 0.3;
         game.spawnFloatingText('Focused', game.playerAvatarX, game.playerAvatarY - 160, 0xffe000, 32);
       }
     },
     {
       name: 'Bloodbath',
-      cost: 0,
+      cost: 30,
       cooldown: 2,
-      damage: 'ATK x30 if below enemy HP',
+      damage: 'ATK x10 +25% per 10% HP advantage',
       getDamage(game) {
         const char = game.character;
         const enemy = game.enemy;
-        const mult = char.hp < enemy.hp ? 30 : 10;
-        return char.stats.atk * mult;
+        const diff = Math.floor(((char.hp / char.maxHp) - (enemy.hp / enemy.maxHp)) * 10);
+        const mult = 1 + Math.max(0, diff) * 0.25;
+        return Math.round(char.stats.atk * 10 * mult);
       },
       execute(game) {
         const { character: char, enemy } = game;
-        let dmg = char.stats.atk * (char.hp < enemy.hp ? 30 : 10);
+        const diff = Math.floor(((char.hp / char.maxHp) - (enemy.hp / enemy.maxHp)) * 10);
+        const mult = 1 + Math.max(0, diff) * 0.25;
+        let dmg = char.stats.atk * 10 * mult;
         if (game.perfectFocusReady) {
           dmg *= 2;
           game.perfectFocusReady = false;
+          game.perfectFocusCritBonus = 0;
         }
         enemy.hp = Math.max(0, enemy.hp - dmg);
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0xff2e2e, 36);
@@ -248,38 +265,73 @@ export const ABILITIES = {
     },
     {
       name: 'Ghost Step',
-      cost: 0,
+      cost: 50,
       cooldown: 3,
-      damage: 'ATK x5 and dodge next attack',
+      damage: 'ATK x10 (50% stun)',
       getDamage(game) {
-        return game.character.stats.atk * 5;
+        return game.character.stats.atk * 10;
       },
       execute(game) {
         const { character: char, enemy } = game;
-        let dmg = char.stats.atk * 5;
+        let dmg = char.stats.atk * 10;
+        let critChance = 0.3;
+        if (game.perfectFocusCritBonus) critChance += game.perfectFocusCritBonus;
+        const crit = Math.random() < critChance;
+        if (crit) {
+          dmg *= 2;
+          game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY, 0xff0000, 36);
+        }
         if (game.perfectFocusReady) {
           dmg *= 2;
           game.perfectFocusReady = false;
+          game.perfectFocusCritBonus = 0;
         }
         enemy.hp = Math.max(0, enemy.hp - dmg);
-        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0xff2e2e, 36);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, crit ? 0xff0000 : 0xff2e2e, 36);
         game.enemyFlashTimer = 0.6;
-        game.ghostStepActive = true;
+        if (Math.random() < 0.5) {
+          game.enemyStunTurns = 1;
+          game.spawnFloatingText('Stunned!', game.enemyAvatarX, game.enemyAvatarY - 160, 0xff0000, 32);
+        }
       }
     },
     {
       name: 'Heartpiercer',
-      cost: 0,
+      cost: 40,
       cooldown: 5,
-      description: 'Ignore enemy DEF for the next 3 turns.',
+      damage: 'ATK x10 (ignore DEF)',
+      description: 'Strike ignoring DEF and reduce enemy DEF by 10% for 3 turns.',
+      getDamage(game) {
+        return game.character.stats.atk * 10;
+      },
       execute(game) {
-        game.heartpiercerTurns = 3;
+        const { character: char, enemy } = game;
+        let dmg = char.stats.atk * 10;
+        let critChance = 0.3;
+        if (game.perfectFocusCritBonus) critChance += game.perfectFocusCritBonus;
+        const crit = Math.random() < critChance;
+        if (crit) {
+          dmg *= 2;
+          game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY, 0xff0000, 36);
+        }
+        if (game.perfectFocusReady) {
+          dmg *= 2;
+          game.perfectFocusReady = false;
+          game.perfectFocusCritBonus = 0;
+        }
+        enemy.hp = Math.max(0, enemy.hp - dmg);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, crit ? 0xff0000 : 0xff2e2e, 36);
+        game.enemyFlashTimer = 0.6;
+        const reduction = Math.round(enemy.def * 0.1);
+        enemy.def = Math.max(1, enemy.def - reduction);
+        game.heartpiercerDefLoss = (game.heartpiercerDefLoss || 0) + reduction;
+        game.heartpiercerDefTurns = 3;
         game.spawnFloatingText('Heartpiercer', game.playerAvatarX, game.playerAvatarY - 160, 0xffe000, 32);
       }
     },
     {
       name: 'Crimson Dance',
-      cost: 0,
+      cost: 50,
       cooldown: 4,
       damage: '3 hits 25%-150%',
       getDamage(game) {

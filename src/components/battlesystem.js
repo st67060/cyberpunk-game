@@ -109,6 +109,12 @@ export class BattleSystem {
   }
 
   static async enemyTurn(game) {
+    if (game.enemyStunTurns > 0) {
+      game.spawnFloatingText('Stunned!', game.enemyAvatarX, game.enemyAvatarY - 160, 0xff0000, 32);
+      game.enemyStunTurns -= 1;
+      await BattleSystem.delay(ENEMY_DELAY);
+      return;
+    }
     await BattleSystem.enemyAttack(game);
     await BattleSystem.applyDrone(game);
     BattleSystem.checkBattleEnd(game);
@@ -189,6 +195,20 @@ export class BattleSystem {
       const inc = Math.round(game.character.baseStats.atk * 0.05);
       game.character.stats.atk += inc;
       game.spawnFloatingText(`+${inc} ATK`, game.playerAvatarX, game.playerAvatarY - 160, 0xffe000, 24);
+    }
+    if (game.lastStandTurns > 0) {
+      game.lastStandTurns -= 1;
+      if (game.lastStandTurns === 0 && game.lastStandDefLoss) {
+        game.character.stats.def = Math.max(1, game.character.stats.def + game.lastStandDefLoss);
+        game.lastStandDefLoss = 0;
+      }
+    }
+    if (game.heartpiercerDefTurns > 0) {
+      game.heartpiercerDefTurns -= 1;
+      if (game.heartpiercerDefTurns === 0 && game.heartpiercerDefLoss) {
+        game.enemy.def = Math.max(1, game.enemy.def + game.heartpiercerDefLoss);
+        game.heartpiercerDefLoss = 0;
+      }
     }
     if (game.heartpiercerTurns > 0) {
       game.heartpiercerTurns -= 1;

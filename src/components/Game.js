@@ -106,8 +106,14 @@ export class Game {
     this.statHijackAmount = 0;
     this.unrelentingAssaultActive = false;
     this.perfectFocusReady = false;
+    this.perfectFocusCritBonus = 0;
     this.ghostStepActive = false;
     this.heartpiercerTurns = 0;
+    this.heartpiercerDefTurns = 0;
+    this.heartpiercerDefLoss = 0;
+    this.lastStandTurns = 0;
+    this.lastStandDefLoss = 0;
+    this.enemyStunTurns = 0;
     this.playerStunTurns = 0;
     this.playerStatsText = null;
     this.enemyStatsText = null;
@@ -1565,8 +1571,14 @@ export class Game {
     this.statHijackAmount = 0;
     this.unrelentingAssaultActive = false;
     this.perfectFocusReady = false;
+    this.perfectFocusCritBonus = 0;
     this.ghostStepActive = false;
     this.heartpiercerTurns = 0;
+    this.heartpiercerDefTurns = 0;
+    this.heartpiercerDefLoss = 0;
+    this.lastStandTurns = 0;
+    this.lastStandDefLoss = 0;
+    this.enemyStunTurns = 0;
     this.playerStunTurns = 0;
     if (this.character) {
       this.character.updateStats();
