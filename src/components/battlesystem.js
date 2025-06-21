@@ -10,6 +10,8 @@ export class BattleSystem {
   static init(game) {
     BattleSystem.turn = 'player';
     BattleSystem.awaitingChoice = true;
+    game.playerEnergy = game.energyMax;
+    game.enemyEnergy = game.energyMax;
     game.echoLoopActive = false;
     game.trojanSpikeMult = 0.5;
     game.statHijackTurns = 0;
@@ -22,6 +24,12 @@ export class BattleSystem {
 
   static update(game, delta) {
     // turn-based system does not act automatically
+  }
+
+  static regenerateEnergy(game) {
+    const regen = Math.round(game.energyMax * 0.25);
+    game.playerEnergy = Math.min(game.energyMax, game.playerEnergy + regen);
+    game.enemyEnergy = Math.min(game.energyMax, game.enemyEnergy + regen);
   }
 
   static generateAbilities(game) {
@@ -56,6 +64,7 @@ export class BattleSystem {
     BattleSystem.checkBattleEnd(game);
     if (!game.battleStarted) return;
     BattleSystem.tickCooldowns(game);
+    BattleSystem.regenerateEnergy(game);
     await BattleSystem.delay(UI_DELAY);
 
     BattleSystem.turn = 'player';

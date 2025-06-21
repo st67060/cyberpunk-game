@@ -84,9 +84,9 @@ export class Game {
     this.screenShakeIntensity = 0;
     this.playerFlashTimer = 0;
     this.enemyFlashTimer = 0;
-    this.playerEnergy = 0;
-    this.enemyEnergy = 0;
     this.energyMax = 100;
+    this.playerEnergy = this.energyMax;
+    this.enemyEnergy = this.energyMax;
     this.energyThreshold = 50;
     this.droneDamage = 5;
     this.overclockTurns = 0;
