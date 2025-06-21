@@ -63,9 +63,11 @@ export class StatBar extends Container {
     // Aktualizace grafické výplně podle poměru value/max
     this.fg.clear();
     this.fg.lineStyle(2, 0x000000, 1);
-    this.fg.beginTextureFill({ texture: this.gradientTexture });
-    this.fg.drawRect(0, 0, Math.max(0, this.w * (this.value / this.max)), this.h);
-    this.fg.endFill();
+    const barWidth = Math.max(0, this.w * (this.value / this.max));
+    this.fg.beginPath();
+    this.fg.rect(0, 0, barWidth, this.h);
+    this.fg.fill({ texture: this.gradientTexture });
+    this.fg.stroke();
     // Zobrazení číselné hodnoty uprostřed pruhu
     if (!this.valueText) {
       this.valueText = new Text('', { fontFamily: 'monospace', fontSize: 12, fill: 0xffffff });
