@@ -21,6 +21,7 @@ export class Attack {
       obj = new Graphics();
       obj.fill({ color: this.color });
       obj.circle(0, 0, this.radius);
+      obj.fill();
     }
     obj.x = startX;
     obj.y = startY;

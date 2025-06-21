@@ -334,6 +334,8 @@ export class Game {
         descFrame.stroke({ width: 4, color: 0xff00ff, alpha: 1 });
         descFrame.fill({ color: 0x000000, alpha: 0.6 });
         descFrame.roundRect(frameX, frameY, frameWidth, 90, 12);
+        descFrame.fill();
+        descFrame.stroke();
         descFrame.filters = [new GlowFilter({ distance: 10, outerStrength: 2, innerStrength: 0, color: 0xff00ff })];
         this.stage.addChild(descFrame);
 
@@ -404,6 +406,8 @@ export class Game {
       infoPanel.stroke({ width: 4, color: 0xff00ff, alpha: 0.8 });
       infoPanel.fill({ color: 0xffffff, alpha: 0.15 });
       infoPanel.roundRect(panelX, panelY, panelWidth, panelHeight, 16);
+      infoPanel.fill();
+      infoPanel.stroke();
       infoPanel.filters = [
         new GlowFilter({ distance: 12, outerStrength: 2, innerStrength: 0, color: 0xff00ff }),
         new BlurFilter(8)
@@ -441,6 +445,7 @@ export class Game {
       const headerBg = new Graphics();
       headerBg.fill({ color: 0x2e3c43, alpha: 0.5 });
       headerBg.roundRect(infoX - 10, avatar.y + 10, headerWidth, 110, 8);
+      headerBg.fill();
       headerBg.filters = [new GlowFilter({ distance: 6, outerStrength: 1.5, innerStrength: 0, color: 0xff00ff })];
       this.stage.addChild(headerBg);
 
@@ -491,6 +496,7 @@ export class Game {
       const statsBg = new Graphics();
       statsBg.fill({ color: 0x2e3c43, alpha: 0.4 });
       statsBg.roundRect(infoX - 10, infoY - 20, statsWidth, 240, 8);
+      statsBg.fill();
       statsBg.filters = [new GlowFilter({ distance: 6, outerStrength: 1, innerStrength: 0, color: 0x00e0ff })];
       this.stage.addChild(statsBg);
 
@@ -695,6 +701,7 @@ export class Game {
         this.abilityScrollMask = new Graphics();
         this.abilityScrollMask.fill({ color: 0xff0000 });
         this.abilityScrollMask.rect(marginX, listY, this.app.screen.width - marginX * 2, listH);
+        this.abilityScrollMask.fill();
         this.abilityItemsContainer.mask = this.abilityScrollMask;
         this.stage.addChild(this.abilityScrollMask, this.abilityItemsContainer);
 
@@ -713,6 +720,7 @@ export class Game {
           const box = new Graphics();
           box.fill({ color: 0x2e3c43 });
           box.roundRect(x, y, columnWidth, boxH, 12);
+          box.fill();
           this.abilityItemsContainer.addChild(box);
 
           if (ABILITY_ASSETS[ab.name]) {
@@ -1168,6 +1176,7 @@ export class Game {
     const bg = new Graphics();
     bg.fill({ color: 0x000000, alpha: 0.6 });
     bg.rect(0, 0, this.app.screen.width, this.app.screen.height);
+    bg.fill();
     overlay.addChild(bg);
 
     const cardWidth = 325;
@@ -1372,6 +1381,7 @@ export class Game {
     this.shopScrollMask = new Graphics();
     this.shopScrollMask.fill({ color: 0xff0000 });
     this.shopScrollMask.rect(startX, shopMaskY, shopWidth, shopMaskH);
+    this.shopScrollMask.fill();
     this.shopItemsContainer.mask = this.shopScrollMask;
     this.stage.addChild(this.shopScrollMask, this.shopItemsContainer);
     // Seznam položek k zobrazení (podle zvolené záložky)
@@ -1382,6 +1392,7 @@ export class Game {
       const itemBox = new Graphics();
       itemBox.fill({ color: 0x2e3c43 });
       itemBox.roundRect(startX, y + shopMaskY, shopWidth, 80, 14);
+      itemBox.fill();
       this.shopItemsContainer.addChild(itemBox);
       // Obrázek položky (pokud existuje v assetech)
       if (ITEM_ASSETS[itemTemplate.name]) {

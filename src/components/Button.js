@@ -21,6 +21,8 @@ export class Button extends Container {
     g.stroke({ width: 4, color: 0x000000 });
     g.fill({ color });
     g.roundRect(0, 0, w, h, 12);
+    g.fill();
+    g.stroke();
     // Aplikace Glow filtru pro efekt záře
     g.filters = [new GlowFilter({ distance: 10, outerStrength: 2, innerStrength: 0, color: 0xff00ff })];
     this.addChild(g);
