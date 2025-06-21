@@ -998,7 +998,7 @@ export class Game {
       { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
     playerStatsText.anchor.set(0.5);
     playerStatsText.x = this.playerAvatarX;
-    playerStatsText.y = this.playerAvatarY + AVATAR_SIZE / 2 + 60;
+    playerStatsText.y = this.playerAvatarY + AVATAR_SIZE / 2 + 75;
     this.battleContainer.addChild(playerStatsText);
     this.playerStatsText = playerStatsText;
     // Rámeček pro nepřítele
@@ -1049,7 +1049,7 @@ export class Game {
       { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
     enemyStatsText.anchor.set(0.5);
     enemyStatsText.x = this.enemyAvatarX;
-    enemyStatsText.y = this.enemyAvatarY + AVATAR_SIZE / 2 + 60;
+    enemyStatsText.y = this.enemyAvatarY + AVATAR_SIZE / 2 + 75;
     this.battleContainer.addChild(enemyStatsText);
     this.enemyStatsText = enemyStatsText;
     // Přidání již vytvořených floatingTexts (např. při opakovaném vykreslení)

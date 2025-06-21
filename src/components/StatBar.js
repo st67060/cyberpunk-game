@@ -1,4 +1,5 @@
 import { Container, Graphics, Text } from 'pixi.js';
+import { GlowFilter } from '@pixi/filter-glow';
 
 export class StatBar extends Container {
   constructor(label, value, max, x, y, w = 180, h = 16, fill = 0xffa500, bg = 0x222c33) {
@@ -7,14 +8,17 @@ export class StatBar extends Container {
     this.y = y;
     this.w = w;
     this.h = h;
-    // Pozadí pruhu
+    // Pozadí pruhu s komiksovým orámováním
     this.bg = new Graphics();
+    this.bg.lineStyle(2, 0x000000, 1);
     this.bg.beginFill(bg);
     this.bg.drawRoundedRect(0, 0, w, h, 8);
     this.bg.endFill();
     this.addChild(this.bg);
     // Grafický objekt pro vyplnění pruhu
     this.fg = new Graphics();
+    this.fg.lineStyle(2, 0x000000, 1);
+    this.fg.filters = [new GlowFilter({ distance: 4, outerStrength: 1.5, innerStrength: 0, color: fill })];
     this.addChild(this.fg);
     // Popisek (název statu)
     this.label = new Text(label, { fontFamily: 'monospace', fontSize: 13, fill: 0xcccccc });
@@ -33,6 +37,7 @@ export class StatBar extends Container {
     this.max = Number.isFinite(max) && max > 0 ? max : 1;
     // Aktualizace grafické výplně podle poměru value/max
     this.fg.clear();
+    this.fg.lineStyle(2, 0x000000, 1);
     this.fg.beginFill(this.fill);
     this.fg.drawRoundedRect(0, 0, Math.max(0, this.w * (this.value / this.max)), this.h, 8);
     this.fg.endFill();
