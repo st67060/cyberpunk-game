@@ -42,6 +42,9 @@ export class StatBar extends Container {
     // levý a pravý "výstupek" / drátek
     this.bg.rect(-4, h * 0.25, 4, h * 0.5);
     this.bg.rect(w, h * 0.25, 4, h * 0.5);
+    // Draw background and border
+    this.bg.fill();
+    this.bg.stroke();
     this.addChild(this.bg);
     this.filters = [new DropShadowFilter({ distance: 3, blur: 4, color: 0x000000, alpha: 0.7 })];
 
@@ -76,6 +79,7 @@ export class StatBar extends Container {
     this.fg.beginPath();
     this.fg.rect(0, 0, barWidth, this.h);
     this.fg.fill({ texture: this.gradientTexture });
+    this.fg.fill();
     this.fg.stroke();
     // Zobrazení číselné hodnoty uprostřed pruhu
     if (!this.valueText) {
