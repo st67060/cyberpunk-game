@@ -19,9 +19,8 @@ export class Attack {
       obj.anchor.set(0.5);
     } else {
       obj = new Graphics();
-      obj.beginFill(this.color);
-      obj.drawCircle(0, 0, this.radius);
-      obj.endFill();
+      obj.fill({ color: this.color });
+      obj.circle(0, 0, this.radius);
     }
     obj.x = startX;
     obj.y = startY;
