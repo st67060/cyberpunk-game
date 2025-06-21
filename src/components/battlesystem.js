@@ -165,6 +165,14 @@ export class BattleSystem {
       game.character.hp = Math.min(game.character.maxHp, game.character.hp + heal);
       game.spawnFloatingText(`+${heal}`, game.playerAvatarX, game.playerAvatarY, 0x00ff8a, 24);
     }
+    if (game.unrelentingAssaultActive) {
+      const inc = Math.round(game.character.baseStats.atk * 0.05);
+      game.character.stats.atk += inc;
+      game.spawnFloatingText(`+${inc} ATK`, game.playerAvatarX, game.playerAvatarY - 160, 0xffe000, 24);
+    }
+    if (game.heartpiercerTurns > 0) {
+      game.heartpiercerTurns -= 1;
+    }
   }
 
   static calculateDamage(atk, def) {
@@ -236,7 +244,11 @@ export class BattleSystem {
     const crit = Math.random() < enemy.spd * 0.005;
     if (crit) {
       dmg *= 2;
-        game.spawnFloatingText('CRIT!', game.playerAvatarX, game.playerAvatarY, 0xff0000, 36);
+      game.spawnFloatingText('CRIT!', game.playerAvatarX, game.playerAvatarY, 0xff0000, 36);
+    }
+    if (game.ghostStepActive) {
+      dmg = 0;
+      game.ghostStepActive = false;
     }
     if (game.guardModeTurns > 0) {
       dmg = Math.round(dmg * 0.5);
