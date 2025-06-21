@@ -104,6 +104,10 @@ export class Game {
     this.trojanSpikeMult = 0.5;
     this.statHijackTurns = 0;
     this.statHijackAmount = 0;
+    this.unrelentingAssaultActive = false;
+    this.perfectFocusReady = false;
+    this.ghostStepActive = false;
+    this.heartpiercerTurns = 0;
     this.playerStatsText = null;
     this.enemyStatsText = null;
     this.abilityButtons = null;
@@ -1558,6 +1562,13 @@ export class Game {
     this.trojanSpikeMult = 0.5;
     this.statHijackTurns = 0;
     this.statHijackAmount = 0;
+    this.unrelentingAssaultActive = false;
+    this.perfectFocusReady = false;
+    this.ghostStepActive = false;
+    this.heartpiercerTurns = 0;
+    if (this.character) {
+      this.character.updateStats();
+    }
     if (this.playerStatsText) {
       if (this.battleContainer) {
         this.battleContainer.removeChild(this.playerStatsText);

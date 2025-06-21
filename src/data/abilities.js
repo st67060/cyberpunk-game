@@ -121,9 +121,182 @@ export const ABILITIES = {
           dmg *= 2;
           game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY, 0xff0000, 36);
         }
+        if (game.perfectFocusReady) {
+          dmg *= 2;
+          game.perfectFocusReady = false;
+        }
         enemy.hp = Math.max(0, enemy.hp - dmg);
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, crit ? 0xff0000 : 0xff2e2e, 36);
         game.enemyFlashTimer = 0.6; // extend flash duration
+      }
+    },
+    {
+      name: 'Last Stand',
+      cost: 0,
+      cooldown: 1,
+      damage: 'ATK x20',
+      description: 'Deliver a powerful strike for 200% damage.',
+      getDamage(game) {
+        return game.character.stats.atk * 20;
+      },
+      execute(game) {
+        const { character: char, enemy } = game;
+        let dmg = char.stats.atk * 20;
+        if (game.perfectFocusReady) {
+          dmg *= 2;
+          game.perfectFocusReady = false;
+        }
+        enemy.hp = Math.max(0, enemy.hp - dmg);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0xff2e2e, 36);
+        game.enemyFlashTimer = 0.6;
+      }
+    },
+    {
+      name: 'Unrelenting Assault',
+      cost: 0,
+      cooldown: 8,
+      description: 'Gain +5% ATK each turn for the rest of the battle.',
+      execute(game) {
+        game.unrelentingAssaultActive = true;
+        game.spawnFloatingText('Assault', game.playerAvatarX, game.playerAvatarY - 160, 0xffe000, 32);
+      }
+    },
+    {
+      name: 'Execution',
+      cost: 0,
+      cooldown: 1,
+      damage: 'ATK x10 (x5 if enemy <20% HP)',
+      getDamage(game) {
+        const base = game.character.stats.atk * 10;
+        if (game.enemy.hp / game.enemy.maxHp < 0.2) return base * 5;
+        return base;
+      },
+      execute(game) {
+        const { character: char, enemy } = game;
+        let dmg = char.stats.atk * 10;
+        if (enemy.hp / enemy.maxHp < 0.2) dmg *= 5;
+        if (game.perfectFocusReady) {
+          dmg *= 2;
+          game.perfectFocusReady = false;
+        }
+        enemy.hp = Math.max(0, enemy.hp - dmg);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0xff2e2e, 36);
+        game.enemyFlashTimer = 0.6;
+      }
+    },
+    {
+      name: 'Blade Flurry',
+      cost: 0,
+      cooldown: 2,
+      damage: '2 hits of ATK x7.5 (45% crit)',
+      getDamage(game) {
+        return Math.round(game.character.stats.atk * 7.5 * 2 * 1.45);
+      },
+      execute(game) {
+        const { character: char, enemy } = game;
+        for (let i = 0; i < 2; i++) {
+          let dmg = char.stats.atk * 7.5;
+          const crit = Math.random() < 0.45;
+          if (crit) {
+            dmg *= 2;
+            game.spawnFloatingText('CRIT!', game.enemyAvatarX, game.enemyAvatarY - 30 * i, 0xff0000, 30);
+          }
+          if (game.perfectFocusReady) {
+            dmg *= 2;
+            game.perfectFocusReady = false;
+          }
+          enemy.hp = Math.max(0, enemy.hp - dmg);
+          game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY - 30 * i, crit ? 0xff0000 : 0xff2e2e, 30);
+          game.enemyFlashTimer = 0.6;
+        }
+      }
+    },
+    {
+      name: 'Perfect Focus',
+      cost: 0,
+      cooldown: 3,
+      description: 'Skip your turn. Next attack deals double damage.',
+      execute(game) {
+        game.perfectFocusReady = true;
+        game.spawnFloatingText('Focused', game.playerAvatarX, game.playerAvatarY - 160, 0xffe000, 32);
+      }
+    },
+    {
+      name: 'Bloodbath',
+      cost: 0,
+      cooldown: 2,
+      damage: 'ATK x30 if below enemy HP',
+      getDamage(game) {
+        const char = game.character;
+        const enemy = game.enemy;
+        const mult = char.hp < enemy.hp ? 30 : 10;
+        return char.stats.atk * mult;
+      },
+      execute(game) {
+        const { character: char, enemy } = game;
+        let dmg = char.stats.atk * (char.hp < enemy.hp ? 30 : 10);
+        if (game.perfectFocusReady) {
+          dmg *= 2;
+          game.perfectFocusReady = false;
+        }
+        enemy.hp = Math.max(0, enemy.hp - dmg);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0xff2e2e, 36);
+        game.enemyFlashTimer = 0.6;
+      }
+    },
+    {
+      name: 'Ghost Step',
+      cost: 0,
+      cooldown: 3,
+      damage: 'ATK x5 and dodge next attack',
+      getDamage(game) {
+        return game.character.stats.atk * 5;
+      },
+      execute(game) {
+        const { character: char, enemy } = game;
+        let dmg = char.stats.atk * 5;
+        if (game.perfectFocusReady) {
+          dmg *= 2;
+          game.perfectFocusReady = false;
+        }
+        enemy.hp = Math.max(0, enemy.hp - dmg);
+        game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0xff2e2e, 36);
+        game.enemyFlashTimer = 0.6;
+        game.ghostStepActive = true;
+      }
+    },
+    {
+      name: 'Heartpiercer',
+      cost: 0,
+      cooldown: 5,
+      description: 'Ignore enemy DEF for the next 3 turns.',
+      execute(game) {
+        game.heartpiercerTurns = 3;
+        game.spawnFloatingText('Heartpiercer', game.playerAvatarX, game.playerAvatarY - 160, 0xffe000, 32);
+      }
+    },
+    {
+      name: 'Crimson Dance',
+      cost: 0,
+      cooldown: 4,
+      damage: '3 hits 25%-150%',
+      getDamage(game) {
+        const base = game.character.stats.atk * 10;
+        return Math.round(base * 0.875 * 3); // average
+      },
+      execute(game) {
+        const { character: char, enemy } = game;
+        for (let i = 0; i < 3; i++) {
+          const mult = 0.25 + Math.random() * 1.25;
+          let dmg = char.stats.atk * 10 * mult;
+          if (game.perfectFocusReady) {
+            dmg *= 2;
+            game.perfectFocusReady = false;
+          }
+          enemy.hp = Math.max(0, enemy.hp - dmg);
+          game.spawnFloatingText(`-${Math.round(dmg)}`, game.enemyAvatarX, game.enemyAvatarY - 20 * i, 0xff2e2e, 30);
+          game.enemyFlashTimer = 0.6;
+        }
       }
     }
   ],
