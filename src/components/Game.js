@@ -23,6 +23,17 @@ import { ABILITIES } from '../data/abilities.js';
 
 const CLASS_AVATAR_SIZE = 200;
 
+function createText(text, style = {}) {
+  const { strokeThickness, stroke, ...rest } = style;
+  if (strokeThickness !== undefined) {
+    rest.stroke = { color: typeof stroke === "number" ? stroke : (stroke ? stroke.color : 0x000000), width: strokeThickness };
+  } else if (typeof stroke === "number") {
+    rest.stroke = { color: stroke };
+  }
+  return new Text({ text, style: rest });
+}
+
+
 export class Game {
   constructor(app) {
     // Uložení reference na PIXI.Application
@@ -203,7 +214,7 @@ export class Game {
 
   spawnFloatingText(text, x, y, color = 0xffffff, fontSize = 24, offsetY = 0) {
     // Vytvoření poletujícího textu (např. poškození nebo zprávy) na scéně
-    const floatingText = new Text(text, {
+    const floatingText = createText(text, {
       fontFamily: 'monospace',
       fontSize,
       fill: color,
@@ -239,7 +250,7 @@ export class Game {
     this.resetBattleState();
     this.battleResult = showBattleResult ? currentResult : null;
     // Odpojení posuvu myší (např. z obchodu)
-    this.app.view.onwheel = null;
+    this.app.canvas.onwheel = null;
     // Přidání pozadí (pokud již bylo načteno)
     if (!this.backgroundSprite) {
       // Ještě nejsou načtena potřebná assety, UI nelze inicializovat
@@ -251,7 +262,7 @@ export class Game {
     }
     if (this.state === 'charcreate') {
       // Screen for selecting a character class
-      const titleText = new Text('Choose Your Class', {
+      const titleText = createText('Choose Your Class', {
         fontFamily: 'monospace', fontSize: 28, fill: 0xffffff
       });
       titleText.anchor.set(0.5);
@@ -289,7 +300,7 @@ export class Game {
 
         this.stage.addChild(avatar);
 
-        const nameText = new Text(cls.name, {
+        const nameText = createText(cls.name, {
           fontFamily: 'monospace', fontSize: 20, fill: cls.color
         });
         nameText.anchor.set(0.5);
@@ -320,14 +331,13 @@ export class Game {
         const frameX = this.app.screen.width / 2 - frameWidth / 2;
         const frameY = startBtn.y + 60;
         const descFrame = new Graphics();
-        descFrame.lineStyle(4, 0xff00ff, 1);
-        descFrame.beginFill(0x000000, 0.6);
-        descFrame.drawRoundedRect(frameX, frameY, frameWidth, 90, 12);
-        descFrame.endFill();
+        descFrame.stroke({ width: 4, color: 0xff00ff, alpha: 1 });
+        descFrame.fill({ color: 0x000000, alpha: 0.6 });
+        descFrame.roundRect(frameX, frameY, frameWidth, 90, 12);
         descFrame.filters = [new GlowFilter({ distance: 10, outerStrength: 2, innerStrength: 0, color: 0xff00ff })];
         this.stage.addChild(descFrame);
 
-        const descText = new Text(this.selectedClass.desc, {
+        const descText = createText(this.selectedClass.desc, {
           fontFamily: 'Bangers, monospace',
           fontSize: 16,
           fill: 0xffffff,
@@ -391,17 +401,16 @@ export class Game {
       const panelX = 20;
       const panelY = 90;
       const infoPanel = new Graphics();
-      infoPanel.lineStyle(4, 0xff00ff, 0.8);
-      infoPanel.beginFill(0xffffff, 0.15);
-      infoPanel.drawRoundedRect(panelX, panelY, panelWidth, panelHeight, 16);
-      infoPanel.endFill();
+      infoPanel.stroke({ width: 4, color: 0xff00ff, alpha: 0.8 });
+      infoPanel.fill({ color: 0xffffff, alpha: 0.15 });
+      infoPanel.roundRect(panelX, panelY, panelWidth, panelHeight, 16);
       infoPanel.filters = [
         new GlowFilter({ distance: 12, outerStrength: 2, innerStrength: 0, color: 0xff00ff }),
         new BlurFilter(8)
       ];
       this.stage.addChild(infoPanel);
 
-      const title = new Text('Player Profile', {
+      const title = createText('Player Profile', {
         fontFamily: 'Bangers, monospace',
         fontSize: 48,
         fill: 0xff00ff,
@@ -430,13 +439,12 @@ export class Game {
 
       const headerWidth = this.app.screen.width - infoX - 20;
       const headerBg = new Graphics();
-      headerBg.beginFill(0x2e3c43, 0.5);
-      headerBg.drawRoundedRect(infoX - 10, avatar.y + 10, headerWidth, 110, 8);
-      headerBg.endFill();
+      headerBg.fill({ color: 0x2e3c43, alpha: 0.5 });
+      headerBg.roundRect(infoX - 10, avatar.y + 10, headerWidth, 110, 8);
       headerBg.filters = [new GlowFilter({ distance: 6, outerStrength: 1.5, innerStrength: 0, color: 0xff00ff })];
       this.stage.addChild(headerBg);
 
-      const classText = new Text(`Class: ${char.cls.name}`, {
+      const classText = createText(`Class: ${char.cls.name}`, {
         fontFamily: 'Bangers, monospace',
         fontSize: 28,
         fill: 0xffffff,
@@ -449,7 +457,7 @@ export class Game {
       this.stage.addChild(classText);
       infoY += 30;
 
-      const levelText = new Text(`Level: ${char.level}`, {
+      const levelText = createText(`Level: ${char.level}`, {
         fontFamily: 'Bangers, monospace',
         fontSize: 28,
         fill: 0xffffff,
@@ -465,7 +473,7 @@ export class Game {
       const levelBar = new StatBar('EXP', char.exp, char.expToNext, infoX, levelText.y + 10, 200, 16, 0x00e0ff);
       this.stage.addChild(levelBar);
 
-      const goldText = new Text(`Gold: ${char.gold}`, {
+      const goldText = createText(`Gold: ${char.gold}`, {
         fontFamily: 'Bangers, monospace',
         fontSize: 26,
         fill: 0xffe000,
@@ -481,13 +489,12 @@ export class Game {
 
       const statsWidth = headerWidth;
       const statsBg = new Graphics();
-      statsBg.beginFill(0x2e3c43, 0.4);
-      statsBg.drawRoundedRect(infoX - 10, infoY - 20, statsWidth, 240, 8);
-      statsBg.endFill();
+      statsBg.fill({ color: 0x2e3c43, alpha: 0.4 });
+      statsBg.roundRect(infoX - 10, infoY - 20, statsWidth, 240, 8);
       statsBg.filters = [new GlowFilter({ distance: 6, outerStrength: 1, innerStrength: 0, color: 0x00e0ff })];
       this.stage.addChild(statsBg);
 
-      const statHeader = new Text(`Stat Points: ${char.statPoints}`, {
+      const statHeader = createText(`Stat Points: ${char.statPoints}`, {
         fontFamily: 'Bangers, monospace',
         fontSize: 26,
         fill: 0xffe000,
@@ -520,7 +527,7 @@ export class Game {
       ];
       let y = statHeader.y + 10;
       for (const s of statInfo) {
-        const statLabel = new Text(s.label, {
+        const statLabel = createText(s.label, {
           fontFamily: 'Bangers, monospace',
           fontSize: 24,
           fill: 0xffffff,
@@ -533,7 +540,7 @@ export class Game {
         this.stage.addChild(statLabel);
 
         const cost = char.statPoints > 0 ? '1 SP' : `${char.statCosts[s.key]}G`;
-        const costText = new Text(cost, {
+        const costText = createText(cost, {
           fontFamily: 'Bangers, monospace',
           fontSize: 18,
           fill: 0xcccccc,
@@ -555,7 +562,7 @@ export class Game {
       }
 
 
-      const weaponText = new Text(`Weapon: ${char.weapon.name}`, {
+      const weaponText = createText(`Weapon: ${char.weapon.name}`, {
         fontFamily: 'Bangers, monospace',
         fontSize: 24,
         fill: 0xffffff,
@@ -577,7 +584,7 @@ export class Game {
         this.stage.addChild(weaponSprite);
       }
 
-      const armorText = new Text(`Armor: ${char.armor.name}`, {
+      const armorText = createText(`Armor: ${char.armor.name}`, {
         fontFamily: 'Bangers, monospace',
         fontSize: 24,
         fill: 0xffffff,
@@ -623,7 +630,7 @@ export class Game {
       });
         this.stage.addChild(backBtn);
       } else if (this.state === 'skilltree') {
-        const title = new Text('Skill Tree', {
+        const title = createText('Skill Tree', {
           fontFamily: 'Bangers, monospace',
           fontSize: 40,
           fill: 0xff00ff,
@@ -635,7 +642,7 @@ export class Game {
         title.y = 60;
         this.stage.addChild(title);
 
-        const info = new Text('Skill editor coming soon.', {
+        const info = createText('Skill editor coming soon.', {
           fontFamily: 'Bangers, monospace',
           fontSize: 24,
           fill: 0xffffff,
@@ -654,7 +661,7 @@ export class Game {
         });
         this.stage.addChild(backBtn);
       } else if (this.state === 'abilities') {
-        const title = new Text('Abilities', {
+        const title = createText('Abilities', {
           fontFamily: 'Bangers, monospace',
           fontSize: 40,
           fill: 0xff00ff,
@@ -666,7 +673,7 @@ export class Game {
         title.y = 60;
         this.stage.addChild(title);
 
-        const info = new Text('Select up to 6 abilities. Basic ability is always active.', {
+        const info = createText('Select up to 6 abilities. Basic ability is always active.', {
           fontFamily: 'Bangers, monospace',
           fontSize: 20,
           fill: 0xffffff,
@@ -686,9 +693,8 @@ export class Game {
         const boxH = 100;
         this.abilityItemsContainer = new Container();
         this.abilityScrollMask = new Graphics();
-        this.abilityScrollMask.beginFill(0xff0000);
-        this.abilityScrollMask.drawRect(marginX, listY, this.app.screen.width - marginX * 2, listH);
-        this.abilityScrollMask.endFill();
+        this.abilityScrollMask.fill({ color: 0xff0000 });
+        this.abilityScrollMask.rect(marginX, listY, this.app.screen.width - marginX * 2, listH);
         this.abilityItemsContainer.mask = this.abilityScrollMask;
         this.stage.addChild(this.abilityScrollMask, this.abilityItemsContainer);
 
@@ -705,9 +711,8 @@ export class Game {
           const isBasic = idx === 0;
 
           const box = new Graphics();
-          box.beginFill(0x2e3c43);
-          box.drawRoundedRect(x, y, columnWidth, boxH, 12);
-          box.endFill();
+          box.fill({ color: 0x2e3c43 });
+          box.roundRect(x, y, columnWidth, boxH, 12);
           this.abilityItemsContainer.addChild(box);
 
           if (ABILITY_ASSETS[ab.name]) {
@@ -720,25 +725,25 @@ export class Game {
             this.abilityItemsContainer.addChild(icon);
           }
 
-          const nameText = new Text(isBasic ? `${ab.name} (Basic)` : ab.name, { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
+          const nameText = createText(isBasic ? `${ab.name} (Basic)` : ab.name, { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
           nameText.x = x + 80;
           nameText.y = y + 8;
           this.abilityItemsContainer.addChild(nameText);
 
-          const desc = new Text(ab.description, { fontFamily: 'monospace', fontSize: 14, fill: 0x00ff8a, wordWrap: true, wordWrapWidth: columnWidth - 90 });
+          const desc = createText(ab.description, { fontFamily: 'monospace', fontSize: 14, fill: 0x00ff8a, wordWrap: true, wordWrapWidth: columnWidth - 90 });
           desc.x = x + 80;
           desc.y = y + 32;
           this.abilityItemsContainer.addChild(desc);
 
           if (ab.cooldown !== undefined && ab.cooldown > 0) {
-            const cdText = new Text(`CD: ${ab.cooldown}`, { fontFamily: 'monospace', fontSize: 14, fill: 0xffe000 });
+            const cdText = createText(`CD: ${ab.cooldown}`, { fontFamily: 'monospace', fontSize: 14, fill: 0xffe000 });
             cdText.x = x + columnWidth - 50;
             cdText.y = y + 8;
             this.abilityItemsContainer.addChild(cdText);
           }
 
           if (!owned) {
-            const priceText = new Text(`${ab.price || 0} G`, { fontFamily: 'monospace', fontSize: 14, fill: 0xffe000 });
+            const priceText = createText(`${ab.price || 0} G`, { fontFamily: 'monospace', fontSize: 14, fill: 0xffe000 });
             priceText.x = x + columnWidth - 120;
             priceText.y = y + boxH - 28;
             this.abilityItemsContainer.addChild(priceText);
@@ -786,7 +791,7 @@ export class Game {
           );
         }
 
-        this.app.view.onwheel = (event) => {
+        this.app.canvas.onwheel = (event) => {
           const scrollAmount = event.deltaY * 0.5;
           let newY = this.abilityItemsContainer.y - scrollAmount;
           const rows = Math.ceil(allAbilities.length / 2);
@@ -809,14 +814,14 @@ export class Game {
         this.stage.addChild(backBtn);
       } else if (this.state === 'dungeon') {
       // Herní obrazovka Vault 404 – zobrazení nepřítele nebo výzvy k souboji
-      const dungeonText = new Text(`Vault 404 - Level ${this.dungeonLevel}`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffffff });
+      const dungeonText = createText(`Vault 404 - Level ${this.dungeonLevel}`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffffff });
       dungeonText.anchor.set(0.5);
       dungeonText.x = this.app.screen.width / 2;
       dungeonText.y = 80;
       this.stage.addChild(dungeonText);
       if (this.message) {
         // Zobrazení případné zprávy (např. po poražení bosse)
-        const messageText = new Text(this.message, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
+        const messageText = createText(this.message, { fontFamily: 'monospace', fontSize: 20, fill: 0xffe000 });
         messageText.anchor.set(0.5);
         messageText.x = this.app.screen.width / 2;
         messageText.y = 120;
@@ -882,13 +887,13 @@ export class Game {
         this.startBattle();
       }
     else if (this.state === 'settings') {
-      const title = new Text('Settings', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+      const title = createText('Settings', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
       title.anchor.set(0.5);
       title.x = this.app.screen.width / 2;
       title.y = 60;
       this.stage.addChild(title);
 
-      const volumeText = new Text(`Volume: ${Math.round(this.musicVolume * 100)}%`, { fontFamily: 'monospace', fontSize: 24, fill: 0xffffff });
+      const volumeText = createText(`Volume: ${Math.round(this.musicVolume * 100)}%`, { fontFamily: 'monospace', fontSize: 24, fill: 0xffffff });
       volumeText.anchor.set(0.5);
       volumeText.x = this.app.screen.width / 2;
       volumeText.y = 120;
@@ -978,12 +983,12 @@ export class Game {
     charAvatar.filters = [char.glowFilter];
     this.battleContainer.addChild(charAvatar);
     // Popisek a úroveň hráče
-    const charNameText = new Text('ME', { fontFamily: 'monospace', fontSize: 32, fill: 0xffa500, fontWeight: 'bold' });
+    const charNameText = createText('ME', { fontFamily: 'monospace', fontSize: 32, fill: 0xffa500, fontWeight: 'bold' });
     charNameText.anchor.set(0.5);
     charNameText.x = this.playerAvatarX - 30;
     charNameText.y = this.playerAvatarY - AVATAR_SIZE / 2 - 30;
     this.battleContainer.addChild(charNameText);
-    const playerLevelText = new Text(`Lv. ${char.level}`, { fontFamily: 'monospace', fontSize: 24, fill: 0xffffff });
+    const playerLevelText = createText(`Lv. ${char.level}`, { fontFamily: 'monospace', fontSize: 24, fill: 0xffffff });
     playerLevelText.anchor.set(0.5);
     playerLevelText.x = charNameText.x + charNameText.width / 2 + 30;
     playerLevelText.y = charNameText.y;
@@ -994,7 +999,7 @@ export class Game {
     this.playerEnergyBar = new StatBar("ENG", this.playerEnergy, this.energyMax, this.playerAvatarX - 100, this.playerAvatarY + AVATAR_SIZE / 2 + 50, 200, 12, 0x00e0ff);
     this.battleContainer.addChild(this.playerEnergyBar);
     // Text s hráčovými staty (ATK, DEF, SPD)
-    const playerStatsText = new Text(`ATK: ${char.stats.atk} | DEF: ${char.stats.def} | SPD: ${char.stats.spd}`,
+    const playerStatsText = createText(`ATK: ${char.stats.atk} | DEF: ${char.stats.def} | SPD: ${char.stats.spd}`,
       { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
     playerStatsText.anchor.set(0.5);
     playerStatsText.x = this.playerAvatarX;
@@ -1034,7 +1039,7 @@ export class Game {
     // ];
     this.battleContainer.addChild(enemySprite);
     // Popisek nepřítele (jméno a úroveň)
-    const enemyNameText = new Text(`${enemy.name} (Lv. ${enemy.level})`, { fontFamily: 'monospace', fontSize: 32, fill: enemy.color, fontWeight: 'bold' });
+    const enemyNameText = createText(`${enemy.name} (Lv. ${enemy.level})`, { fontFamily: 'monospace', fontSize: 32, fill: enemy.color, fontWeight: 'bold' });
     enemyNameText.anchor.set(0.5);
     enemyNameText.x = this.enemyAvatarX;
     enemyNameText.y = this.enemyAvatarY - AVATAR_SIZE / 2 - 30;
@@ -1045,7 +1050,7 @@ export class Game {
     this.enemyEnergyBar = new StatBar("ENG", this.enemyEnergy, this.energyMax, this.enemyAvatarX - 100, this.enemyAvatarY + AVATAR_SIZE / 2 + 50, 200, 12, 0xff2e2e);
     this.battleContainer.addChild(this.enemyEnergyBar);
     // Text se staty nepřítele
-    const enemyStatsText = new Text(`ATK: ${enemy.atk} | DEF: ${enemy.def} | SPD: ${enemy.spd}`,
+    const enemyStatsText = createText(`ATK: ${enemy.atk} | DEF: ${enemy.def} | SPD: ${enemy.spd}`,
       { fontFamily: 'monospace', fontSize: 18, fill: 0xffffff });
     enemyStatsText.anchor.set(0.5);
     enemyStatsText.x = this.enemyAvatarX;
@@ -1064,7 +1069,7 @@ export class Game {
     // Kontrola, zda je boj již rozhodnut
     if (this.battleResult === 'win') {
       // Vítězství
-      const winMsg = new Text('VICTORY!', { fontFamily: 'monospace', fontSize: 48, fill: 0x00e0ff, fontWeight: 'bold', stroke: 0x000000, strokeThickness: 6 });
+      const winMsg = createText('VICTORY!', { fontFamily: 'monospace', fontSize: 48, fill: 0x00e0ff, fontWeight: 'bold', stroke: 0x000000, strokeThickness: 6 });
       winMsg.anchor.set(0.5);
       winMsg.x = this.app.screen.width / 2;
       winMsg.y = this.app.screen.height / 2 - 50;
@@ -1077,7 +1082,7 @@ export class Game {
       const spdMultiplier = 1 + char.stats.spd * 0.01;
       const goldGain = Math.round(enemy.gold * spdMultiplier);
       const expGain = Math.round(enemy.exp * spdMultiplier);
-      const lootText = new Text(`+${goldGain} Gold   +${expGain} EXP`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffe000 });
+      const lootText = createText(`+${goldGain} Gold   +${expGain} EXP`, { fontFamily: 'monospace', fontSize: 28, fill: 0xffe000 });
       lootText.anchor.set(0.5);
       lootText.x = this.app.screen.width / 2;
       lootText.y = this.app.screen.height / 2 + 20;
@@ -1112,7 +1117,7 @@ export class Game {
       } else {
         defeatMsg = `You were defeated!`;
       }
-      const loseMsg = new Text('DEFEAT!', { fontFamily: 'monospace', fontSize: 48, fill: 0xff2e2e, fontWeight: 'bold', stroke: 0x000000, strokeThickness: 6 });
+      const loseMsg = createText('DEFEAT!', { fontFamily: 'monospace', fontSize: 48, fill: 0xff2e2e, fontWeight: 'bold', stroke: 0x000000, strokeThickness: 6 });
       loseMsg.anchor.set(0.5);
       loseMsg.x = this.app.screen.width / 2;
       loseMsg.y = this.app.screen.height / 2 - 50;
@@ -1122,7 +1127,7 @@ export class Game {
         new DropShadowFilter({ distance: 6, color: 0x000000, alpha: 0.7, blur: 4 })
       ];
       this.battleContainer.addChild(loseMsg);
-      const goldLossText = new Text(defeatMsg, { fontFamily: 'monospace', fontSize: 28, fill: 0xffe000 });
+      const goldLossText = createText(defeatMsg, { fontFamily: 'monospace', fontSize: 28, fill: 0xffe000 });
       goldLossText.anchor.set(0.5);
       goldLossText.x = this.app.screen.width / 2;
       goldLossText.y = this.app.screen.height / 2 + 20;
@@ -1161,9 +1166,8 @@ export class Game {
     const overlay = new Container();
     overlay.zIndex = 10;
     const bg = new Graphics();
-    bg.beginFill(0x000000, 0.6);
-    bg.drawRect(0, 0, this.app.screen.width, this.app.screen.height);
-    bg.endFill();
+    bg.fill({ color: 0x000000, alpha: 0.6 });
+    bg.rect(0, 0, this.app.screen.width, this.app.screen.height);
     overlay.addChild(bg);
 
     const cardWidth = 325;
@@ -1187,7 +1191,7 @@ export class Game {
         card.addChild(icon);
       }
 
-      const desc = new Text(ab.description, {
+      const desc = createText(ab.description, {
         fontFamily: 'monospace',
         fontSize: 14,
         fill: 0xffffff,
@@ -1201,7 +1205,7 @@ export class Game {
       card.addChild(desc);
 
       if (ab.cooldown !== undefined && ab.cooldown > 0) {
-        const cdText = new Text(`CD: ${ab.cooldown}`, {
+        const cdText = createText(`CD: ${ab.cooldown}`, {
           fontFamily: 'monospace', fontSize: 14, fill: 0xffe000
         });
         cdText.anchor.set(0.5, 0);
@@ -1211,7 +1215,7 @@ export class Game {
       }
 
       if (ab.cost !== undefined) {
-        const costText = new Text(`Cost: ${ab.cost}`, {
+        const costText = createText(`Cost: ${ab.cost}`, {
           fontFamily: 'monospace', fontSize: 14, fill: 0xffe000
         });
         costText.anchor.set(0.5, 0);
@@ -1222,7 +1226,7 @@ export class Game {
 
       if (typeof ab.getDamage === 'function') {
         const approx = ab.getDamage(this);
-        const dmgText = new Text(`DMG: ~${approx}`, {
+        const dmgText = createText(`DMG: ~${approx}`, {
           fontFamily: 'monospace', fontSize: 14, fill: 0xffe000
         });
         dmgText.anchor.set(0.5, 0);
@@ -1230,7 +1234,7 @@ export class Game {
         dmgText.y = card.h - 24;
         card.addChild(dmgText);
       } else if (ab.damage) {
-        const dmgText = new Text(`DMG: ${ab.damage}`, {
+        const dmgText = createText(`DMG: ${ab.damage}`, {
           fontFamily: 'monospace', fontSize: 14, fill: 0xffe000
         });
         dmgText.anchor.set(0.5, 0);
@@ -1300,13 +1304,13 @@ export class Game {
       } else {
         this.abilityIcons.push({ ability: ab, icon: null });
       }
-      const cdLabel = new Text('CD', { fontFamily: 'monospace', fontSize: 14, fill: 0xffffff });
+      const cdLabel = createText('CD', { fontFamily: 'monospace', fontSize: 14, fill: 0xffffff });
       cdLabel.anchor.set(0.5);
       cdLabel.x = size * 0.75; // moved further right
       cdLabel.y = size * 0.65;
       abContainer.addChild(cdLabel);
 
-      const cdValue = new Text(String(ab.cooldownRemaining || 0), {
+      const cdValue = createText(String(ab.cooldownRemaining || 0), {
         fontFamily: 'monospace', fontSize: 14, fill: 0xffffff
       });
       cdValue.anchor.set(0.5);
@@ -1338,7 +1342,7 @@ export class Game {
 
   createShopUI() {
     // (Základní implementace UI obchodu – zobrazení seznamu zbraní či zbrojí k prodeji)
-    const shopTitle = new Text('Market', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
+    const shopTitle = createText('Market', { fontFamily: 'monospace', fontSize: 32, fill: 0x00e0ff });
     shopTitle.anchor.set(0.5, 0);
     shopTitle.x = this.app.screen.width / 2;
     shopTitle.y = 20;
@@ -1366,9 +1370,8 @@ export class Game {
     const shopMaskH = 400;
     // Maska pro posuvnou oblast položek (aby seznam nepřetékal)
     this.shopScrollMask = new Graphics();
-    this.shopScrollMask.beginFill(0xff0000);
-    this.shopScrollMask.drawRect(startX, shopMaskY, shopWidth, shopMaskH);
-    this.shopScrollMask.endFill();
+    this.shopScrollMask.fill({ color: 0xff0000 });
+    this.shopScrollMask.rect(startX, shopMaskY, shopWidth, shopMaskH);
     this.shopItemsContainer.mask = this.shopScrollMask;
     this.stage.addChild(this.shopScrollMask, this.shopItemsContainer);
     // Seznam položek k zobrazení (podle zvolené záložky)
@@ -1377,9 +1380,8 @@ export class Game {
     for (const itemTemplate of itemsToShow) {
       // Podklad pro jednu položku
       const itemBox = new Graphics();
-      itemBox.beginFill(0x2e3c43);
-      itemBox.drawRoundedRect(startX, y + shopMaskY, shopWidth, 80, 14);
-      itemBox.endFill();
+      itemBox.fill({ color: 0x2e3c43 });
+      itemBox.roundRect(startX, y + shopMaskY, shopWidth, 80, 14);
       this.shopItemsContainer.addChild(itemBox);
       // Obrázek položky (pokud existuje v assetech)
       if (ITEM_ASSETS[itemTemplate.name]) {
@@ -1392,7 +1394,7 @@ export class Game {
         this.shopItemsContainer.addChild(itemSprite);
       }
       // Název položky
-      const itemNameText = new Text(itemTemplate.name, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
+      const itemNameText = createText(itemTemplate.name, { fontFamily: 'monospace', fontSize: 20, fill: 0xffffff });
       itemNameText.x = startX + 80;
       itemNameText.y = y + shopMaskY + 10;
       this.shopItemsContainer.addChild(itemNameText);
@@ -1401,14 +1403,14 @@ export class Game {
           ? this.character.getWeaponStat(itemTemplate, this.character.level)
           : this.character.getArmorStat(itemTemplate, this.character.level);
         const statLabel = this.shopType === 'weapon' ? 'ATK' : 'HP';
-        const statText = new Text(`${statLabel}: ${statValue}`, { fontFamily: 'monospace', fontSize: 18, fill: 0x00ff8a });
+        const statText = createText(`${statLabel}: ${statValue}`, { fontFamily: 'monospace', fontSize: 18, fill: 0x00ff8a });
         statText.x = startX + 80;
         statText.y = y + shopMaskY + 40;
         this.shopItemsContainer.addChild(statText);
       }
       // Cena
       const priceVal = itemTemplate.baseCost;
-      const priceText = new Text(`${priceVal} G`, { fontFamily: 'monospace', fontSize: 18, fill: 0xffe000 });
+      const priceText = createText(`${priceVal} G`, { fontFamily: 'monospace', fontSize: 18, fill: 0xffe000 });
       priceText.x = startX + shopWidth - 140;
       priceText.y = y + shopMaskY + 20;
       this.shopItemsContainer.addChild(priceText);
@@ -1445,7 +1447,7 @@ export class Game {
     const maxScrollY = shopMaskH - totalItemsHeight;
     this.shopItemsContainer.y = Math.max(maxScrollY, Math.min(0, this.shopScrollPos));
     // Posuv myšovým kolečkem v obchodě
-    this.app.view.onwheel = (event) => {
+    this.app.canvas.onwheel = (event) => {
       const scrollAmount = event.deltaY * 0.5;
       let newY = this.shopItemsContainer.y - scrollAmount;
       const totalItemsHeight = itemsToShow.length * 100;

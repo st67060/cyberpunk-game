@@ -1,6 +1,16 @@
 import { Container, Graphics, Text } from 'pixi.js';
 import { GlowFilter } from '@pixi/filter-glow';
 
+function createText(text, style = {}) {
+  const { strokeThickness, stroke, ...rest } = style;
+  if (strokeThickness !== undefined) {
+    rest.stroke = { color: typeof stroke === 'number' ? stroke : (stroke ? stroke.color : 0x000000), width: strokeThickness };
+  } else if (typeof stroke === 'number') {
+    rest.stroke = { color: stroke };
+  }
+  return new Text({ text, style: rest });
+}
+
 export class Button extends Container {
   constructor(label, x, y, w = 170, h = 48, color = 0x2e3c43) {
     super();
@@ -8,15 +18,14 @@ export class Button extends Container {
     this.eventMode = 'static';
     // Vykreslení obdélníkového podkladu tlačítka
     const g = new Graphics();
-    g.lineStyle(4, 0x000000);
-    g.beginFill(color);
-    g.drawRoundedRect(0, 0, w, h, 12);
-    g.endFill();
+    g.stroke({ width: 4, color: 0x000000 });
+    g.fill({ color });
+    g.roundRect(0, 0, w, h, 12);
     // Aplikace Glow filtru pro efekt záře
     g.filters = [new GlowFilter({ distance: 10, outerStrength: 2, innerStrength: 0, color: 0xff00ff })];
     this.addChild(g);
     // Text popisku tlačítka
-    const t = new Text(label, { fontFamily: 'Bangers, monospace', fontSize: 26, fill: 0xffffff, stroke: 0x000000, strokeThickness: 4 });
+    const t = createText(label, { fontFamily: 'Bangers, monospace', fontSize: 26, fill: 0xffffff, stroke: 0x000000, strokeThickness: 4 });
     t.anchor.set(0.5);
     t.x = w / 2;
     t.y = h / 2;

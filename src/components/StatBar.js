@@ -17,6 +17,16 @@ function createGradientTexture(width, height, color) {
   return Texture.from(canvas);
 }
 
+function createText(text, style = {}) {
+  const { strokeThickness, stroke, ...rest } = style;
+  if (strokeThickness !== undefined) {
+    rest.stroke = { color: typeof stroke === 'number' ? stroke : (stroke ? stroke.color : 0x000000), width: strokeThickness };
+  } else if (typeof stroke === 'number') {
+    rest.stroke = { color: stroke };
+  }
+  return new Text({ text, style: rest });
+}
+
 export class StatBar extends Container {
   constructor(label, value, max, x, y, w = 180, h = 16, fill = 0xffa500, bg = 0x222c33) {
     super();
@@ -26,27 +36,26 @@ export class StatBar extends Container {
     this.h = h;
     // Pozadí pruhu s ostrými hranami a "drátky" na krajích
     this.bg = new Graphics();
-    this.bg.lineStyle(2, 0x000000, 1);
-    this.bg.beginFill(bg);
-    this.bg.drawRect(0, 0, w, h);
+    this.bg.stroke({ width: 2, color: 0x000000, alpha: 1 });
+    this.bg.fill({ color: bg });
+    this.bg.rect(0, 0, w, h);
     // levý a pravý "výstupek" / drátek
-    this.bg.drawRect(-4, h * 0.25, 4, h * 0.5);
-    this.bg.drawRect(w, h * 0.25, 4, h * 0.5);
-    this.bg.endFill();
+    this.bg.rect(-4, h * 0.25, 4, h * 0.5);
+    this.bg.rect(w, h * 0.25, 4, h * 0.5);
     this.addChild(this.bg);
     this.filters = [new DropShadowFilter({ distance: 3, blur: 4, color: 0x000000, alpha: 0.7 })];
 
     // Grafický objekt pro vyplnění pruhu s gradientem
     this.gradientTexture = createGradientTexture(w, h, fill);
     this.fg = new Graphics();
-    this.fg.lineStyle(2, 0x000000, 1);
+    this.fg.stroke({ width: 2, color: 0x000000, alpha: 1 });
     this.fg.filters = [
       new GlowFilter({ distance: 6, outerStrength: 2, innerStrength: 0, color: fill }),
       new GlitchFilter({ slices: 4, offset: 4 })
     ];
     this.addChild(this.fg);
     // Popisek (název statu)
-    this.label = new Text(label, { fontFamily: 'monospace', fontSize: 13, fill: 0xcccccc });
+    this.label = createText(label, { fontFamily: 'monospace', fontSize: 13, fill: 0xcccccc });
     this.label.x = 0;
     this.label.y = -18;
     this.addChild(this.label);
@@ -62,7 +71,7 @@ export class StatBar extends Container {
     this.max = Number.isFinite(max) && max > 0 ? max : 1;
     // Aktualizace grafické výplně podle poměru value/max
     this.fg.clear();
-    this.fg.lineStyle(2, 0x000000, 1);
+    this.fg.stroke({ width: 2, color: 0x000000, alpha: 1 });
     const barWidth = Math.max(0, this.w * (this.value / this.max));
     this.fg.beginPath();
     this.fg.rect(0, 0, barWidth, this.h);
@@ -70,7 +79,7 @@ export class StatBar extends Container {
     this.fg.stroke();
     // Zobrazení číselné hodnoty uprostřed pruhu
     if (!this.valueText) {
-      this.valueText = new Text('', { fontFamily: 'monospace', fontSize: 12, fill: 0xffffff });
+      this.valueText = createText('', { fontFamily: 'monospace', fontSize: 12, fill: 0xffffff });
       this.valueText.anchor.set(0.5);
       this.valueText.x = this.w / 2;
       this.valueText.y = this.h / 2;
