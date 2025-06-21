@@ -108,6 +108,7 @@ export class Game {
     this.perfectFocusReady = false;
     this.ghostStepActive = false;
     this.heartpiercerTurns = 0;
+    this.playerStunTurns = 0;
     this.playerStatsText = null;
     this.enemyStatsText = null;
     this.abilityButtons = null;
@@ -731,7 +732,7 @@ export class Game {
           }
 
           if (!owned) {
-            const priceText = new Text(`${ab.cost || 0} G`, { fontFamily: 'monospace', fontSize: 14, fill: 0xffe000 });
+            const priceText = new Text(`${ab.price || 0} G`, { fontFamily: 'monospace', fontSize: 14, fill: 0xffe000 });
             priceText.x = x + columnWidth - 120;
             priceText.y = y + boxH - 28;
             this.abilityItemsContainer.addChild(priceText);
@@ -1566,6 +1567,7 @@ export class Game {
     this.perfectFocusReady = false;
     this.ghostStepActive = false;
     this.heartpiercerTurns = 0;
+    this.playerStunTurns = 0;
     if (this.character) {
       this.character.updateStats();
     }

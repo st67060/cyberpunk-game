@@ -117,9 +117,9 @@ export class Character {
   buyAbility(ability) {
     const owned = this.abilities.some(a => a.name === ability.name);
     if (owned) return false;
-    const cost = ability.cost || 0;
-    if (this.gold >= cost) {
-      this.gold -= cost;
+    const price = ability.price || 0;
+    if (this.gold >= price) {
+      this.gold -= price;
       // clone to track individual cooldown
       const ab = { ...ability, cooldownRemaining: 0 };
       this.abilities.push(ab);
