@@ -49,6 +49,12 @@ export class BattleSystem {
 
   static async useAbility(game, ability) {
     if (!game.battleStarted || BattleSystem.turn !== 'player') return;
+    const cost = ability.cost || 0;
+    if (game.playerEnergy < cost) {
+      game.spawnFloatingText('No Energy', game.playerAvatarX, game.playerAvatarY - 160, 0xff0000, 32);
+      return;
+    }
+    game.playerEnergy = Math.max(0, game.playerEnergy - cost);
     await BattleSystem.playerTurn(game, ability);
     if (!game.battleStarted) return;
 
@@ -66,6 +72,20 @@ export class BattleSystem {
     BattleSystem.tickCooldowns(game);
     BattleSystem.regenerateEnergy(game);
     await BattleSystem.delay(UI_DELAY);
+
+    if (game.playerStunTurns > 0) {
+      game.spawnFloatingText('Stunned!', game.playerAvatarX, game.playerAvatarY - 160, 0xff0000, 32);
+      game.playerStunTurns -= 1;
+      BattleSystem.turn = 'enemy';
+      await BattleSystem.delay(ENEMY_DELAY);
+      await BattleSystem.enemyTurn(game);
+      BattleSystem.applyStatusEffects(game);
+      BattleSystem.checkBattleEnd(game);
+      if (!game.battleStarted) return;
+      BattleSystem.tickCooldowns(game);
+      BattleSystem.regenerateEnergy(game);
+      await BattleSystem.delay(UI_DELAY);
+    }
 
     BattleSystem.turn = 'player';
     BattleSystem.generateAbilities(game);

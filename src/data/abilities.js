@@ -3,8 +3,9 @@ export const ABILITIES = {
     {
       name: 'Data Spike',
       cost: 0,
+      price: 0,
       cooldown: 0,
-      description: 'Deals damage and reduces enemy DEF by 5% for the battle.',
+      description: 'Basic attack that reduces enemy DEF by 5% (rounded).',
       damage: 'ATK x10',
       getDamage(game) {
         return game.character.stats.atk * 10;
@@ -12,7 +13,8 @@ export const ABILITIES = {
       execute(game) {
         const { character: char, enemy } = game;
         let dmg = char.stats.atk * 10;
-        enemy.def = Math.max(1, enemy.def * 0.95);
+        const reduction = Math.round(enemy.def * 0.05);
+        enemy.def = Math.max(1, enemy.def - reduction);
         enemy.hp = Math.max(0, enemy.hp - dmg);
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0x00e0ff, 36);
         game.enemyFlashTimer = 0.6; // extend flash duration
@@ -20,7 +22,8 @@ export const ABILITIES = {
     },
     {
       name: 'Echo Loop',
-      cost: 50,
+      cost: 25,
+      price: 50,
       cooldown: 2,
       description: 'The next card activates twice on the following turn.',
       execute(game) {
@@ -30,7 +33,8 @@ export const ABILITIES = {
     },
     {
       name: 'Glitch Pulse',
-      cost: 1500,
+      cost: 40,
+      price: 1500,
       cooldown: 3,
       description: 'For the next 2 turns, additional damage is dealt after each enemy action.',
       execute(game) {
@@ -44,36 +48,33 @@ export const ABILITIES = {
     },
     {
       name: 'Overload Attack',
-      cost: 4500,
-      cooldown: 1,
-      damage: 'ATK x20',
-      description: 'Attack for 200% damage with a 50% chance to take 10% of your own HP.',
+      cost: 35,
+      price: 4500,
+      cooldown: 3,
+      damage: 'ATK x30',
+      description: 'Deals 300% damage (ATK x30) but the player is stunned next turn.',
       getDamage(game) {
-        return game.character.stats.atk * 20;
+        return game.character.stats.atk * 30;
       },
       execute(game) {
         const { character: char, enemy } = game;
-        let dmg = char.stats.atk * 20;
+        let dmg = char.stats.atk * 30;
         enemy.hp = Math.max(0, enemy.hp - dmg);
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0x00e0ff, 36);
         game.enemyFlashTimer = 0.6;
-        if (Math.random() < 0.5) {
-          const recoil = Math.round(char.maxHp * 0.1);
-          char.hp = Math.max(0, char.hp - recoil);
-          game.spawnFloatingText(`-${recoil}`, game.playerAvatarX, game.playerAvatarY, 0xff0000, 36);
-          game.playerFlashTimer = 0.6;
-        }
+        game.playerStunTurns = 1;
       }
     },
     {
       name: 'Stat Hijack',
-      cost: 350,
+      cost: 45,
+      price: 350,
       cooldown: 4,
-      description: 'Steals 20% of the enemy\'s ATK for 3 turns.',
+      description: "Steals 15% of the enemy's ATK.",
       execute(game) {
         const char = game.character;
         const enemy = game.enemy;
-        const amount = Math.round(enemy.atk * 0.2);
+        const amount = Math.round(enemy.atk * 0.15);
         enemy.atk = Math.max(1, enemy.atk - amount);
         char.stats.atk += amount;
         game.statHijackAmount = (game.statHijackAmount || 0) + amount;
@@ -83,23 +84,24 @@ export const ABILITIES = {
     },
     {
       name: 'Trojan Spike',
-      cost: 200,
-      cooldown: 1,
-      damage: 'ATK x0.5',
-      description: 'Deals damage equal to 50% ATK, multiplying by 1.5× with each use.',
+      cost: 20,
+      price: 200,
+      cooldown: 2,
+      damage: 'ATK x5',
+      description: 'Starts at 50% damage (ATK x5) and increases by 40% per use, up to 300%.',
       getDamage(game) {
         const mult = game.trojanSpikeMult || 0.5;
-        return Math.round(game.character.stats.atk * mult);
+        return Math.round(game.character.stats.atk * 10 * mult);
       },
       execute(game) {
         const char = game.character;
         const enemy = game.enemy;
         const mult = game.trojanSpikeMult || 0.5;
-        const dmg = Math.round(char.stats.atk * mult);
+        const dmg = Math.round(char.stats.atk * 10 * mult);
         enemy.hp = Math.max(0, enemy.hp - dmg);
         game.spawnFloatingText(`-${dmg}`, game.enemyAvatarX, game.enemyAvatarY, 0x00e0ff, 36);
         game.enemyFlashTimer = 0.6;
-        game.trojanSpikeMult = mult * 1.5;
+        game.trojanSpikeMult = Math.min(3, mult + 0.4);
       }
     }
   ],
