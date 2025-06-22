@@ -399,7 +399,7 @@ export class Game {
 
       // Semi-transparent panel behind profile info
       const panelWidth = this.app.screen.width - 40;
-      const panelHeight = 560;
+      const panelHeight = 620;
       const panelX = 20;
       const panelY = 90;
       const infoPanel = new Graphics();
@@ -426,41 +426,33 @@ export class Game {
       title.y = 60;
       this.stage.addChild(title);
 
+      const centerX = this.app.screen.width / 2;
       const avatar = Sprite.from(char.avatar);
-      avatar.anchor.set(0, 0);
-      avatar.width = 320;
-      avatar.height = 320;
-      avatar.x = panelX + 20;
-      avatar.y = panelY + 20;
+      avatar.anchor.set(0.5, 0);
+      avatar.width = 220;
+      avatar.height = 220;
+      avatar.x = centerX;
+      avatar.y = panelY + 30;
       avatar.filters = [
         char.glowFilter,
         new GlowFilter({ distance: 6, outerStrength: 3, innerStrength: 0, color: 0xffffff })
       ];
       this.stage.addChild(avatar);
 
-      const infoX = avatar.x + avatar.width + 40;
-      let infoY = avatar.y + 20;
-
-      const headerWidth = this.app.screen.width - infoX - 20;
-      const headerBg = new Graphics();
-      headerBg.fill({ color: 0x2e3c43, alpha: 0.5 });
-      headerBg.roundRect(infoX - 10, avatar.y + 10, headerWidth, 110, 8);
-      headerBg.fill();
-      headerBg.filters = [new GlowFilter({ distance: 6, outerStrength: 1.5, innerStrength: 0, color: 0xff00ff })];
-      this.stage.addChild(headerBg);
-
-      const classText = createText(`Class: ${char.cls.name}`, {
+      const classText = createText(char.cls.name, {
         fontFamily: 'Bangers, monospace',
-        fontSize: 28,
-        fill: 0xffffff,
+        fontSize: 32,
+        fill: char.cls.color,
         stroke: 0x000000,
-        strokeThickness: 4
+        strokeThickness: 5
       });
-      classText.anchor.set(0, 0.5);
-      classText.x = infoX;
-      classText.y = infoY;
+      classText.anchor.set(0.5);
+      classText.x = centerX;
+      classText.y = avatar.y - 20;
       this.stage.addChild(classText);
-      infoY += 30;
+
+      const infoX = centerX - 120;
+      let infoY = avatar.y + avatar.height + 10;
 
       const levelText = createText(`Level: ${char.level}`, {
         fontFamily: 'Bangers, monospace',
@@ -469,13 +461,13 @@ export class Game {
         stroke: 0x000000,
         strokeThickness: 4
       });
-      levelText.anchor.set(0, 0.5);
-      levelText.x = infoX;
+      levelText.anchor.set(0.5);
+      levelText.x = centerX;
       levelText.y = infoY;
       this.stage.addChild(levelText);
       infoY += 30;
 
-      const levelBar = new StatBar('EXP', char.exp, char.expToNext, infoX, levelText.y + 10, 200, 16, 0x00e0ff);
+      const levelBar = new StatBar('EXP', char.exp, char.expToNext, centerX - 150, levelText.y + 10, 300, 18, 0x00e0ff);
       this.stage.addChild(levelBar);
 
       const goldText = createText(`Gold: ${char.gold}`, {
@@ -485,17 +477,17 @@ export class Game {
         stroke: 0x000000,
         strokeThickness: 4
       });
-      goldText.anchor.set(0, 0.5);
-      goldText.y = classText.y;
-      goldText.x = infoX + headerWidth - goldText.width - 20;
+      goldText.anchor.set(1, 0);
+      goldText.x = panelX + panelWidth - 20;
+      goldText.y = panelY + 20;
       this.stage.addChild(goldText);
 
       infoY = levelBar.y + 40;
 
-      const statsWidth = headerWidth;
+      const statsWidth = 240;
       const statsBg = new Graphics();
       statsBg.fill({ color: 0x2e3c43, alpha: 0.4 });
-      statsBg.roundRect(infoX - 10, infoY - 20, statsWidth, 240, 8);
+      statsBg.roundRect(infoX - 10, infoY - 20, statsWidth, 200, 8);
       statsBg.fill();
       statsBg.filters = [new GlowFilter({ distance: 6, outerStrength: 1, innerStrength: 0, color: 0x00e0ff })];
       this.stage.addChild(statsBg);
@@ -532,6 +524,7 @@ export class Game {
         }
       ];
       let y = statHeader.y + 10;
+      const rowSpacing = 50;
       for (const s of statInfo) {
         const statLabel = createText(s.label, {
           fontFamily: 'Bangers, monospace',
@@ -554,19 +547,22 @@ export class Game {
           strokeThickness: 3
         });
         costText.anchor.set(1, 0.5);
-        costText.x = infoX + 230;
+        costText.x = infoX + 180;
         costText.y = y + 20;
         this.stage.addChild(costText);
 
-        const upBtn = new Button('+', infoX + 250, y, 40, 40, 0x00ff8a);
+        const upBtn = new Button('+', infoX + 190, y, 34, 34, 0x00ff8a);
         upBtn.on('pointerdown', () => {
           char.spendStat(s.key);
           this.initUI();
         });
         this.stage.addChild(upBtn);
-        y += 50;
+        y += rowSpacing;
       }
 
+
+      const rightX = panelX + panelWidth - 220;
+      let rightY = levelBar.y + 20;
 
       const weaponText = createText(`Weapon: ${char.weapon.name}`, {
         fontFamily: 'Bangers, monospace',
@@ -576,8 +572,8 @@ export class Game {
         strokeThickness: 4
       });
       weaponText.anchor.set(0, 0.5);
-      weaponText.x = infoX;
-      weaponText.y = y + 40;
+      weaponText.x = rightX;
+      weaponText.y = rightY;
       this.stage.addChild(weaponText);
 
       if (ITEM_ASSETS[char.weapon.name]) {
@@ -590,6 +586,8 @@ export class Game {
         this.stage.addChild(weaponSprite);
       }
 
+      rightY += 40;
+
       const armorText = createText(`Armor: ${char.armor.name}`, {
         fontFamily: 'Bangers, monospace',
         fontSize: 24,
@@ -598,8 +596,8 @@ export class Game {
         strokeThickness: 4
       });
       armorText.anchor.set(0, 0.5);
-      armorText.x = infoX;
-      armorText.y = y + 70;
+      armorText.x = rightX;
+      armorText.y = rightY;
       this.stage.addChild(armorText);
 
       if (ITEM_ASSETS[char.armor.name]) {
@@ -612,14 +610,16 @@ export class Game {
         this.stage.addChild(armorSprite);
       }
 
-      const skillsBtn = new Button('Skill Tree', this.app.screen.width / 2 - 85, armorText.y + 40, 170, 50, 0x00e0ff);
+      rightY += 50;
+      const skillsBtn = new Button('Skill Tree', rightX, rightY, 170, 50, 0x00e0ff);
       skillsBtn.on('pointerdown', () => {
         this.state = 'skilltree';
         this.initUI();
       });
       this.stage.addChild(skillsBtn);
 
-      const abilitiesBtn = new Button('Abilities', this.app.screen.width / 2 - 85, skillsBtn.y + 60, 170, 50, 0x00e0ff);
+      rightY += 60;
+      const abilitiesBtn = new Button('Abilities', rightX, rightY, 170, 50, 0x00e0ff);
       abilitiesBtn.on('pointerdown', () => {
         this.prevState = this.state;
         this.state = 'abilities';
